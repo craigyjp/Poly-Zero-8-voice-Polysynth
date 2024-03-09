@@ -5,9 +5,7 @@ Work in progress, taking the earlier Seeed XIAO RP2040 dual oscillator monosynth
 
 Things to do
 
-Create MIDI input and create individual outputs of MIDI note number and manual trigger with a shift register
-
-Create the control voltages from the notes for filter key track and velocity
+Fix the poly, uni, mono modes and add note priority buttons etc.
 
 Wire the front panel Teensy controller to the voice card motherboard with a 32 way ribbon cable.
 
