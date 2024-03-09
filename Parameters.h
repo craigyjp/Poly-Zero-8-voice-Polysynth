@@ -1,3 +1,9 @@
+int transpose = -12;
+int realoctave = -36;
+int keyboardMode = 0;
+int noteMsg;
+
+
 //Values below are just for initialising and will be changed when synth is initialised to current panel controls & EEPROM settings
 byte midiChannel = MIDI_CHANNEL_OMNI;//(EEPROM)
 byte midiOutCh = 1;//(EEPROM)
@@ -23,8 +29,6 @@ boolean encCW = true;//This is to set the encoder to increment when turned CW - 
 boolean updateParams = false;  //(EEPROM)
 boolean sendNotes = false;  //(EEPROM)
 
-int oldfilterLogLin = 0;
-int oldampLogLin = 0;
 int oldmidiChannel = 0;
 int oldAfterTouchDest = 0;
 int oldNotePriority = 0;
@@ -166,8 +170,7 @@ int filterVelSW = 0;
 int ampVelSW = 0;
 
 int effectBankSW = 1;
-int filterLinLogSW = 0;
-int vcaLinLogSW = 0;
+int envLinLogSW = 0;
 
 int returnvalue = 0;
 
@@ -177,3 +180,18 @@ int returnvalue = 0;
 boolean pickUp = false;//settings option (EEPROM)
 boolean pickUpActive = false;
 #define TOLERANCE 2 //Gives a window of when pick-up occurs, this is due to the speed of control changing and Mux reading
+
+#define NOTE_SF 547.00f
+#define VEL_SF 256.0
+
+uint32_t int_ref_on_flexible_mode = 0b00001001000010100000000000000000;  // { 0000 , 1001 , 0000 , 1010000000000000 , 0000 }
+
+uint32_t sample_data = 0b00000000000000000000000000000000;
+uint32_t channel_a = 0b00000010000000000000000000000000;
+uint32_t channel_b = 0b00000010000100000000000000000000;
+uint32_t channel_c = 0b00000010001000000000000000000000;
+uint32_t channel_d = 0b00000010001100000000000000000000;
+uint32_t channel_e = 0b00000010010000000000000000000000;
+uint32_t channel_f = 0b00000010010100000000000000000000;
+uint32_t channel_g = 0b00000010011000000000000000000000;
+uint32_t channel_h = 0b00000010011100000000000000000000;

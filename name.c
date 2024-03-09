@@ -1,7 +1,7 @@
 #include "usb_names.h"
 
-#define MIDI_NAME   {'Q','U','A','D','R','A'}
-#define MIDI_NAME_LEN  6
+#define MIDI_NAME   {'P','O','L','Y','Z','E','R','O'}
+#define MIDI_NAME_LEN  8
 
 #define MANUFACTURER_NAME  {'C','r','a','i','g',' ','B','a','r','n','e','s'}
 #define MANUFACTURER_NAME_LEN 12

@@ -59,8 +59,7 @@
 #define   CCeffect3  85
 #define   CCeffectMix  86
 #define   CCamDepth  87
-#define   CCfilterLinLogSW  88
-#define   CCvcaLinLogSW  89
+#define   CCenvLinLogSW  88
 #define   CCLFOWaveform  91
 #define   CClfoDelay  92
 #define   CCfilterRes  94

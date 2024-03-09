@@ -23,8 +23,8 @@ ADC *adc = new ADC();
 #define MUX5_S A0  // ADC1
 
 #define DAC_CS1 10
-#define DAC_CS2 19
-#define DAC_CS3 18
+#define DAC_NOTE1 19
+#define DAC_NOTE2 18
 
 #define DEMUX_0 36
 #define DEMUX_1 35
@@ -120,14 +120,15 @@ ADC *adc = new ADC();
 //#define SPARE 31
 
 // Panel Buttons
-
+// 0
 #define EFFECT_BANK_SW 0
 #define FILTER_POLE_SW 1
 #define FILTER_LOOP_SW 2
 #define EG_INVERT_SW 3
 #define FILTER_VELOCITY_SW 4
 #define FILTER_TYPE_SW 5
-
+#define LIN_LOG_SW 6
+// 1
 #define LFO_WAVE_SW 8
 #define LFO_ALT_SW 9
 #define LFO_MULT_SW 10
@@ -135,18 +136,18 @@ ADC *adc = new ADC();
 #define VCA_GATE_SW 12
 #define VCA_LOOP_SW 13
 #define VCA_VELOCITY_SW 14
-#define VCA_LINLOG_SW 15
-
+#define PRIORITY_SW 15
+// 2
 #define DCO1_OCT_SW 16
 #define DCO1_MODE_SW 17
 #define DCO1_WAVE_SW 18
 #define DCO2_OCT_SW 19
 #define DCO2_MODE_SW 20
 #define DCO2_WAVE_SW 21
-#define FILTER_LINLOG_SW 22
+#define POLYMODE_SW 22
 
 // Panel LEDS
-// 1
+// 0
 #define FILTER_VELOCITY_LED 0
 #define EG_INV_LED 1
 #define FILTER_LOOP_GREEN_LED 2
@@ -156,24 +157,26 @@ ADC *adc = new ADC();
 #define EFFECT_BANK_GREEN_LED 6
 #define EFFECT_BANK_RED_LED 7
 
-//2
+//1
 #define VCA_VELOCITY_LED 8
 #define VCA_LOOP_GREEN_LED 9
 #define VCA_LOOP_RED_LED 10
 #define VCA_GATE_LED 11
 #define GLIDE_LED 12
+#define LIN_LOG_GREEN_LED 13
+#define LIN_LOG_RED_LED 14
 
-//3
+//2
 #define LFO_MULT_GREEN_LED 16
 #define LFO_MULT_RED_LED 17
 #define LFO_ALT_GREEN_LED 18
 #define LFO_ALT_RED_LED 19
-#define VCA_LINLOG_GREEN_LED 20
-#define VCA_LINLOG_RED_LED 21
-#define FILTER_LINLOG_GREEN_LED 22
-#define FILTER_LINLOG_RED_LED 23
+#define PRIORITY_GREEN_LED 20
+#define PRIORITY_RED_LED 21
+#define POLY_MODE_GREEN_LED 22
+#define POLY_MODE_RED_LED 23
 
-//4
+//3
 #define DCO1_MODE_GREEN_LED 24
 #define DCO1_MODE_RED_LED 25
 #define DCO2_MODE_GREEN_LED 26
@@ -182,6 +185,15 @@ ADC *adc = new ADC();
 #define DCO1_OCT_RED_LED 29
 #define DCO2_OCT_GREEN_LED 30
 #define DCO2_OCT_RED_LED 31
+
+#define GATE_NOTE1 0
+#define GATE_NOTE2 1
+#define GATE_NOTE3 2
+#define GATE_NOTE4 3
+#define GATE_NOTE5 4
+#define GATE_NOTE6 5
+#define GATE_NOTE7 6
+#define GATE_NOTE8 7
 
 
 //Teensy 4.1 Pins
@@ -254,10 +266,10 @@ void setupHardware() {
 
   pinMode(DAC_CS1, OUTPUT);
   digitalWrite(DAC_CS1, HIGH);
-  pinMode(DAC_CS2, OUTPUT);
-  digitalWrite(DAC_CS2, HIGH);
-  pinMode(DAC_CS3, OUTPUT);
-  digitalWrite(DAC_CS3, HIGH);
+  pinMode(DAC_NOTE1, OUTPUT);
+  digitalWrite(DAC_NOTE1, HIGH);
+  pinMode(DAC_NOTE2, OUTPUT);
+  digitalWrite(DAC_NOTE2, HIGH);
 
   //Mux ADC
   pinMode(MUX1_S, INPUT_DISABLE);
@@ -271,5 +283,27 @@ void setupHardware() {
   pinMode(SAVE_SW, INPUT_PULLUP);
   pinMode(SETTINGS_SW, INPUT_PULLUP);
   pinMode(BACK_SW, INPUT_PULLUP);
+
+  SPI.beginTransaction(SPISettings(20000000, MSBFIRST, SPI_MODE1));
+  digitalWrite(DAC_CS1, LOW);
+  SPI.transfer32(int_ref_on_flexible_mode);
+  delayMicroseconds(1);
+  digitalWrite(DAC_CS1, HIGH);
+  SPI.endTransaction();
+
+  SPI.beginTransaction(SPISettings(20000000, MSBFIRST, SPI_MODE1));
+  digitalWrite(DAC_NOTE1, LOW);
+  SPI.transfer32(int_ref_on_flexible_mode);
+  delayMicroseconds(1);
+  digitalWrite(DAC_NOTE1, HIGH);
+  SPI.endTransaction();
+
+  SPI.beginTransaction(SPISettings(20000000, MSBFIRST, SPI_MODE1));
+  digitalWrite(DAC_NOTE2, LOW);
+  SPI.transfer32(int_ref_on_flexible_mode);
+  delayMicroseconds(1);
+  digitalWrite(DAC_NOTE2, HIGH);
+  SPI.endTransaction();
+
 }
 
