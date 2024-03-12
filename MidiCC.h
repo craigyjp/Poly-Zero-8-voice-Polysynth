@@ -43,6 +43,9 @@
 #define   CCampAttack 58
 #define   CCampSustain  59
 #define   CCampDecay  60
+#define   CCkeyboardMode  61
+#define   CCNotePriority  62
+#define   CCmonoMultiSW  63
 #define   CCosc2Bank 65
 #define   CCPitchBend 66
 #define   CCosc2BankB  68

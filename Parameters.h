@@ -2,6 +2,7 @@ int transpose = -12;
 int realoctave = -36;
 int keyboardMode = 0;
 int noteMsg;
+unsigned int velmV;
 
 
 //Values below are just for initialising and will be changed when synth is initialised to current panel controls & EEPROM settings
@@ -12,6 +13,12 @@ byte oldLEDintensity;
 int SLIDERintensity = 1;//(EEPROM)
 int oldSLIDERintensity;
 
+//Delayed LFO
+int numberOfNotes = 0;
+int oldnumberOfNotes = 0;
+unsigned long previousMillis = 0;
+unsigned long interval = 1; //10 seconds
+long delaytime  = 0;
 
 int readresdivider = 32;
 int resolutionFrig = 5;
@@ -31,9 +38,6 @@ boolean sendNotes = false;  //(EEPROM)
 
 int oldmidiChannel = 0;
 int oldAfterTouchDest = 0;
-int oldNotePriority = 0;
-int oldFilterLoop = 0;
-int oldAmpLoop = 0;
 int oldClockSource = 0;
 int oldafterTouchDepth = 0;
 int afterTouchDepth = 0;
@@ -79,7 +83,7 @@ int noiseLevelstr = 0;
 float noiseLeveldisplay = 0.00;
 int osc2Levelstr = 0; //for display
 float osc2Level = 0;
-float osc1Level = 0; // for display
+float osc1Level = 0;
 int osc1Levelstr = 0;
 float osc1fmWaveMod = 0;
 int osc1fmWaveModstr = 0; // for display
@@ -102,6 +106,7 @@ int filterEGlevelstr = 0;
 float LFORate = 0;
 int LFORatestr = 0;
 float LFORatedisplay = 0;
+int LFODelayGo = 0;
 float lfoDelay = 0;
 int lfoDelaystr = 0; //for display
 String StratusLFOWaveform = "                ";
@@ -168,6 +173,7 @@ float masterTune = 511;
 
 int filterVelSW = 0;
 int ampVelSW = 0;
+int monoMultiSW = 0;
 
 int effectBankSW = 1;
 int envLinLogSW = 0;
@@ -187,6 +193,7 @@ boolean pickUpActive = false;
 uint32_t int_ref_on_flexible_mode = 0b00001001000010100000000000000000;  // { 0000 , 1001 , 0000 , 1010000000000000 , 0000 }
 
 uint32_t sample_data = 0b00000000000000000000000000000000;
+uint32_t sample_data1 = 0b00000000000000000000000000000000;
 uint32_t channel_a = 0b00000010000000000000000000000000;
 uint32_t channel_b = 0b00000010000100000000000000000000;
 uint32_t channel_c = 0b00000010001000000000000000000000;

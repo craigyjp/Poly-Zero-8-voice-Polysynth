@@ -84,10 +84,9 @@ long earliestTime = millis();  //For voice allocation - initialise to now
 int prevNote = 0;              //Initialised to middle value
 bool notes[128] = { 0 }, initial_loop = 1;
 int8_t noteOrder[40] = { 0 }, orderIndx = { 0 };
-bool S1, S2;
 int count = 0;  //For MIDI Clk Sync
 int DelayForSH3 = 12;
-int patchNo = 1;               //Current patch no
+int patchNo = 1;  //Current patch no
 
 #include "ST7735Display.h"
 
@@ -149,7 +148,7 @@ Rox74HC595<TRIG_TOTAL> trig;
 #define TRIG_DATA 38   // pin 14 on 74HC595 (DATA)
 #define TRIG_CLK 39    // pin 11 on 74HC595 (CLK)
 #define TRIG_LATCH 40  // pin 12 on 74HC595 (LATCH)
-#define TRIG_PWM -1   // pin 13 on 74HC595
+#define TRIG_PWM -1    // pin 13 on 74HC595
 
 byte ccType = 0;  //(EEPROM)
 
@@ -253,7 +252,7 @@ void commandTopNote() {
   int topNote = 0;
   bool noteActive = false;
 
-  for (int i = 0; i < 88; i++) {
+  for (int i = 0; i < 128; i++) {
     if (notes[i]) {
       topNote = i;
       noteActive = true;
@@ -270,7 +269,7 @@ void commandBottomNote() {
   int bottomNote = 0;
   bool noteActive = false;
 
-  for (int i = 87; i >= 0; i--) {
+  for (int i = 127; i >= 0; i--) {
     if (notes[i]) {
       bottomNote = i;
       noteActive = true;
@@ -302,14 +301,13 @@ void commandNote(int noteMsg) {
   sample_data = (channel_a & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   trig.writePin(GATE_NOTE1, HIGH);
-
 }
 
 void commandTopNoteUni() {
   int topNote = 0;
   bool noteActive = false;
 
-  for (int i = 0; i < 88; i++) {
+  for (int i = 0; i < 128; i++) {
     if (notes[i]) {
       topNote = i;
       noteActive = true;
@@ -334,7 +332,7 @@ void commandBottomNoteUni() {
   int bottomNote = 0;
   bool noteActive = false;
 
-  for (int i = 87; i >= 0; i--) {
+  for (int i = 127; i >= 0; i--) {
     if (notes[i]) {
       bottomNote = i;
       noteActive = true;
@@ -411,298 +409,277 @@ void commandNoteUni(int noteMsg) {
   trig.writePin(GATE_NOTE6, HIGH);
   trig.writePin(GATE_NOTE7, HIGH);
   trig.writePin(GATE_NOTE8, HIGH);
+}
 
+void myNoteOff(byte channel, byte note, byte velocity) {
+
+  numberOfNotes = numberOfNotes - 1;
+  oldnumberOfNotes = oldnumberOfNotes - 1;
+
+  switch (keyboardMode) {
+    case 0:
+      switch (getVoiceNo(note)) {
+        case 1:
+          MIDI.sendNoteOff(voices[0].note, 0, 1);
+          trig.writePin(GATE_NOTE1, LOW);
+          voices[0].note = -1;
+          voiceOn[0] = false;
+          break;
+        case 2:
+          MIDI.sendNoteOff(voices[1].note, 0, 2);
+          trig.writePin(GATE_NOTE2, LOW);
+          voices[1].note = -1;
+          voiceOn[1] = false;
+          break;
+        case 3:
+          MIDI.sendNoteOff(voices[2].note, 0, 3);
+          trig.writePin(GATE_NOTE3, LOW);
+          voices[2].note = -1;
+          voiceOn[2] = false;
+          break;
+        case 4:
+          MIDI.sendNoteOff(voices[3].note, 0, 4);
+          trig.writePin(GATE_NOTE4, LOW);
+          voices[3].note = -1;
+          voiceOn[3] = false;
+          break;
+        case 5:
+          MIDI.sendNoteOff(voices[4].note, 0, 5);
+          trig.writePin(GATE_NOTE5, LOW);
+          voices[4].note = -1;
+          voiceOn[4] = false;
+          break;
+        case 6:
+          MIDI.sendNoteOff(voices[5].note, 0, 6);
+          trig.writePin(GATE_NOTE6, LOW);
+          voices[5].note = -1;
+          voiceOn[5] = false;
+          break;
+        case 7:
+          MIDI.sendNoteOff(voices[6].note, 0, 7);
+          trig.writePin(GATE_NOTE7, LOW);
+          voices[6].note = -1;
+          voiceOn[6] = false;
+          break;
+        case 8:
+          MIDI.sendNoteOff(voices[7].note, 0, 8);
+          trig.writePin(GATE_NOTE8, LOW);
+          voices[7].note = -1;
+          voiceOn[7] = false;
+          break;
+      }
+      break;
+
+    case 1:
+      noteMsg = note;
+
+      if (velocity == 0) {
+        notes[noteMsg] = false;
+      } else {
+        notes[noteMsg] = true;
+      }
+
+      // Pins NP_SEL1 and NP_SEL2 indictate note priority
+      velmV = ((unsigned int)((float)velocity) * VEL_SF);
+      sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      if (NotePriority == 0) {  // Highest note priority
+        commandTopNote();
+      } else if (NotePriority == 1) {  // Lowest note priority
+        commandBottomNote();
+      } else {                 // Last note priority
+        if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
+          orderIndx = (orderIndx + 1) % 40;
+          noteOrder[orderIndx] = noteMsg;
+        }
+        commandLastNote();
+      }
+      break;
+
+    case 2:
+      noteMsg = note;
+
+      if (velocity == 0) {
+        notes[noteMsg] = false;
+      } else {
+        notes[noteMsg] = true;
+      }
+
+      velmV = ((unsigned int)((float)velocity) * VEL_SF);
+      sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_b & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_c & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_d & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_e & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_f & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_g & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_h & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      if (NotePriority == 0) {  // Highest note priority
+        commandTopNoteUni();
+      } else if (NotePriority == 1) {  // Lowest note priority
+        commandBottomNoteUni();
+      } else {                 // Last note priority
+        if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
+          orderIndx = (orderIndx + 1) % 40;
+          noteOrder[orderIndx] = noteMsg;
+        }
+        commandLastNoteUni();
+      }
+      break;
+  }
 }
 
 void myNoteOn(byte channel, byte note, byte velocity) {
+
+  // for lfo multi trigger
+  numberOfNotes = numberOfNotes + 1;
+
   //Check for out of range notes
   if (note < 0 || note > 127) return;
 
   prevNote = note;
-  if (keyboardMode == 0) {
-    switch (getVoiceNo(-1)) {
-      case 1:
-        voices[0].note = note;
-        voices[0].velocity = velocity;
-        voices[0].timeOn = millis();
-        updateVoice1();
-        trig.writePin(GATE_NOTE1, HIGH);
-        voiceOn[0] = true;
-        break;
-      case 2:
-        voices[1].note = note;
-        voices[1].velocity = velocity;
-        voices[1].timeOn = millis();
-        updateVoice2();
-        trig.writePin(GATE_NOTE2, HIGH);
-        voiceOn[1] = true;
-        break;
-      case 3:
-        voices[2].note = note;
-        voices[2].velocity = velocity;
-        voices[2].timeOn = millis();
-        updateVoice3();
-        trig.writePin(GATE_NOTE3, HIGH);
-        voiceOn[2] = true;
-        break;
-      case 4:
-        voices[3].note = note;
-        voices[3].velocity = velocity;
-        voices[3].timeOn = millis();
-        updateVoice4();
+  switch (keyboardMode) {
+    case 0:
+      switch (getVoiceNo(-1)) {
+        case 1:
+          voices[0].note = note;
+          voices[0].velocity = velocity;
+          voices[0].timeOn = millis();
+          updateVoice1();
+          trig.writePin(GATE_NOTE1, HIGH);
+          voiceOn[0] = true;
+          break;
+        case 2:
+          voices[1].note = note;
+          voices[1].velocity = velocity;
+          voices[1].timeOn = millis();
+          updateVoice2();
+          trig.writePin(GATE_NOTE2, HIGH);
+          voiceOn[1] = true;
+          break;
+        case 3:
+          voices[2].note = note;
+          voices[2].velocity = velocity;
+          voices[2].timeOn = millis();
+          updateVoice3();
+          trig.writePin(GATE_NOTE3, HIGH);
+          voiceOn[2] = true;
+          break;
+        case 4:
+          voices[3].note = note;
+          voices[3].velocity = velocity;
+          voices[3].timeOn = millis();
+          updateVoice4();
 
-        trig.writePin(GATE_NOTE4, HIGH);
-        voiceOn[3] = true;
-        break;
-      case 5:
-        voices[4].note = note;
-        voices[4].velocity = velocity;
-        voices[4].timeOn = millis();
-        updateVoice5();
-        trig.writePin(GATE_NOTE5, HIGH);
-        voiceOn[4] = true;
-        break;
-      case 6:
-        voices[5].note = note;
-        voices[5].velocity = velocity;
-        voices[5].timeOn = millis();
-        updateVoice6();
-        trig.writePin(GATE_NOTE6, HIGH);
-        voiceOn[5] = true;
-        break;
-      case 7:
-        voices[6].note = note;
-        voices[6].velocity = velocity;
-        voices[6].timeOn = millis();
-        updateVoice7();
-        trig.writePin(GATE_NOTE7, HIGH);
-        voiceOn[6] = true;
-        break;
-      case 8:
-        voices[7].note = note;
-        voices[7].velocity = velocity;
-        voices[7].timeOn = millis();
-        updateVoice8();
-        trig.writePin(GATE_NOTE8, HIGH);
-        voiceOn[7] = true;
-        break;
-    }
-  } else if (keyboardMode == 4 || keyboardMode == 5 || keyboardMode == 6) {
-    if (keyboardMode == 4) {
-      S1 = 1;
-      S2 = 1;
-    }
-    if (keyboardMode == 5) {
-      S1 = 0;
-      S2 = 1;
-    }
-    if (keyboardMode == 6) {
-      S1 = 0;
-      S2 = 0;
-    }
-    noteMsg = note;
-
-    if (velocity == 0) {
-      notes[noteMsg] = false;
-    } else {
-      notes[noteMsg] = true;
-    }
-
-    unsigned int velmV = ((unsigned int)((float)velocity) * VEL_SF);
-    sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    if (S1 && S2) {  // Highest note priority
-      commandTopNote();
-    } else if (!S1 && S2) {  // Lowest note priority
-      commandBottomNote();
-    } else {                 // Last note priority
-      if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
-        orderIndx = (orderIndx + 1) % 40;
-        noteOrder[orderIndx] = noteMsg;
+          trig.writePin(GATE_NOTE4, HIGH);
+          voiceOn[3] = true;
+          break;
+        case 5:
+          voices[4].note = note;
+          voices[4].velocity = velocity;
+          voices[4].timeOn = millis();
+          updateVoice5();
+          trig.writePin(GATE_NOTE5, HIGH);
+          voiceOn[4] = true;
+          break;
+        case 6:
+          voices[5].note = note;
+          voices[5].velocity = velocity;
+          voices[5].timeOn = millis();
+          updateVoice6();
+          trig.writePin(GATE_NOTE6, HIGH);
+          voiceOn[5] = true;
+          break;
+        case 7:
+          voices[6].note = note;
+          voices[6].velocity = velocity;
+          voices[6].timeOn = millis();
+          updateVoice7();
+          trig.writePin(GATE_NOTE7, HIGH);
+          voiceOn[6] = true;
+          break;
+        case 8:
+          voices[7].note = note;
+          voices[7].velocity = velocity;
+          voices[7].timeOn = millis();
+          updateVoice8();
+          trig.writePin(GATE_NOTE8, HIGH);
+          voiceOn[7] = true;
+          break;
       }
-      commandLastNote();
-    }
-  } else if (keyboardMode == 1 || keyboardMode == 2 || keyboardMode == 3) {
-    if (keyboardMode == 1) {
-      S1 = 1;
-      S2 = 1;
-    }
-    if (keyboardMode == 2) {
-      S1 = 0;
-      S2 = 1;
-    }
-    if (keyboardMode == 3) {
-      S1 = 0;
-      S2 = 0;
-    }
-    noteMsg = note;
+      break;
 
-    if (velocity == 0) {
-      notes[noteMsg] = false;
-    } else {
-      notes[noteMsg] = true;
-    }
+    case 1:
+      noteMsg = note;
 
-    unsigned int velmV = ((unsigned int)((float)velocity) * VEL_SF);
-    sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_b & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_c & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_d & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_e & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_f & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_g & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_h & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    if (S1 && S2) {  // Highest note priority
-      commandTopNoteUni();
-    } else if (!S1 && S2) {  // Lowest note priority
-      commandBottomNoteUni();
-    } else {                 // Last note priority
-      if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
-        orderIndx = (orderIndx + 1) % 40;
-        noteOrder[orderIndx] = noteMsg;
+      if (velocity == 0) {
+        notes[noteMsg] = false;
+      } else {
+        notes[noteMsg] = true;
       }
-      commandLastNoteUni();
-    }
-  }
-}
 
-void myNoteOff(byte channel, byte note, byte velocity) {
-  if (keyboardMode == 0) {
-    switch (getVoiceNo(note)) {
-      case 1:
-        trig.writePin(GATE_NOTE1, LOW);
-        voices[0].note = -1;
-        voiceOn[0] = false;
-        break;
-      case 2:
-        trig.writePin(GATE_NOTE2, LOW);
-        voices[1].note = -1;
-        voiceOn[1] = false;
-        break;
-      case 3:
-        trig.writePin(GATE_NOTE3, LOW);
-        voices[2].note = -1;
-        voiceOn[2] = false;
-        break;
-      case 4:
-        trig.writePin(GATE_NOTE4, LOW);
-        voices[3].note = -1;
-        voiceOn[3] = false;
-        break;
-      case 5:
-        trig.writePin(GATE_NOTE5, LOW);
-        voices[4].note = -1;
-        voiceOn[4] = false;
-        break;
-      case 6:
-        trig.writePin(GATE_NOTE6, LOW);
-        voices[5].note = -1;
-        voiceOn[5] = false;
-        break;
-      case 7:
-        trig.writePin(GATE_NOTE7, LOW);
-        voices[6].note = -1;
-        voiceOn[6] = false;
-        break;
-      case 8:
-        trig.writePin(GATE_NOTE8, LOW);
-        voices[7].note = -1;
-        voiceOn[7] = false;
-        break;
-    }
-  } else if (keyboardMode == 4 || keyboardMode == 5 || keyboardMode == 6) {
-    if (keyboardMode == 4) {
-      S1 = 1;
-      S2 = 1;
-    }
-    if (keyboardMode == 5) {
-      S1 = 0;
-      S2 = 1;
-    }
-    if (keyboardMode == 6) {
-      S1 = 0;
-      S2 = 0;
-    }
-    noteMsg = note;
-
-    if (velocity == 0) {
-      notes[noteMsg] = false;
-    } else {
-      notes[noteMsg] = true;
-    }
-
-    // Pins NP_SEL1 and NP_SEL2 indictate note priority
-    unsigned int velmV = ((unsigned int)((float)velocity) * VEL_SF);
-    sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    if (S1 && S2) {  // Highest note priority
-      commandTopNote();
-    } else if (!S1 && S2) {  // Lowest note priority
-      commandBottomNote();
-    } else {                 // Last note priority
-      if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
-        orderIndx = (orderIndx + 1) % 40;
-        noteOrder[orderIndx] = noteMsg;
+      velmV = ((unsigned int)((float)velocity) * VEL_SF);
+      sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      if (NotePriority == 0) {  // Highest note priority
+        commandTopNote();
+      } else if (NotePriority == 1) {  // Lowest note priority
+        commandBottomNote();
+      } else {                 // Last note priority
+        if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
+          orderIndx = (orderIndx + 1) % 40;
+          noteOrder[orderIndx] = noteMsg;
+        }
+        commandLastNote();
       }
-      commandLastNote();
-    }
-  } else if (keyboardMode == 1 || keyboardMode == 2 || keyboardMode == 3) {
-    if (keyboardMode == 1) {
-      S1 = 1;
-      S2 = 1;
-    }
-    if (keyboardMode == 2) {
-      S1 = 0;
-      S2 = 1;
-    }
-    if (keyboardMode == 3) {
-      S1 = 0;
-      S2 = 0;
-    }
-    noteMsg = note;
+      break;
 
-    if (velocity == 0) {
-      notes[noteMsg] = false;
-    } else {
-      notes[noteMsg] = true;
-    }
+    case 2:
+      noteMsg = note;
 
-    unsigned int velmV = ((unsigned int)((float)velocity) * VEL_SF);
-    sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_b & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_c & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_d & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_e & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_f & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_g & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    sample_data = (channel_h & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
-    outputDAC(DAC_NOTE2, sample_data);
-    if (S1 && S2) {  // Highest note priority
-      commandTopNoteUni();
-    } else if (!S1 && S2) {  // Lowest note priority
-      commandBottomNoteUni();
-    } else {                 // Last note priority
-      if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
-        orderIndx = (orderIndx + 1) % 40;
-        noteOrder[orderIndx] = noteMsg;
+      if (velocity == 0) {
+        notes[noteMsg] = false;
+      } else {
+        notes[noteMsg] = true;
       }
-      commandLastNoteUni();
-    }
+
+      velmV = ((unsigned int)((float)velocity) * VEL_SF);
+      sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_b & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_c & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_d & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_e & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_f & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_g & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      sample_data = (channel_h & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
+      outputDAC(DAC_NOTE2, sample_data);
+      if (NotePriority == 0) {  // Highest note priority
+        commandTopNoteUni();
+      } else if (NotePriority == 1) {  // Lowest note priority
+        commandBottomNoteUni();
+      } else {                 // Last note priority
+        if (notes[noteMsg]) {  // If note is on and using last note priority, add to ordered list
+          orderIndx = (orderIndx + 1) % 40;
+          noteOrder[orderIndx] = noteMsg;
+        }
+        commandLastNoteUni();
+      }
+      break;
   }
 }
 
@@ -743,73 +720,81 @@ int getVoiceNo(int note) {
 }
 
 void updateVoice1() {
+  MIDI2.sendNoteOn(voices[0].note, 127, 1);
   unsigned int mV = (unsigned int)((float)(voices[0].note + transpose + realoctave) * NOTE_SF * sfAdj[0] + 0.5);
   sample_data = (channel_a & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[0].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[0].velocity) * VEL_SF);
   sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
 
 void updateVoice2() {
+  MIDI2.sendNoteOn(voices[1].note, 127, 2);
   unsigned int mV = (unsigned int)((float)(voices[1].note + transpose + realoctave) * NOTE_SF * sfAdj[1] + 0.5);
   sample_data = (channel_b & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[1].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[1].velocity) * VEL_SF);
   sample_data = (channel_b & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
 
 void updateVoice3() {
+  MIDI2.sendNoteOn(voices[2].note, 127, 3);
   unsigned int mV = (unsigned int)((float)(voices[2].note + transpose + realoctave) * NOTE_SF * sfAdj[2] + 0.5);
   sample_data = (channel_c & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[2].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[2].velocity) * VEL_SF);
   sample_data = (channel_c & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
 
 void updateVoice4() {
+  MIDI2.sendNoteOn(voices[3].note, 127, 4);
   unsigned int mV = (unsigned int)((float)(voices[3].note + transpose + realoctave) * NOTE_SF * sfAdj[3] + 0.5);
   sample_data = (channel_d & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[3].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[3].velocity) * VEL_SF);
   sample_data = (channel_d & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
 
 void updateVoice5() {
+  MIDI2.sendNoteOn(voices[4].note, 127, 5);
   unsigned int mV = (unsigned int)((float)(voices[4].note + transpose + realoctave) * NOTE_SF * sfAdj[4] + 0.5);
   sample_data = (channel_e & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[4].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[4].velocity) * VEL_SF);
   sample_data = (channel_e & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
 
 void updateVoice6() {
+  MIDI2.sendNoteOn(voices[5].note, 127, 6);
   unsigned int mV = (unsigned int)((float)(voices[5].note + transpose + realoctave) * NOTE_SF * sfAdj[5] + 0.5);
   sample_data = (channel_f & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[5].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[5].velocity) * VEL_SF);
   sample_data = (channel_f & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
 
 void updateVoice7() {
+  MIDI2.sendNoteOn(voices[6].note, 127, 7);
   unsigned int mV = (unsigned int)((float)(voices[6].note + transpose + realoctave) * NOTE_SF * sfAdj[6] + 0.5);
   sample_data = (channel_g & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[6].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[6].velocity) * VEL_SF);
   sample_data = (channel_g & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
 
 void updateVoice8() {
+  MIDI2.sendNoteOn(voices[7].note, 127, 8);
   unsigned int mV = (unsigned int)((float)(voices[7].note + transpose + realoctave) * NOTE_SF * sfAdj[7] + 0.5);
   sample_data = (channel_h & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int velmV = ((unsigned int)((float)voices[7].velocity) * VEL_SF);
+  velmV = ((unsigned int)((float)voices[7].velocity) * VEL_SF);
   sample_data = (channel_h & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE2, sample_data);
 }
@@ -834,6 +819,18 @@ void myAfterTouch(byte channel, byte pressure) {
 }
 
 void allNotesOff() {
+    for (int i = 0; i < NO_OF_VOICES; i++) {
+      voices[i].note = -1;
+      voiceOn[i] = false;
+    }
+  trig.writePin(GATE_NOTE1, LOW);
+  trig.writePin(GATE_NOTE2, LOW);
+  trig.writePin(GATE_NOTE3, LOW);
+  trig.writePin(GATE_NOTE4, LOW);
+  trig.writePin(GATE_NOTE5, LOW);
+  trig.writePin(GATE_NOTE6, LOW);
+  trig.writePin(GATE_NOTE7, LOW);
+  trig.writePin(GATE_NOTE8, LOW);
 }
 
 void updateosc1fmWaveMod() {
@@ -1101,7 +1098,7 @@ void updateosc1WaveSelect() {
       break;
   }
   //pixel.clear();
-  pixel.setPixelColor(1, pixel.Color(colour[osc1WaveSelect -1][0], colour[osc1WaveSelect -1][1], colour[osc1WaveSelect -1][2]));
+  pixel.setPixelColor(1, pixel.Color(colour[osc1WaveSelect - 1][0], colour[osc1WaveSelect - 1][1], colour[osc1WaveSelect - 1][2]));
   pixel.show();
   showCurrentParameterPage("OSC1 Wave", Oscillator1Waveform);
 }
@@ -1217,7 +1214,7 @@ void updateosc2WaveSelect() {
       break;
   }
   //pixel.clear();
-  pixel.setPixelColor(2, pixel.Color(colour[osc2WaveSelect -1][0], colour[osc2WaveSelect -1][1], colour[osc2WaveSelect -1][2]));
+  pixel.setPixelColor(2, pixel.Color(colour[osc2WaveSelect - 1][0], colour[osc2WaveSelect - 1][1], colour[osc2WaveSelect - 1][2]));
   pixel.show();
   showCurrentParameterPage("OSC2 Wave", Oscillator2Waveform);
 }
@@ -1356,9 +1353,9 @@ void updateFilterType() {
       sr.writePin(FILTER_C, HIGH);
       break;
   }
-      //pixel.clear();
-      pixel.setPixelColor(0, pixel.Color(colour[filterType -1][0], colour[filterType -1][1], colour[filterType -1][2]));
-      pixel.show();
+  //pixel.clear();
+  pixel.setPixelColor(0, pixel.Color(colour[filterType - 1][0], colour[filterType - 1][1], colour[filterType - 1][2]));
+  pixel.show();
 }
 
 void updatefilterEGlevel() {
@@ -1448,7 +1445,7 @@ void updateStratusLFOWaveform() {
     }
   }
   //pixel.clear();
-  pixel.setPixelColor(3, pixel.Color(colour[LFOWaveform -1][0], colour[LFOWaveform -1][1], colour[LFOWaveform -1][2]));
+  pixel.setPixelColor(3, pixel.Color(colour[LFOWaveform - 1][0], colour[LFOWaveform - 1][1], colour[LFOWaveform - 1][2]));
   pixel.show();
   showCurrentParameterPage("LFO Wave", StratusLFOWaveform);
 }
@@ -1630,7 +1627,53 @@ void updateAmpLoop() {
       sr.writePin(ALOOPBIT1, HIGH);
       break;
   }
-  oldAmpLoop = AmpLoop;
+}
+
+void updatekeyboardMode() {
+  switch (keyboardMode) {
+    case 0:
+      showCurrentParameterPage("Keyboard Mode", "Poly");
+      srp.writePin(POLY_MODE_RED_LED, HIGH);
+      srp.writePin(POLY_MODE_GREEN_LED, LOW);
+      allNotesOff();
+      break;
+
+    case 1:
+      showCurrentParameterPage("Keyboard Mode", "Mono");
+      srp.writePin(POLY_MODE_RED_LED, LOW);
+      srp.writePin(POLY_MODE_GREEN_LED, HIGH);
+      allNotesOff();
+      break;
+
+    case 2:
+      showCurrentParameterPage("Keyboard Mode", "Unison");
+      srp.writePin(POLY_MODE_RED_LED, HIGH);
+      srp.writePin(POLY_MODE_GREEN_LED, HIGH);
+      allNotesOff();
+      break;
+  }
+}
+
+void updateNotePriority() {
+  switch (NotePriority) {
+    case 0:
+      showCurrentParameterPage("Note Priority", "Top Note");
+      srp.writePin(PRIORITY_RED_LED, HIGH);
+      srp.writePin(PRIORITY_GREEN_LED, LOW);
+      break;
+
+    case 1:
+      showCurrentParameterPage("Note Priority", "Bottom Note");
+      srp.writePin(PRIORITY_RED_LED, LOW);
+      srp.writePin(PRIORITY_GREEN_LED, HIGH);
+      break;
+
+    case 2:
+      showCurrentParameterPage("Note Priority", "Last Note");
+      srp.writePin(PRIORITY_RED_LED, HIGH);
+      srp.writePin(PRIORITY_GREEN_LED, HIGH);
+      break;
+  }
 }
 
 void updatelfoAlt() {
@@ -1742,6 +1785,18 @@ void updateAmpGatedSW() {
     ampSustain = 1023;
     ampRelease = 0;
     midiCCOut(CCAmpGatedSW, 127);
+  }
+}
+
+void updatemonoMultiSW() {
+  if (monoMultiSW) {
+    showCurrentParameterPage("Multi Trigger", "On");
+    srp.writePin(MONO_MULTI_LED, HIGH);
+    midiCCOut(CCmonoMultiSW, 127);
+  } else {
+    showCurrentParameterPage("Multi Trigger", "Off");
+    srp.writePin(MONO_MULTI_LED, LOW);
+    midiCCOut(CCmonoMultiSW, 0);
   }
 }
 
@@ -2178,6 +2233,19 @@ void myControlChange(byte channel, byte control, int value) {
       updateenvLinLogSW();
       break;
 
+    case CCkeyboardMode:
+      updatekeyboardMode();
+      break;
+
+    case CCNotePriority:
+      updateNotePriority();
+      break;
+
+    case CCmonoMultiSW:
+      value > 0 ? monoMultiSW = 1 : monoMultiSW = 0;
+      updatemonoMultiSW();
+      break;
+
     case CCallnotesoff:
       allNotesOff();
       break;
@@ -2283,6 +2351,10 @@ void setCurrentPatchData(String data[]) {
   oldampRelease = data[69].toInt();
   effectBankSW = data[70].toInt();
   envLinLogSW = data[71].toInt();
+  keyboardMode = data[72].toInt();
+  NotePriority = data[73].toInt();
+  monoMultiSW = data[74].toInt();
+
 
   oldfilterCutoff = filterCutoff;
 
@@ -2307,6 +2379,9 @@ void setCurrentPatchData(String data[]) {
   updateampVelSW();
   updateeffectBankSW();
   updateenvLinLogSW();
+  updatekeyboardMode();
+  updateNotePriority();
+  updatemonoMultiSW();
 
   //Patchname
   updatePatchname();
@@ -2325,7 +2400,7 @@ String getCurrentPatchData() {
          + "," + String(osc1WaveC) + "," + String(modWheelLevel) + "," + String(PitchBendLevel) + "," + String(oct1) + "," + String(filterVelSW) + "," + String(oct2) + "," + String(ampVelSW) + "," + String(osc2WaveA)
          + "," + String(osc2WaveB) + "," + String(osc2WaveC) + "," + String(AfterTouchDest) + "," + String(osc2fmDepth) + "," + String(osc2fmWaveMod) + "," + String(effect1) + "," + String(effect2)
          + "," + String(effect3) + "," + String(effectMix) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
-         + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW);
+         + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW);
 }
 
 void checkMux() {
@@ -2532,6 +2607,220 @@ void checkMux() {
   delayMicroseconds(75);
 }
 
+void writeDemux() {
+
+  switch (muxOutput) {
+    case 0:
+      switch (LFODelayGo) {
+        case 1:
+          sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1fmDepth * DACMULT)) & 0xFFFF) << 4);
+          break;
+
+        case 0:
+          sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+          break;
+      }
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterAttack * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 1:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2PWM * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterDecay * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 2:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1PWM * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterSustain * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 3:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(stack * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterRelease * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 4:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2Detune * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(ampAttack * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 5:
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(noiseLevel * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(ampDecay * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 6:
+        switch (LFODelayGo) {
+        case 1:
+          sample_data1 = (channel_a & 0xFFF0000F) | (((int(filterLFO * DACMULT)) & 0xFFFF) << 4);
+          break;
+
+        case 0:
+          sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+          break;
+      }
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(ampSustain * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 7:
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(volumeControl * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(ampRelease * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 8:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1SawLevel * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1Level * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      //sample_data1 = (channel_c & 0xFFF0000F) | (((int(pwLFO * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 9:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1PulseLevel * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(LFORate * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 10:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2SawLevel * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2Level * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(LFOWaveform * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 11:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2PulseLevel * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterEGlevel * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 12:
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(keyTrack * 12)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterCutoff * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 13:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1PW * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterRes * DACMULT)) & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 14:
+      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2PW * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      //sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc1SubLevel * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+
+    case 15:
+      switch (LFODelayGo) {
+        case 1:
+          sample_data1 = (channel_a & 0xFFF0000F) | (((int(amDepth * DACMULT)) & 0xFFFF) << 4);
+          break;
+
+        case 0:
+          sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+          break;
+      }
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_1, LOW);
+
+      //sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc2TriangleLevel * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      outputDAC(DAC_CS1, sample_data1);
+      digitalWriteFast(DEMUX_EN_2, LOW);
+      break;
+  }
+  delayMicroseconds(800);
+  digitalWriteFast(DEMUX_EN_1, HIGH);
+  digitalWriteFast(DEMUX_EN_2, HIGH);
+
+  muxOutput++;
+  if (muxOutput >= DEMUXCHANNELS)
+
+    muxOutput = 0;
+
+  digitalWriteFast(DEMUX_0, muxOutput & B0001);
+  digitalWriteFast(DEMUX_1, muxOutput & B0010);
+  digitalWriteFast(DEMUX_2, muxOutput & B0100);
+  digitalWriteFast(DEMUX_3, muxOutput & B1000);
+}
+
 void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
 
   if (btnIndex == GLIDE_SW && btnType == ROX_PRESSED) {
@@ -2637,7 +2926,7 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
   }
 
   if (btnIndex == FILTER_LOOP_SW && btnType == ROX_PRESSED) {
-   FilterLoop = FilterLoop + 1;
+    FilterLoop = FilterLoop + 1;
     if (FilterLoop > 3) {
       FilterLoop = 1;
     }
@@ -2645,7 +2934,7 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
   }
 
   if (btnIndex == VCA_LOOP_SW && btnType == ROX_PRESSED) {
-   AmpLoop = AmpLoop + 1;
+    AmpLoop = AmpLoop + 1;
     if (AmpLoop > 3) {
       AmpLoop = 1;
     }
@@ -2658,7 +2947,7 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
   }
 
   if (btnIndex == EFFECT_BANK_SW && btnType == ROX_PRESSED) {
-   effectBankSW = effectBankSW + 1;
+    effectBankSW = effectBankSW + 1;
     if (effectBankSW > 4) {
       effectBankSW = 1;
     }
@@ -2668,6 +2957,27 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
   if (btnIndex == LIN_LOG_SW && btnType == ROX_PRESSED) {
     envLinLogSW = !envLinLogSW;
     myControlChange(midiChannel, CCenvLinLogSW, envLinLogSW);
+  }
+
+  if (btnIndex == POLYMODE_SW && btnType == ROX_PRESSED) {
+    keyboardMode = keyboardMode + 1;
+    if (keyboardMode > 2) {
+      keyboardMode = 0;
+    }
+    myControlChange(midiChannel, CCkeyboardMode, keyboardMode);
+  }
+
+  if (btnIndex == PRIORITY_SW && btnType == ROX_PRESSED) {
+    NotePriority = NotePriority + 1;
+    if (NotePriority > 2) {
+      NotePriority = 0;
+    }
+    myControlChange(midiChannel, CCNotePriority, NotePriority);
+  }
+
+  if (btnIndex == MONO_MULTI_SW && btnType == ROX_PRESSED) {
+    monoMultiSW = !monoMultiSW;
+    myControlChange(midiChannel, CCmonoMultiSW, monoMultiSW);
   }
 
 }
@@ -2942,6 +3252,37 @@ void checkEncoder() {
   }
 }
 
+void getDelayTime() {
+  delaytime = lfoDelay;
+  if (delaytime <= 0) {
+    delaytime = 0.1;
+  }
+  interval = (delaytime * 10);
+}
+
+void LFODelayHandle() {
+  // LFO Delay code
+  getDelayTime();
+
+  unsigned long currentMillis = millis();
+  if (monoMultiSW && !LFODelayGo) {
+    if (oldnumberOfNotes < numberOfNotes) {
+      previousMillis = currentMillis;
+      oldnumberOfNotes = numberOfNotes;
+    }
+  }
+  if (numberOfNotes > 0) {
+    if (currentMillis - previousMillis >= interval) {
+      LFODelayGo = 1;
+    } else {
+      LFODelayGo = 0;
+    }
+  } else {
+    LFODelayGo = 1;
+    previousMillis = currentMillis;  //reset timer so its ready for the next time
+  }
+}
+
 int mod(int a, int b) {
   int r = a % b;
   return r < 0 ? r + b : r;
@@ -2959,6 +3300,7 @@ void outputDAC(int CHIP_SELECT, uint32_t sample_data) {
 void loop() {
 
   checkMux();           // Read the sliders and switches
+  writeDemux();
   checkSwitches();      // Read the buttons for the program menus etc
   checkEncoder();       // check the encoder status
   octoswitch.update();  // read all the buttons for the Quadra
@@ -2972,4 +3314,5 @@ void loop() {
   midi1.read();  //USB HOST MIDI Class Compliant
   MIDI.read(midiChannel);
   usbMIDI.read(midiChannel);
+  LFODelayHandle();
 }

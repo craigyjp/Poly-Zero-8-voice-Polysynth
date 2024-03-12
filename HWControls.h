@@ -26,13 +26,17 @@ ADC *adc = new ADC();
 #define DAC_NOTE1 19
 #define DAC_NOTE2 18
 
-#define DEMUX_0 36
-#define DEMUX_1 35
-#define DEMUX_2 34
-#define DEMUX_3 33
+#define DEMUX_0 48
+#define DEMUX_1 49
+#define DEMUX_2 50
+#define DEMUX_3 51
 
-#define DEMUX_EN_1 39
-#define DEMUX_EN_2 38
+#define DEMUX_EN_1 52
+#define DEMUX_EN_2 53
+
+//Note DAC
+#define DACMULT 6.4
+#define MIDICCTOPOT 8.62
 
 //Mux 1 Connections
 #define MUX1_volumeControl 0
@@ -128,6 +132,7 @@ ADC *adc = new ADC();
 #define FILTER_VELOCITY_SW 4
 #define FILTER_TYPE_SW 5
 #define LIN_LOG_SW 6
+#define MONO_MULTI_SW 7
 // 1
 #define LFO_WAVE_SW 8
 #define LFO_ALT_SW 9
@@ -165,6 +170,7 @@ ADC *adc = new ADC();
 #define GLIDE_LED 12
 #define LIN_LOG_GREEN_LED 13
 #define LIN_LOG_RED_LED 14
+#define MONO_MULTI_LED 15
 
 //2
 #define LFO_MULT_GREEN_LED 16
@@ -207,11 +213,13 @@ ADC *adc = new ADC();
 #define ENCODER_PINB 5
 
 #define MUXCHANNELS 8
+#define DEMUXCHANNELS 16
 #define QUANTISE_FACTOR 31
 
 #define DEBOUNCE 30
 
 static byte muxInput = 0;
+static byte muxOutput = 0;
 
 static int mux1ValuesPrev[MUXCHANNELS] = {};
 static int mux2ValuesPrev[MUXCHANNELS] = {};
@@ -270,6 +278,26 @@ void setupHardware() {
   digitalWrite(DAC_NOTE1, HIGH);
   pinMode(DAC_NOTE2, OUTPUT);
   digitalWrite(DAC_NOTE2, HIGH);
+
+  pinMode(DEMUX_0, OUTPUT);
+  pinMode(DEMUX_1, OUTPUT);
+  pinMode(DEMUX_2, OUTPUT);
+  pinMode(DEMUX_3, OUTPUT);
+
+  pinMode(DEMUX_EN_1, OUTPUT);
+  pinMode(DEMUX_EN_2, OUTPUT);
+
+  digitalWrite(MUX_0, LOW);
+  digitalWrite(MUX_1, LOW);
+  digitalWrite(MUX_2, LOW);
+
+  digitalWrite(DEMUX_0, LOW);
+  digitalWrite(DEMUX_1, LOW);
+  digitalWrite(DEMUX_2, LOW);
+  digitalWrite(DEMUX_0, LOW);
+
+  digitalWrite(DEMUX_EN_1, HIGH);
+  digitalWrite(DEMUX_EN_1, HIGH);
 
   //Mux ADC
   pinMode(MUX1_S, INPUT_DISABLE);
