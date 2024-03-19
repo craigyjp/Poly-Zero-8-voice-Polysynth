@@ -27,6 +27,7 @@
 #define   CCAmpLoop 32
 #define   CCAmpGatedSW 33
 #define   CCeffectBankSW 34
+#define   CCeffectNumSW 35
 #define   CCosc1Level 37
 #define   CCfilterType 39
 #define   CCosc2Level 42
@@ -65,6 +66,7 @@
 #define   CCenvLinLogSW  88
 #define   CCLFOWaveform  91
 #define   CClfoDelay  92
+#define   CCLFOWaveformButton  93
 #define   CCfilterRes  94
 #define   CCosc1Bank  102
 #define   CCosc1BankB  103

@@ -3,6 +3,7 @@ int realoctave = -36;
 int keyboardMode = 0;
 int noteMsg;
 unsigned int velmV;
+int readRes = 1023;
 
 
 //Values below are just for initialising and will be changed when synth is initialised to current panel controls & EEPROM settings
@@ -20,8 +21,7 @@ unsigned long previousMillis = 0;
 unsigned long interval = 1; //10 seconds
 long delaytime  = 0;
 
-int readresdivider = 32;
-int resolutionFrig = 5;
+int resolutionFrig = 3;
 boolean recallPatchFlag = false;
 boolean learning = false;
 boolean noteArrived = false;
@@ -41,9 +41,9 @@ int oldAfterTouchDest = 0;
 int oldClockSource = 0;
 int oldafterTouchDepth = 0;
 int afterTouchDepth = 0;
-int NotePriority = 1;
-int FilterLoop = 1;
-int AmpLoop = 1;
+int NotePriority = 0;
+int FilterLoop = 0;
+int AmpLoop = 0;
 int ClockSource = 0;
 
 // polykit parameters in order of mux
@@ -62,11 +62,11 @@ float osc1WaveMod = 0;
 int osc1WaveModstr = 0;
 float osc2WaveMod = 0;
 int osc2WaveModstr = 0;
-int osc1WaveSelect = 1;
+int osc1WaveSelect = 0;
 int osc1WaveSelectstr = 0;
-int oct1 = 1;
-int oct2 = 1;
-int osc2WaveSelect = 1;
+int oct1 = 0;
+int oct2 = 0;
+int osc2WaveSelect = 0;
 int osc2WaveSelectstr = 0;
 float osc1WaveA = 0;
 float osc1WaveB = 0;
@@ -97,7 +97,7 @@ float filterLFO = 0;
 int filterLFOstr = 0; // for display
 float filterRes = 0;
 int filterResstr = 0;
-int filterType = 1;
+int filterType = 0;
 float filterA = 0;
 float filterB = 0;
 float filterC = 0;
@@ -112,7 +112,8 @@ int lfoDelaystr = 0; //for display
 String StratusLFOWaveform = "                ";
 String Oscillator1Waveform = "                ";
 String Oscillator2Waveform = "                ";
-int LFOWaveform = 1;
+int LFOWaveform = 0;
+int LFOWaveCV = 0;
 float filterAttack = 0;
 int filterAttackstr = 0;
 float filterDecay = 0;
@@ -139,6 +140,7 @@ int amDepthstr = 0;
 float volumeControl = 0;
 int volumeControlstr = 0; // for display
 float keyTrack = 0;
+float keyTrackMult = 0.00;
 int keyTrackstr = 0;
 float effect1 = 0;
 int effect1str = 0;
@@ -147,17 +149,20 @@ int effect2str = 0;
 float effect3 = 0;
 int effect3str = 0;
 float effectMix = 0;
+float effectWet = 0;
+float effectDry = 0;
 int mixa = 0;
 int mixb = 0;
 int mixastr = 0;
 int mixbstr = 0;
 int effectMixstr = 0;
-int osc1Bank = 1;
+int osc1Bank = 0;
 int osc1BankB = 0;
-int osc2Bank = 1;
+int osc2Bank = 0;
 int osc2BankB = 0;
 int lfoAlt = 0;
-int lfoMult = 1;
+int lfoMult = 0;
+int LFOMultCV = 0;
 int filterPoleSW = 0;
 int filterEGinv = 0;
 int PitchBendLevel = 0;
@@ -175,7 +180,9 @@ int filterVelSW = 0;
 int ampVelSW = 0;
 int monoMultiSW = 0;
 
-int effectBankSW = 1;
+int effectBankSW = 0;
+int effectNumSW = 0;
+
 int envLinLogSW = 0;
 
 int returnvalue = 0;
@@ -187,7 +194,8 @@ boolean pickUp = false;//settings option (EEPROM)
 boolean pickUpActive = false;
 #define TOLERANCE 2 //Gives a window of when pick-up occurs, this is due to the speed of control changing and Mux reading
 
-#define NOTE_SF 547.00f
+//#define NOTE_SF 547.00f
+#define NOTE_SF 271.5
 #define VEL_SF 256.0
 
 uint32_t int_ref_on_flexible_mode = 0b00001001000010100000000000000000;  // { 0000 , 1001 , 0000 , 1010000000000000 , 0000 }

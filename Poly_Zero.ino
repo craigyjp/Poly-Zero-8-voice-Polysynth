@@ -160,6 +160,7 @@ void setup() {
 
   octoswitch.begin(PIN_DATA, PIN_LOAD, PIN_CLK);
   octoswitch.setCallback(onButtonPress);
+  octoswitch.setIgnoreAfterHold(EFFECT_BANK_SW, true);
   srp.begin(LED_DATA, LED_LATCH, LED_CLK, LED_PWM);
   sr.begin(CONTROL_DATA, CONTROL_LATCH, CONTROL_CLK, CONTROL_PWM);
   trig.begin(TRIG_DATA, TRIG_LATCH, TRIG_CLK, TRIG_PWM);
@@ -232,6 +233,11 @@ void setup() {
   Serial.println("MIDI In DIN Listening");
 
   MIDI2.begin();
+    for (int i = 1; i < 9; i++) {
+      MIDI2.sendNoteOn(60, 127, i);
+      delay(1);
+      MIDI2.sendNoteOff(60, 0, i);
+  }
 
   //Read Encoder Direction from EEPROM
   encCW = getEncoderDir();
@@ -244,6 +250,8 @@ void setup() {
   pixel.setPixelColor(2, pixel.Color(colour[0][0], colour[0][1], colour[0][2]));
   pixel.setPixelColor(3, pixel.Color(colour[0][0], colour[0][1], colour[0][2]));
   pixel.show();
+
+  sr.writePin(FILTER_KEYTRACK, HIGH);
 
   recallPatch(patchNo);  //Load first patch
 }
@@ -297,9 +305,10 @@ void commandLastNote() {
 }
 
 void commandNote(int noteMsg) {
-  unsigned int mV = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[0] + 0.5);
+  unsigned int mV = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[0] + 0.5);
   sample_data = (channel_a & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
+  MIDI2.sendNoteOn(noteMsg, 127, 1);
   trig.writePin(GATE_NOTE1, HIGH);
 }
 
@@ -324,7 +333,7 @@ void commandTopNoteUni() {
     trig.writePin(GATE_NOTE5, LOW);
     trig.writePin(GATE_NOTE6, LOW);
     trig.writePin(GATE_NOTE7, LOW);
-    trig.writePin(GATE_NOTE8, LOW);
+    trig.writePin(GATE_NOTE8, LOW); 
   }
 }
 
@@ -349,7 +358,7 @@ void commandBottomNoteUni() {
     trig.writePin(GATE_NOTE5, LOW);
     trig.writePin(GATE_NOTE6, LOW);
     trig.writePin(GATE_NOTE7, LOW);
-    trig.writePin(GATE_NOTE8, LOW);
+    trig.writePin(GATE_NOTE8, LOW);  // All notes are off
   }
 }
 
@@ -376,96 +385,133 @@ void commandLastNoteUni() {
 
 void commandNoteUni(int noteMsg) {
 
-  unsigned int mV1 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[0] + 0.5);
+  unsigned int mV1 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[0] + 0.5);
   sample_data = (channel_a & 0xFFF0000F) | (((int(mV1)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int mV2 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[1] + 0.5);
+  unsigned int mV2 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[1] + 0.5);
   sample_data = (channel_b & 0xFFF0000F) | (((int(mV2)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int mV3 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[2] + 0.5);
+  unsigned int mV3 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[2] + 0.5);
   sample_data = (channel_c & 0xFFF0000F) | (((int(mV3)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int mV4 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[3] + 0.5);
+  unsigned int mV4 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[3] + 0.5);
   sample_data = (channel_d & 0xFFF0000F) | (((int(mV4)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int mV5 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[4] + 0.5);
+  unsigned int mV5 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[4] + 0.5);
   sample_data = (channel_e & 0xFFF0000F) | (((int(mV5)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int mV6 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[5] + 0.5);
+  unsigned int mV6 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[5] + 0.5);
   sample_data = (channel_f & 0xFFF0000F) | (((int(mV6)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int mV7 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[4] + 0.5);
+  unsigned int mV7 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[4] + 0.5);
   sample_data = (channel_g & 0xFFF0000F) | (((int(mV7)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
-  unsigned int mV8 = (unsigned int)((float)(noteMsg + transpose + realoctave) * NOTE_SF * sfAdj[5] + 0.5);
+  unsigned int mV8 = (unsigned int)((float)(noteMsg + realoctave) * NOTE_SF * sfAdj[5] + 0.5);
   sample_data = (channel_h & 0xFFF0000F) | (((int(mV8)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
 
+  MIDI2.sendNoteOn(noteMsg, 127, 1);
   trig.writePin(GATE_NOTE1, HIGH);
+  MIDI2.sendNoteOn(noteMsg, 127, 2);
   trig.writePin(GATE_NOTE2, HIGH);
+  MIDI2.sendNoteOn(noteMsg, 127, 3);
   trig.writePin(GATE_NOTE3, HIGH);
+  MIDI2.sendNoteOn(noteMsg, 127, 4);
   trig.writePin(GATE_NOTE4, HIGH);
+  MIDI2.sendNoteOn(noteMsg, 127, 5);
   trig.writePin(GATE_NOTE5, HIGH);
+  MIDI2.sendNoteOn(noteMsg, 127, 6);
   trig.writePin(GATE_NOTE6, HIGH);
+  MIDI2.sendNoteOn(noteMsg, 127, 7);
   trig.writePin(GATE_NOTE7, HIGH);
+  MIDI2.sendNoteOn(noteMsg, 127, 8);
   trig.writePin(GATE_NOTE8, HIGH);
 }
 
-void myNoteOff(byte channel, byte note, byte velocity) {
+void myNoteOn(byte channel, byte note, byte velocity) {
 
-  numberOfNotes = numberOfNotes - 1;
-  oldnumberOfNotes = oldnumberOfNotes - 1;
+  // for lfo multi trigger
+  numberOfNotes = numberOfNotes + 1;
+  keyTrackMult = keyTrack / 1023;
 
+  //Check for out of range notes
+  if (note < 0 || note > 127) return;
+
+  prevNote = note;
   switch (keyboardMode) {
     case 0:
-      switch (getVoiceNo(note)) {
+      switch (getVoiceNo(-1)) {
         case 1:
-          MIDI.sendNoteOff(voices[0].note, 0, 1);
-          trig.writePin(GATE_NOTE1, LOW);
-          voices[0].note = -1;
-          voiceOn[0] = false;
+          voices[0].note = note;
+          voices[0].velocity = velocity;
+          voices[0].timeOn = millis();
+          updateVoice1();
+          MIDI2.sendNoteOn(voices[0].note, 127, 1);
+          trig.writePin(GATE_NOTE1, HIGH);
+          voiceOn[0] = true;
           break;
         case 2:
-          MIDI.sendNoteOff(voices[1].note, 0, 2);
-          trig.writePin(GATE_NOTE2, LOW);
-          voices[1].note = -1;
-          voiceOn[1] = false;
+          voices[1].note = note;
+          voices[1].velocity = velocity;
+          voices[1].timeOn = millis();
+          updateVoice2();
+          MIDI2.sendNoteOn(voices[1].note, 127, 2);
+          trig.writePin(GATE_NOTE2, HIGH);
+          voiceOn[1] = true;
           break;
         case 3:
-          MIDI.sendNoteOff(voices[2].note, 0, 3);
-          trig.writePin(GATE_NOTE3, LOW);
-          voices[2].note = -1;
-          voiceOn[2] = false;
+          voices[2].note = note;
+          voices[2].velocity = velocity;
+          voices[2].timeOn = millis();
+          updateVoice3();
+          MIDI2.sendNoteOn(voices[2].note, 127, 3);
+          trig.writePin(GATE_NOTE3, HIGH);
+          voiceOn[2] = true;
           break;
         case 4:
-          MIDI.sendNoteOff(voices[3].note, 0, 4);
-          trig.writePin(GATE_NOTE4, LOW);
-          voices[3].note = -1;
-          voiceOn[3] = false;
+          voices[3].note = note;
+          voices[3].velocity = velocity;
+          voices[3].timeOn = millis();
+          updateVoice4();
+          MIDI2.sendNoteOn(voices[3].note, 127, 4);
+          trig.writePin(GATE_NOTE4, HIGH);
+          voiceOn[3] = true;
           break;
         case 5:
-          MIDI.sendNoteOff(voices[4].note, 0, 5);
-          trig.writePin(GATE_NOTE5, LOW);
-          voices[4].note = -1;
-          voiceOn[4] = false;
+          voices[4].note = note;
+          voices[4].velocity = velocity;
+          voices[4].timeOn = millis();
+          updateVoice5();
+          MIDI2.sendNoteOn(voices[4].note, 127, 5);
+          trig.writePin(GATE_NOTE5, HIGH);
+          voiceOn[4] = true;
           break;
         case 6:
-          MIDI.sendNoteOff(voices[5].note, 0, 6);
-          trig.writePin(GATE_NOTE6, LOW);
-          voices[5].note = -1;
-          voiceOn[5] = false;
+          voices[5].note = note;
+          voices[5].velocity = velocity;
+          voices[5].timeOn = millis();
+          updateVoice6();
+          MIDI2.sendNoteOn(voices[5].note, 127, 6);
+          trig.writePin(GATE_NOTE6, HIGH);
+          voiceOn[5] = true;
           break;
         case 7:
-          MIDI.sendNoteOff(voices[6].note, 0, 7);
-          trig.writePin(GATE_NOTE7, LOW);
-          voices[6].note = -1;
-          voiceOn[6] = false;
+          voices[6].note = note;
+          voices[6].velocity = velocity;
+          voices[6].timeOn = millis();
+          updateVoice7();
+          MIDI2.sendNoteOn(voices[6].note, 127, 7);
+          trig.writePin(GATE_NOTE7, HIGH);
+          voiceOn[6] = true;
           break;
         case 8:
-          MIDI.sendNoteOff(voices[7].note, 0, 8);
-          trig.writePin(GATE_NOTE8, LOW);
-          voices[7].note = -1;
-          voiceOn[7] = false;
+          voices[7].note = note;
+          voices[7].velocity = velocity;
+          voices[7].timeOn = millis();
+          updateVoice8();
+          MIDI2.sendNoteOn(voices[7].note, 127, 8);
+          trig.writePin(GATE_NOTE8, HIGH);
+          voiceOn[7] = true;
           break;
       }
       break;
@@ -479,7 +525,6 @@ void myNoteOff(byte channel, byte note, byte velocity) {
         notes[noteMsg] = true;
       }
 
-      // Pins NP_SEL1 and NP_SEL2 indictate note priority
       velmV = ((unsigned int)((float)velocity) * VEL_SF);
       sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
       outputDAC(DAC_NOTE2, sample_data);
@@ -537,82 +582,53 @@ void myNoteOff(byte channel, byte note, byte velocity) {
   }
 }
 
-void myNoteOn(byte channel, byte note, byte velocity) {
+void myNoteOff(byte channel, byte note, byte velocity) {
 
-  // for lfo multi trigger
-  numberOfNotes = numberOfNotes + 1;
+  numberOfNotes = numberOfNotes - 1;
+  oldnumberOfNotes = oldnumberOfNotes - 1;
 
-  //Check for out of range notes
-  if (note < 0 || note > 127) return;
-
-  prevNote = note;
   switch (keyboardMode) {
     case 0:
-      switch (getVoiceNo(-1)) {
+      switch (getVoiceNo(note)) {
         case 1:
-          voices[0].note = note;
-          voices[0].velocity = velocity;
-          voices[0].timeOn = millis();
-          updateVoice1();
-          trig.writePin(GATE_NOTE1, HIGH);
-          voiceOn[0] = true;
+          trig.writePin(GATE_NOTE1, LOW);
+          voices[0].note = -1;
+          voiceOn[0] = false;
           break;
         case 2:
-          voices[1].note = note;
-          voices[1].velocity = velocity;
-          voices[1].timeOn = millis();
-          updateVoice2();
-          trig.writePin(GATE_NOTE2, HIGH);
-          voiceOn[1] = true;
+          trig.writePin(GATE_NOTE2, LOW);
+          voices[1].note = -1;
+          voiceOn[1] = false;
           break;
         case 3:
-          voices[2].note = note;
-          voices[2].velocity = velocity;
-          voices[2].timeOn = millis();
-          updateVoice3();
-          trig.writePin(GATE_NOTE3, HIGH);
-          voiceOn[2] = true;
+          trig.writePin(GATE_NOTE3, LOW);
+          voices[2].note = -1;
+          voiceOn[2] = false;
           break;
         case 4:
-          voices[3].note = note;
-          voices[3].velocity = velocity;
-          voices[3].timeOn = millis();
-          updateVoice4();
-
-          trig.writePin(GATE_NOTE4, HIGH);
-          voiceOn[3] = true;
+          trig.writePin(GATE_NOTE4, LOW);
+          voices[3].note = -1;
+          voiceOn[3] = false;
           break;
         case 5:
-          voices[4].note = note;
-          voices[4].velocity = velocity;
-          voices[4].timeOn = millis();
-          updateVoice5();
-          trig.writePin(GATE_NOTE5, HIGH);
-          voiceOn[4] = true;
+          trig.writePin(GATE_NOTE5, LOW);
+          voices[4].note = -1;
+          voiceOn[4] = false;
           break;
         case 6:
-          voices[5].note = note;
-          voices[5].velocity = velocity;
-          voices[5].timeOn = millis();
-          updateVoice6();
-          trig.writePin(GATE_NOTE6, HIGH);
-          voiceOn[5] = true;
+          trig.writePin(GATE_NOTE6, LOW);
+          voices[5].note = -1;
+          voiceOn[5] = false;
           break;
         case 7:
-          voices[6].note = note;
-          voices[6].velocity = velocity;
-          voices[6].timeOn = millis();
-          updateVoice7();
-          trig.writePin(GATE_NOTE7, HIGH);
-          voiceOn[6] = true;
+          trig.writePin(GATE_NOTE7, LOW);
+          voices[6].note = -1;
+          voiceOn[6] = false;
           break;
         case 8:
-          voices[7].note = note;
-          voices[7].velocity = velocity;
-          voices[7].timeOn = millis();
-          updateVoice8();
-          trig.writePin(GATE_NOTE8, HIGH);
-          voiceOn[7] = true;
+          trig.writePin(GATE_NOTE8, LOW);
+          voices[7].note = -1;
+          voiceOn[7] = false;
           break;
       }
       break;
@@ -626,6 +642,7 @@ void myNoteOn(byte channel, byte note, byte velocity) {
         notes[noteMsg] = true;
       }
 
+      // Pins NP_SEL1 and NP_SEL2 indictate note priority
       velmV = ((unsigned int)((float)velocity) * VEL_SF);
       sample_data = (channel_a & 0xFFF0000F) | (((int(velmV)) & 0xFFFF) << 4);
       outputDAC(DAC_NOTE2, sample_data);
@@ -720,8 +737,8 @@ int getVoiceNo(int note) {
 }
 
 void updateVoice1() {
-  MIDI2.sendNoteOn(voices[0].note, 127, 1);
-  unsigned int mV = (unsigned int)((float)(voices[0].note + transpose + realoctave) * NOTE_SF * sfAdj[0] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[0].note + realoctave) * NOTE_SF * sfAdj[0] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_a & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[0].velocity) * VEL_SF);
@@ -730,8 +747,8 @@ void updateVoice1() {
 }
 
 void updateVoice2() {
-  MIDI2.sendNoteOn(voices[1].note, 127, 2);
-  unsigned int mV = (unsigned int)((float)(voices[1].note + transpose + realoctave) * NOTE_SF * sfAdj[1] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[1].note + realoctave) * NOTE_SF * sfAdj[1] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_b & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[1].velocity) * VEL_SF);
@@ -740,8 +757,8 @@ void updateVoice2() {
 }
 
 void updateVoice3() {
-  MIDI2.sendNoteOn(voices[2].note, 127, 3);
-  unsigned int mV = (unsigned int)((float)(voices[2].note + transpose + realoctave) * NOTE_SF * sfAdj[2] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[2].note + realoctave) * NOTE_SF * sfAdj[2] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_c & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[2].velocity) * VEL_SF);
@@ -750,8 +767,8 @@ void updateVoice3() {
 }
 
 void updateVoice4() {
-  MIDI2.sendNoteOn(voices[3].note, 127, 4);
-  unsigned int mV = (unsigned int)((float)(voices[3].note + transpose + realoctave) * NOTE_SF * sfAdj[3] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[3].note + realoctave) * NOTE_SF * sfAdj[3] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_d & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[3].velocity) * VEL_SF);
@@ -760,8 +777,8 @@ void updateVoice4() {
 }
 
 void updateVoice5() {
-  MIDI2.sendNoteOn(voices[4].note, 127, 5);
-  unsigned int mV = (unsigned int)((float)(voices[4].note + transpose + realoctave) * NOTE_SF * sfAdj[4] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[4].note + realoctave) * NOTE_SF * sfAdj[4] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_e & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[4].velocity) * VEL_SF);
@@ -770,8 +787,8 @@ void updateVoice5() {
 }
 
 void updateVoice6() {
-  MIDI2.sendNoteOn(voices[5].note, 127, 6);
-  unsigned int mV = (unsigned int)((float)(voices[5].note + transpose + realoctave) * NOTE_SF * sfAdj[5] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[5].note + realoctave) * NOTE_SF * sfAdj[5] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_f & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[5].velocity) * VEL_SF);
@@ -780,8 +797,8 @@ void updateVoice6() {
 }
 
 void updateVoice7() {
-  MIDI2.sendNoteOn(voices[6].note, 127, 7);
-  unsigned int mV = (unsigned int)((float)(voices[6].note + transpose + realoctave) * NOTE_SF * sfAdj[6] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[6].note + realoctave) * NOTE_SF * sfAdj[6] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_g & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[6].velocity) * VEL_SF);
@@ -790,8 +807,8 @@ void updateVoice7() {
 }
 
 void updateVoice8() {
-  MIDI2.sendNoteOn(voices[7].note, 127, 8);
-  unsigned int mV = (unsigned int)((float)(voices[7].note + transpose + realoctave) * NOTE_SF * sfAdj[7] + 0.5);
+  unsigned int mV = (unsigned int)((float)(voices[7].note + realoctave) * NOTE_SF * sfAdj[7] + 0.5);
+  mV = mV * keyTrackMult;
   sample_data = (channel_h & 0xFFF0000F) | (((int(mV)) & 0xFFFF) << 4);
   outputDAC(DAC_NOTE1, sample_data);
   velmV = ((unsigned int)((float)voices[7].velocity) * VEL_SF);
@@ -800,7 +817,7 @@ void updateVoice8() {
 }
 
 void myConvertControlChange(byte channel, byte number, byte value) {
-  int newvalue = value;
+  int newvalue = (value << 3);
   myControlChange(channel, number, newvalue);
 }
 
@@ -819,10 +836,10 @@ void myAfterTouch(byte channel, byte pressure) {
 }
 
 void allNotesOff() {
-    for (int i = 0; i < NO_OF_VOICES; i++) {
-      voices[i].note = -1;
-      voiceOn[i] = false;
-    }
+  for (int i = 0; i < NO_OF_VOICES; i++) {
+    voices[i].note = -1;
+    voiceOn[i] = false;
+  }
   trig.writePin(GATE_NOTE1, LOW);
   trig.writePin(GATE_NOTE2, LOW);
   trig.writePin(GATE_NOTE3, LOW);
@@ -842,11 +859,11 @@ void updateosc2fmWaveMod() {
 }
 
 void updateosc1fmDepth() {
-  showCurrentParameterPage("FM Depth", int(osc1fmDepthstr));
+  showCurrentParameterPage("OSC1 FM Depth", int(osc1fmDepthstr));
 }
 
 void updateosc2fmDepth() {
-  showCurrentParameterPage("FM Depth", int(osc2fmDepthstr));
+  showCurrentParameterPage("OSC2 FM Depth", int(osc2fmDepthstr));
 }
 
 void updateosc1Tune() {
@@ -867,23 +884,29 @@ void updateosc2WaveMod() {
 
 void updateosc1Range() {
   switch (oct1) {
-    case 1:
-      showCurrentParameterPage("Osc1 Range", String("-1"));
-
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc1 Range", String("-1"));
+      }
+      sendCCtoAllDevices(17, 0);
       srp.writePin(DCO1_OCT_RED_LED, HIGH);
       srp.writePin(DCO1_OCT_GREEN_LED, LOW);
       break;
 
-    case 2:
-      showCurrentParameterPage("Osc1 Range", String("0"));
-
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc1 Range", String("0"));
+      }
+      sendCCtoAllDevices(17, 64);
       srp.writePin(DCO1_OCT_RED_LED, HIGH);
       srp.writePin(DCO1_OCT_GREEN_LED, HIGH);
       break;
 
-    case 3:
-      showCurrentParameterPage("Osc1 Range", String("+1"));
-
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc1 Range", String("+1"));
+      }
+      sendCCtoAllDevices(17, 127);
       srp.writePin(DCO1_OCT_RED_LED, LOW);
       srp.writePin(DCO1_OCT_GREEN_LED, HIGH);
       break;
@@ -892,23 +915,29 @@ void updateosc1Range() {
 
 void updateosc2Range() {
   switch (oct2) {
-    case 1:
-      showCurrentParameterPage("Osc2 Range", String("-1"));
-
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc2 Range", String("-1"));
+      }
+      sendCCtoAllDevices(19, 0);
       srp.writePin(DCO2_OCT_RED_LED, HIGH);
       srp.writePin(DCO2_OCT_GREEN_LED, LOW);
       break;
 
-    case 2:
-      showCurrentParameterPage("Osc2 Range", String("0"));
-
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc2 Range", String("0"));
+      }
+      sendCCtoAllDevices(19, 64);
       srp.writePin(DCO2_OCT_RED_LED, HIGH);
       srp.writePin(DCO2_OCT_GREEN_LED, HIGH);
       break;
 
-    case 3:
-      showCurrentParameterPage("Osc2 Range", String("+1"));
-
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc2 Range", String("+1"));
+      }
+      sendCCtoAllDevices(19, 127);
       srp.writePin(DCO2_OCT_RED_LED, LOW);
       srp.writePin(DCO2_OCT_GREEN_LED, HIGH);
       break;
@@ -917,23 +946,29 @@ void updateosc2Range() {
 
 void updateosc1Bank() {
   switch (osc1Bank) {
-    case 2:
-      showCurrentParameterPage("Osc1 Bank", String("FM"));
-
-      srp.writePin(DCO1_MODE_RED_LED, HIGH);
-      srp.writePin(DCO1_MODE_GREEN_LED, HIGH);
-      break;
-
-    case 1:
-      showCurrentParameterPage("Osc1 Bank", String("Fold"));
-
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc1 Bank", String("Fold"));
+      }
+      sendCCtoAllDevices(16, 0);
       srp.writePin(DCO1_MODE_RED_LED, HIGH);
       srp.writePin(DCO1_MODE_GREEN_LED, LOW);
       break;
 
-    case 3:
-      showCurrentParameterPage("Osc1 Bank", String("AM"));
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc1 Bank", String("FM"));
+      }
+      sendCCtoAllDevices(16, 1);
+      srp.writePin(DCO1_MODE_RED_LED, HIGH);
+      srp.writePin(DCO1_MODE_GREEN_LED, HIGH);
+      break;
 
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc1 Bank", String("AM"));
+      }
+      sendCCtoAllDevices(16, 2);
       srp.writePin(DCO1_MODE_RED_LED, LOW);
       srp.writePin(DCO1_MODE_GREEN_LED, HIGH);
       break;
@@ -943,23 +978,30 @@ void updateosc1Bank() {
 
 void updateosc2Bank() {
   switch (osc2Bank) {
-    case 2:
-      showCurrentParameterPage("Osc2 Bank", String("FM"));
 
-      srp.writePin(DCO2_MODE_RED_LED, HIGH);
-      srp.writePin(DCO2_MODE_GREEN_LED, HIGH);
-      break;
-
-    case 1:
-      showCurrentParameterPage("Osc2 Bank", String("Fold"));
-
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc2 Bank", String("Fold"));
+      }
+      sendCCtoAllDevices(18, 0);
       srp.writePin(DCO2_MODE_RED_LED, HIGH);
       srp.writePin(DCO2_MODE_GREEN_LED, LOW);
       break;
 
-    case 3:
-      showCurrentParameterPage("Osc2 Bank", String("AM"));
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc2 Bank", String("FM"));
+      }
+      sendCCtoAllDevices(18, 1);
+      srp.writePin(DCO2_MODE_RED_LED, HIGH);
+      srp.writePin(DCO2_MODE_GREEN_LED, HIGH);
+      break;
 
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Osc2 Bank", String("AM"));
+      }
+      sendCCtoAllDevices(18, 2);
       srp.writePin(DCO2_MODE_RED_LED, LOW);
       srp.writePin(DCO2_MODE_GREEN_LED, HIGH);
       break;
@@ -969,6 +1011,7 @@ void updateosc2Bank() {
 
 void updateglideTime() {
   showCurrentParameterPage("Glide Time", String(glideTimedisplay * 10) + " Seconds");
+  sendCCtoAllDevices(5, glideTime);
 }
 
 void updateglideSW() {
@@ -976,247 +1019,309 @@ void updateglideSW() {
     if (!recallPatchFlag) {
       showCurrentParameterPage("Glide", "On");
     }
+    sendCCtoAllDevices(65, 1);
     srp.writePin(GLIDE_LED, HIGH);  // LED on
     midiCCOut(CCglideSW, 127);
+    updateglideTime();
   } else {
-    srp.writePin(GLIDE_LED, LOW);  // LED off
     if (!recallPatchFlag) {
       showCurrentParameterPage("Glide", "Off");
-      midiCCOut(CCglideSW, 127);
     }
+    sendCCtoAllDevices(65, 0);
+    srp.writePin(GLIDE_LED, LOW);  // LED off
+    midiCCOut(CCglideSW, 127);
+    updateglideTime();
   }
+}
+
+void sendCCtoAllDevices(int CCnumberTosend, int value) {
+  //
+    MIDI2.sendControlChange(CCnumberTosend, value, 1);
+  //}
 }
 
 void updateosc1WaveSelect() {
   switch (osc1Bank) {
-    case 1:
+    case 0:
       switch (osc1WaveSelect) {
-        case 1:
+        case 0:
           Oscillator1Waveform = "Sawtooth";
+          sendCCtoAllDevices(70, 0);
+          break;
+
+        case 1:
+          Oscillator1Waveform = "Sinewave";
+          sendCCtoAllDevices(70, 1);
           break;
 
         case 2:
-          Oscillator1Waveform = "Sinewave";
+          Oscillator1Waveform = "Squarewave";
+          sendCCtoAllDevices(70, 2);
           break;
 
         case 3:
-          Oscillator1Waveform = "Squarewave";
+          Oscillator1Waveform = "Triangle";
+          sendCCtoAllDevices(70, 3);
           break;
 
         case 4:
-          Oscillator1Waveform = "Triangle";
+          Oscillator1Waveform = "Octave Saw";
+          sendCCtoAllDevices(70, 4);
           break;
 
         case 5:
-          Oscillator1Waveform = "Octave Saw";
+          Oscillator1Waveform = "FM 1";
+          sendCCtoAllDevices(70, 5);
           break;
 
         case 6:
-          Oscillator1Waveform = "FM 1";
+          Oscillator1Waveform = "FM 2";
+          sendCCtoAllDevices(70, 6);
           break;
 
         case 7:
-          Oscillator1Waveform = "FM 2";
+          Oscillator1Waveform = "FM 3";
+          sendCCtoAllDevices(70, 7);
+          break;
+      }
+      break;
+
+    case 1:
+      switch (osc1WaveSelect) {
+        case 0:
+          Oscillator1Waveform = "FM 1";
+          sendCCtoAllDevices(70, 0);
           break;
 
-        case 8:
+        case 1:
+          Oscillator1Waveform = "FM 2";
+          sendCCtoAllDevices(70, 1);
+          break;
+
+        case 2:
           Oscillator1Waveform = "FM 3";
+          sendCCtoAllDevices(70, 2);
+          break;
+
+        case 3:
+          Oscillator1Waveform = "FM 4";
+          sendCCtoAllDevices(70, 3);
+          break;
+
+        case 4:
+          Oscillator1Waveform = "FM 5";
+          sendCCtoAllDevices(70, 4);
+          break;
+
+        case 5:
+          Oscillator1Waveform = "FM 6";
+          sendCCtoAllDevices(70, 5);
+          break;
+
+        case 6:
+          Oscillator1Waveform = "FM 7";
+          sendCCtoAllDevices(70, 6);
+          break;
+
+        case 7:
+          Oscillator1Waveform = "FM 8";
+          sendCCtoAllDevices(70, 7);
           break;
       }
       break;
 
     case 2:
       switch (osc1WaveSelect) {
-        case 1:
-          Oscillator1Waveform = "FM 1";
-          break;
-
-        case 2:
-          Oscillator1Waveform = "FM 2";
-          break;
-
-        case 3:
-          Oscillator1Waveform = "FM 3";
-          break;
-
-        case 4:
-          Oscillator1Waveform = "FM 4";
-          break;
-
-        case 5:
-          Oscillator1Waveform = "FM 5";
-          break;
-
-        case 6:
-          Oscillator1Waveform = "FM 6";
-          break;
-
-        case 7:
-          Oscillator1Waveform = "FM 7";
-          break;
-
-        case 8:
-          Oscillator1Waveform = "FM 8";
-          break;
-      }
-      break;
-
-    case 3:
-      switch (osc1WaveSelect) {
-        case 1:
+        case 0:
           Oscillator1Waveform = "Sawtooth";
+          sendCCtoAllDevices(70, 0);
+          break;
+
+        case 1:
+          Oscillator1Waveform = "FM 1";
+          sendCCtoAllDevices(70, 1);
           break;
 
         case 2:
-          Oscillator1Waveform = "FM 1";
+          Oscillator1Waveform = "FM 2";
+          sendCCtoAllDevices(70, 2);
           break;
 
         case 3:
-          Oscillator1Waveform = "FM 2";
+          Oscillator1Waveform = "FM 3";
+          sendCCtoAllDevices(70, 3);
           break;
 
         case 4:
-          Oscillator1Waveform = "FM 3";
+          Oscillator1Waveform = "FM 1 Multi";
+          sendCCtoAllDevices(70, 4);
           break;
 
         case 5:
-          Oscillator1Waveform = "FM 1 Multi";
+          Oscillator1Waveform = "FM 2 Multi";
+          sendCCtoAllDevices(70, 5);
           break;
 
         case 6:
-          Oscillator1Waveform = "FM 2 Multi";
+          Oscillator1Waveform = "FM 3 Multi";
+          sendCCtoAllDevices(70, 6);
           break;
 
         case 7:
           Oscillator1Waveform = "FM 3 Multi";
-          break;
-
-        case 8:
-          Oscillator1Waveform = "FM 3 Multi";
+          sendCCtoAllDevices(70, 7);
           break;
       }
       break;
   }
   //pixel.clear();
-  pixel.setPixelColor(1, pixel.Color(colour[osc1WaveSelect - 1][0], colour[osc1WaveSelect - 1][1], colour[osc1WaveSelect - 1][2]));
+  pixel.setPixelColor(1, pixel.Color(colour[osc1WaveSelect][0], colour[osc1WaveSelect][1], colour[osc1WaveSelect][2]));
   pixel.show();
-  showCurrentParameterPage("OSC1 Wave", Oscillator1Waveform);
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("OSC1 Wave", Oscillator1Waveform);
+  }
 }
 
 void updateosc2WaveSelect() {
   switch (osc2Bank) {
-    case 1:
+    case 0:
       switch (osc2WaveSelect) {
-        case 1:
+        case 0:
           Oscillator2Waveform = "Sawtooth";
+          sendCCtoAllDevices(71, 0);
+          break;
+
+        case 1:
+          Oscillator2Waveform = "Sinewave";
+          sendCCtoAllDevices(71, 1);
           break;
 
         case 2:
-          Oscillator2Waveform = "Sinewave";
+          Oscillator2Waveform = "Squarewave";
+          sendCCtoAllDevices(71, 2);
           break;
 
         case 3:
-          Oscillator2Waveform = "Squarewave";
+          Oscillator2Waveform = "Triangle";
+          sendCCtoAllDevices(71, 3);
           break;
 
         case 4:
-          Oscillator2Waveform = "Triangle";
+          Oscillator2Waveform = "Octave Saw";
+          sendCCtoAllDevices(71, 4);
           break;
 
         case 5:
-          Oscillator2Waveform = "Octave Saw";
+          Oscillator2Waveform = "FM 1";
+          sendCCtoAllDevices(71, 5);
           break;
 
         case 6:
-          Oscillator2Waveform = "FM 1";
+          Oscillator2Waveform = "FM 2";
+          sendCCtoAllDevices(71, 6);
           break;
 
         case 7:
-          Oscillator2Waveform = "FM 2";
+          Oscillator2Waveform = "FM 3";
+          sendCCtoAllDevices(71, 7);
+          break;
+      }
+      break;
+
+    case 1:
+      switch (osc2WaveSelect) {
+        case 0:
+          Oscillator2Waveform = "FM 1";
+          sendCCtoAllDevices(71, 0);
           break;
 
-        case 8:
+        case 1:
+          Oscillator2Waveform = "FM 2";
+          sendCCtoAllDevices(71, 1);
+          break;
+
+        case 2:
           Oscillator2Waveform = "FM 3";
+          sendCCtoAllDevices(71, 2);
+          break;
+
+        case 3:
+          Oscillator2Waveform = "FM 4";
+          sendCCtoAllDevices(71, 3);
+          break;
+
+        case 4:
+          Oscillator2Waveform = "FM 5";
+          sendCCtoAllDevices(71, 4);
+          break;
+
+        case 5:
+          Oscillator2Waveform = "FM 6";
+          sendCCtoAllDevices(71, 5);
+          break;
+
+        case 6:
+          Oscillator2Waveform = "FM 7";
+          sendCCtoAllDevices(71, 6);
+          break;
+
+        case 7:
+          Oscillator2Waveform = "FM 8";
+          sendCCtoAllDevices(71, 7);
           break;
       }
       break;
 
     case 2:
       switch (osc2WaveSelect) {
-        case 1:
-          Oscillator2Waveform = "FM 1";
-          break;
-
-        case 2:
-          Oscillator2Waveform = "FM 2";
-          break;
-
-        case 3:
-          Oscillator2Waveform = "FM 3";
-          break;
-
-        case 4:
-          Oscillator2Waveform = "FM 4";
-          break;
-
-        case 5:
-          Oscillator2Waveform = "FM 5";
-          break;
-
-        case 6:
-          Oscillator2Waveform = "FM 6";
-          break;
-
-        case 7:
-          Oscillator2Waveform = "FM 7";
-          break;
-
-        case 8:
-          Oscillator2Waveform = "FM 8";
-          break;
-      }
-      break;
-
-    case 3:
-      switch (osc2WaveSelect) {
-        case 1:
+        case 0:
           Oscillator2Waveform = "Sawtooth";
+          sendCCtoAllDevices(71, 0);
+          break;
+
+        case 1:
+          Oscillator2Waveform = "FM 1";
+          sendCCtoAllDevices(71, 1);
           break;
 
         case 2:
-          Oscillator2Waveform = "FM 1";
+          Oscillator2Waveform = "FM 2";
+          sendCCtoAllDevices(71, 2);
           break;
 
         case 3:
-          Oscillator2Waveform = "FM 2";
+          Oscillator2Waveform = "FM 3";
+          sendCCtoAllDevices(71, 3);
           break;
 
         case 4:
-          Oscillator2Waveform = "FM 3";
+          Oscillator2Waveform = "FM 1 Multi";
+          sendCCtoAllDevices(71, 4);
           break;
 
         case 5:
-          Oscillator2Waveform = "FM 1 Multi";
+          Oscillator2Waveform = "FM 2 Multi";
+          sendCCtoAllDevices(71, 5);
           break;
 
         case 6:
-          Oscillator2Waveform = "FM 2 Multi";
+          Oscillator2Waveform = "FM 3 Multi";
+          sendCCtoAllDevices(71, 6);
           break;
 
         case 7:
           Oscillator2Waveform = "FM 3 Multi";
-          break;
-
-        case 8:
-          Oscillator2Waveform = "FM 3 Multi";
+          sendCCtoAllDevices(71, 7);
           break;
       }
       break;
   }
   //pixel.clear();
-  pixel.setPixelColor(2, pixel.Color(colour[osc2WaveSelect - 1][0], colour[osc2WaveSelect - 1][1], colour[osc2WaveSelect - 1][2]));
+  pixel.setPixelColor(2, pixel.Color(colour[osc2WaveSelect][0], colour[osc2WaveSelect][1], colour[osc2WaveSelect][2]));
   pixel.show();
-  showCurrentParameterPage("OSC2 Wave", Oscillator2Waveform);
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("OSC2 Wave", Oscillator2Waveform);
+  }
 }
 
 void updatenoiseLevel() {
@@ -1265,96 +1370,111 @@ void updateeffectMix() {
 
 void updateFilterType() {
   switch (filterType) {
-    case 1:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("3P LowPass"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("4P LowPass"));
+    case 0:
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("3P LowPass"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("4P LowPass"));
+        }
       }
       sr.writePin(FILTER_A, LOW);
+      sr.writePin(FILTER_B, LOW);
+      sr.writePin(FILTER_C, LOW);
+      break;
+
+    case 1:
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("1P LowPass"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("2P LowPass"));
+        }
+      }
+      sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, LOW);
       sr.writePin(FILTER_C, LOW);
       break;
 
     case 2:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("1P LowPass"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("2P LowPass"));
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("3P HP + 1P LP"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("4P HighPass"));
+        }
       }
-      sr.writePin(FILTER_A, HIGH);
-      sr.writePin(FILTER_B, LOW);
+      sr.writePin(FILTER_A, LOW);
+      sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, LOW);
       break;
 
     case 3:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("3P HP + 1P LP"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("4P HighPass"));
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("1P HP + 1P LP"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("2P HighPass"));
+        }
       }
-      sr.writePin(FILTER_A, LOW);
+      sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, LOW);
       break;
 
     case 4:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("1P HP + 1P LP"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("2P HighPass"));
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("2P HP + 1P LP"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("4P BandPass"));
+        }
       }
-      sr.writePin(FILTER_A, HIGH);
-      sr.writePin(FILTER_B, HIGH);
-      sr.writePin(FILTER_C, LOW);
+      sr.writePin(FILTER_A, LOW);
+      sr.writePin(FILTER_B, LOW);
+      sr.writePin(FILTER_C, HIGH);
       break;
 
     case 5:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("2P HP + 1P LP"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("4P BandPass"));
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("2P BP + 1P LP"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("2P BandPass"));
+        }
       }
-      sr.writePin(FILTER_A, LOW);
+      sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, LOW);
       sr.writePin(FILTER_C, HIGH);
       break;
 
     case 6:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("2P BP + 1P LP"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("2P BandPass"));
-      }
-      sr.writePin(FILTER_A, HIGH);
-      sr.writePin(FILTER_B, LOW);
-      sr.writePin(FILTER_C, HIGH);
-      break;
-
-    case 7:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("3P AP + 1P LP"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("3P AllPass"));
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("3P AP + 1P LP"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("3P AllPass"));
+        }
       }
       sr.writePin(FILTER_A, LOW);
       sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, HIGH);
       break;
 
-    case 8:
-      if (!filterPoleSW) {
-        showCurrentParameterPage("Filter Type", String("2P Notch + LP"));
-      } else {
-        showCurrentParameterPage("Filter Type", String("Notch"));
+    case 7:
+      if (!recallPatchFlag) {
+        if (!filterPoleSW) {
+          showCurrentParameterPage("Filter Type", String("2P Notch + LP"));
+        } else {
+          showCurrentParameterPage("Filter Type", String("Notch"));
+        }
       }
       sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, HIGH);
       break;
   }
-  //pixel.clear();
-  pixel.setPixelColor(0, pixel.Color(colour[filterType - 1][0], colour[filterType - 1][1], colour[filterType - 1][2]));
+  pixel.setPixelColor(0, pixel.Color(colour[filterType][0], colour[filterType][1], colour[filterType][2]));
   pixel.show();
 }
 
@@ -1377,77 +1497,97 @@ void updateamDepth() {
 void updateStratusLFOWaveform() {
   if (!lfoAlt) {
     switch (LFOWaveform) {
-      case 1:
+      case 0:
         StratusLFOWaveform = "Saw +Oct";
+        LFOWaveCV = 40;
+        break;
+        break;
+
+      case 1:
+        StratusLFOWaveform = "Quad Saw";
+        LFOWaveCV = 160;
         break;
 
       case 2:
-        StratusLFOWaveform = "Quad Saw";
+        StratusLFOWaveform = "Quad Pulse";
+        LFOWaveCV = 280;
         break;
 
       case 3:
-        StratusLFOWaveform = "Quad Pulse";
+        StratusLFOWaveform = "Tri Step";
+        LFOWaveCV = 376;
         break;
 
       case 4:
-        StratusLFOWaveform = "Tri Step";
+        StratusLFOWaveform = "Sine +Oct";
+        LFOWaveCV = 592;
         break;
 
       case 5:
-        StratusLFOWaveform = "Sine +Oct";
+        StratusLFOWaveform = "Sine +3rd";
+        LFOWaveCV = 720;
         break;
 
       case 6:
-        StratusLFOWaveform = "Sine +3rd";
+        StratusLFOWaveform = "Sine +4th";
+        LFOWaveCV = 840;
         break;
 
       case 7:
-        StratusLFOWaveform = "Sine +4th";
-        break;
-
-      case 8:
         StratusLFOWaveform = "Rand Slopes";
+        LFOWaveCV = 968;
         break;
     }
   } else {
     switch (LFOWaveform) {
-      case 1:
+      case 0:
         StratusLFOWaveform = "Sawtooth Up";
+        LFOWaveCV = 40;
+        break;
+
+      case 1:
+        StratusLFOWaveform = "Sawtooth Down";
+        LFOWaveCV = 160;
         break;
 
       case 2:
-        StratusLFOWaveform = "Sawtooth Down";
+        StratusLFOWaveform = "Squarewave";
+        LFOWaveCV = 280;
         break;
 
       case 3:
-        StratusLFOWaveform = "Squarewave";
+        StratusLFOWaveform = "Triangle";
+        LFOWaveCV = 376;
         break;
 
       case 4:
-        StratusLFOWaveform = "Triangle";
+        StratusLFOWaveform = "Sinewave";
+        LFOWaveCV = 592;
         break;
 
       case 5:
-        StratusLFOWaveform = "Sinewave";
+        StratusLFOWaveform = "Sweeps";
+        LFOWaveCV = 720;
         break;
 
       case 6:
-        StratusLFOWaveform = "Sweeps";
+        StratusLFOWaveform = "Lumps";
+        LFOWaveCV = 840;
         break;
 
       case 7:
-        StratusLFOWaveform = "Lumps";
-        break;
-
-      case 8:
         StratusLFOWaveform = "Sample & Hold";
+        LFOWaveCV = 968;
         break;
     }
   }
   //pixel.clear();
-  pixel.setPixelColor(3, pixel.Color(colour[LFOWaveform - 1][0], colour[LFOWaveform - 1][1], colour[LFOWaveform - 1][2]));
+  pixel.setPixelColor(3, pixel.Color(colour[LFOWaveform][0], colour[LFOWaveform][1], colour[LFOWaveform][2]));
   pixel.show();
-  showCurrentParameterPage("LFO Wave", StratusLFOWaveform);
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("LFO Wave", StratusLFOWaveform);
+  }
+  //LFOWaveCV = map(LFOWaveform, 0, 7, 0, 1023);
 }
 
 void updatefilterAttack() {
@@ -1515,14 +1655,12 @@ void updatevolumeControl() {
 
 void updatefilterPoleSwitch() {
   if (filterPoleSW) {
-    //showCurrentParameterPage("VCF Pole SW", "On");
     sr.writePin(FILTER_POLE, HIGH);
     srp.writePin(FILTER_POLE_RED_LED, HIGH);
     srp.writePin(FILTER_POLE_GREEN_LED, LOW);
     midiCCOut(CCfilterPoleSW, 127);
     updateFilterType();
   } else {
-    //showCurrentParameterPage("VCF Pole SW", "Off");
     sr.writePin(FILTER_POLE, LOW);
     srp.writePin(FILTER_POLE_RED_LED, LOW);
     srp.writePin(FILTER_POLE_GREEN_LED, HIGH);
@@ -1533,24 +1671,30 @@ void updatefilterPoleSwitch() {
 
 void updateFilterLoop() {
   switch (FilterLoop) {
-    case 1:
-      showCurrentParameterPage("Filter Loop", "Off");
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Filter Loop", "Off");
+      }
       srp.writePin(FILTER_LOOP_RED_LED, LOW);
       srp.writePin(FILTER_LOOP_GREEN_LED, LOW);
       sr.writePin(FLOOPBIT0, LOW);
       sr.writePin(FLOOPBIT1, LOW);
       break;
 
-    case 2:
-      showCurrentParameterPage("Filter Loop", "Gated Mode");
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Filter Loop", "Gated Mode");
+      }
       srp.writePin(FILTER_LOOP_RED_LED, HIGH);
       srp.writePin(FILTER_LOOP_GREEN_LED, LOW);
       sr.writePin(FLOOPBIT0, HIGH);
       sr.writePin(FLOOPBIT1, LOW);
       break;
 
-    case 3:
-      showCurrentParameterPage("Filter Loop", "LFO Mode");
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Filter Loop", "LFO Mode");
+      }
       srp.writePin(FILTER_LOOP_RED_LED, LOW);
       srp.writePin(FILTER_LOOP_GREEN_LED, HIGH);
       sr.writePin(FLOOPBIT0, HIGH);
@@ -1561,12 +1705,16 @@ void updateFilterLoop() {
 
 void updatefilterEGinv() {
   if (filterEGinv) {
-    showCurrentParameterPage("Filter Env", "Positive");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Filter Env", "Positive");
+    }
     sr.writePin(FILTER_EG_INV, LOW);
     srp.writePin(EG_INV_LED, LOW);
     midiCCOut(CCfilterEGinv, 0);
   } else {
-    showCurrentParameterPage("Filter Env", "Negative");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Filter Env", "Negative");
+    }
     sr.writePin(FILTER_EG_INV, HIGH);
     srp.writePin(EG_INV_LED, HIGH);
     midiCCOut(CCfilterEGinv, 127);
@@ -1575,13 +1723,17 @@ void updatefilterEGinv() {
 
 void updatefilterVelSW() {
   if (filterVelSW) {
-    showCurrentParameterPage("Filter Velocity", "On");
-    //sr.writePin(FILTER_EG_INV, LOW);
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Filter Velocity", "On");
+    }
+    sr.writePin(FILTER_VELOCITY, HIGH);
     srp.writePin(FILTER_VELOCITY_LED, HIGH);
     midiCCOut(CCfilterVelSW, 127);
   } else {
-    showCurrentParameterPage("Filter Velocity", "Off");
-    //sr.writePin(FILTER_EG_INV, HIGH);
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Filter Velocity", "Off");
+    }
+    sr.writePin(FILTER_VELOCITY, LOW);
     srp.writePin(FILTER_VELOCITY_LED, LOW);
     midiCCOut(CCfilterVelSW, 0);
   }
@@ -1589,13 +1741,17 @@ void updatefilterVelSW() {
 
 void updateampVelSW() {
   if (ampVelSW) {
-    showCurrentParameterPage("Amp Velocity", "On");
-    //sr.writePin(FILTER_EG_INV, LOW);
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Amp Velocity", "On");
+    }
+    sr.writePin(AMP_VELOCITY, HIGH);
     srp.writePin(VCA_VELOCITY_LED, HIGH);
     midiCCOut(CCampVelSW, 127);
   } else {
-    showCurrentParameterPage("Amp Velocity", "Off");
-    //sr.writePin(FILTER_EG_INV, HIGH);
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Amp Velocity", "Off");
+    }
+    sr.writePin(AMP_VELOCITY, LOW);
     srp.writePin(VCA_VELOCITY_LED, LOW);
     midiCCOut(CCampVelSW, 0);
   }
@@ -1603,24 +1759,30 @@ void updateampVelSW() {
 
 void updateAmpLoop() {
   switch (AmpLoop) {
-    case 1:
-      showCurrentParameterPage("VCA Loop", "Off");
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("VCA Loop", "Off");
+      }
       srp.writePin(VCA_LOOP_RED_LED, LOW);
       srp.writePin(VCA_LOOP_GREEN_LED, LOW);
       sr.writePin(ALOOPBIT0, LOW);
       sr.writePin(ALOOPBIT1, LOW);
       break;
 
-    case 2:
-      showCurrentParameterPage("VCA Loop", "Gated Mode");
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("VCA Loop", "Gated Mode");
+      }
       srp.writePin(VCA_LOOP_RED_LED, HIGH);
       srp.writePin(VCA_LOOP_GREEN_LED, LOW);
       sr.writePin(ALOOPBIT0, HIGH);
       sr.writePin(ALOOPBIT1, LOW);
       break;
 
-    case 3:
-      showCurrentParameterPage("VCA Loop", "LFO Mode");
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("VCA Loop", "LFO Mode");
+      }
       srp.writePin(VCA_LOOP_RED_LED, LOW);
       srp.writePin(VCA_LOOP_GREEN_LED, HIGH);
       sr.writePin(ALOOPBIT0, HIGH);
@@ -1632,21 +1794,27 @@ void updateAmpLoop() {
 void updatekeyboardMode() {
   switch (keyboardMode) {
     case 0:
-      showCurrentParameterPage("Keyboard Mode", "Poly");
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Keyboard Mode", "Poly");
+      }
       srp.writePin(POLY_MODE_RED_LED, HIGH);
       srp.writePin(POLY_MODE_GREEN_LED, LOW);
       allNotesOff();
       break;
 
     case 1:
-      showCurrentParameterPage("Keyboard Mode", "Mono");
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Keyboard Mode", "Mono");
+      }
       srp.writePin(POLY_MODE_RED_LED, LOW);
       srp.writePin(POLY_MODE_GREEN_LED, HIGH);
       allNotesOff();
       break;
 
     case 2:
-      showCurrentParameterPage("Keyboard Mode", "Unison");
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Keyboard Mode", "Unison");
+      }
       srp.writePin(POLY_MODE_RED_LED, HIGH);
       srp.writePin(POLY_MODE_GREEN_LED, HIGH);
       allNotesOff();
@@ -1657,19 +1825,25 @@ void updatekeyboardMode() {
 void updateNotePriority() {
   switch (NotePriority) {
     case 0:
-      showCurrentParameterPage("Note Priority", "Top Note");
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Note Priority", "Top Note");
+      }
       srp.writePin(PRIORITY_RED_LED, HIGH);
       srp.writePin(PRIORITY_GREEN_LED, LOW);
       break;
 
     case 1:
-      showCurrentParameterPage("Note Priority", "Bottom Note");
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Note Priority", "Bottom Note");
+      }
       srp.writePin(PRIORITY_RED_LED, LOW);
       srp.writePin(PRIORITY_GREEN_LED, HIGH);
       break;
 
     case 2:
-      showCurrentParameterPage("Note Priority", "Last Note");
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Note Priority", "Last Note");
+      }
       srp.writePin(PRIORITY_RED_LED, HIGH);
       srp.writePin(PRIORITY_GREEN_LED, HIGH);
       break;
@@ -1694,71 +1868,162 @@ void updatelfoAlt() {
 
 void updatelfoMult() {
   switch (lfoMult) {
-    case 2:
-      showCurrentParameterPage("Lfo Multi", String("X 1.0"));
 
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Lfo Multi", String("X 0.5"));
+      }
       srp.writePin(LFO_MULT_RED_LED, HIGH);
-      srp.writePin(LFO_MULT_GREEN_LED, HIGH);
+      srp.writePin(LFO_MULT_GREEN_LED, LOW);
+      LFOMultCV = 40;
       break;
 
     case 1:
-      showCurrentParameterPage("Lfo Multi", String("X 0.5"));
-
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Lfo Multi", String("X 1.0"));
+      }
       srp.writePin(LFO_MULT_RED_LED, HIGH);
-      srp.writePin(LFO_MULT_GREEN_LED, LOW);
+      srp.writePin(LFO_MULT_GREEN_LED, HIGH);
+      LFOMultCV = 400;
       break;
 
-    case 3:
-      showCurrentParameterPage("Lfo Multi", String("X 1.5"));
-
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Lfo Multi", String("X 2.0"));
+      }
       srp.writePin(LFO_MULT_RED_LED, LOW);
       srp.writePin(LFO_MULT_GREEN_LED, HIGH);
+      LFOMultCV = 1023;
       break;
   }
 }
 
 void updateeffectBankSW() {
   switch (effectBankSW) {
-    case 1:
-      showCurrentParameterPage("Effects Bank", String("Factory"));
-
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effects Bank", String("Factory"));
+      }
       srp.writePin(EFFECT_BANK_RED_LED, LOW);
       srp.writePin(EFFECT_BANK_GREEN_LED, LOW);
       break;
 
-    case 2:
-      showCurrentParameterPage("Effects Bank", String("User 1"));
-
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effects Bank", String("User 1"));
+      }
       srp.writePin(EFFECT_BANK_RED_LED, HIGH);
       srp.writePin(EFFECT_BANK_GREEN_LED, LOW);
       break;
 
-    case 3:
-      showCurrentParameterPage("Effects Bank", String("User 2"));
-
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effects Bank", String("User 2"));
+      }
       srp.writePin(EFFECT_BANK_RED_LED, LOW);
       srp.writePin(EFFECT_BANK_GREEN_LED, HIGH);
       break;
 
-    case 4:
-      showCurrentParameterPage("Effects Bank", String("User 3"));
-
+    case 3:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effects Bank", String("User 3"));
+      }
       srp.writePin(EFFECT_BANK_RED_LED, HIGH);
       srp.writePin(EFFECT_BANK_GREEN_LED, HIGH);
       break;
   }
 }
 
+void updateeffectNumSW() {
+  switch (effectNumSW) {
+    case 0:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 1"));
+      }
+      sr.writePin(EFFECT_0, LOW);
+      sr.writePin(EFFECT_1, LOW);
+      sr.writePin(EFFECT_2, LOW);
+      break;
+
+    case 1:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 2"));
+      }
+      sr.writePin(EFFECT_0, HIGH);
+      sr.writePin(EFFECT_1, LOW);
+      sr.writePin(EFFECT_2, LOW);
+      break;
+
+    case 2:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 3"));
+      }
+      sr.writePin(EFFECT_0, LOW);
+      sr.writePin(EFFECT_1, HIGH);
+      sr.writePin(EFFECT_2, LOW);
+      break;
+
+    case 3:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 4"));
+      }
+      sr.writePin(EFFECT_0, HIGH);
+      sr.writePin(EFFECT_1, HIGH);
+      sr.writePin(EFFECT_2, LOW);
+      break;
+
+    case 4:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 5"));
+      }
+      sr.writePin(EFFECT_0, LOW);
+      sr.writePin(EFFECT_1, LOW);
+      sr.writePin(EFFECT_2, HIGH);
+      break;
+
+    case 5:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 6"));
+      }
+      sr.writePin(EFFECT_0, HIGH);
+      sr.writePin(EFFECT_1, LOW);
+      sr.writePin(EFFECT_2, HIGH);
+      break;
+
+    case 6:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 7"));
+      }
+      sr.writePin(EFFECT_0, LOW);
+      sr.writePin(EFFECT_1, HIGH);
+      sr.writePin(EFFECT_2, HIGH);
+      break;
+
+    case 7:
+      if (!recallPatchFlag) {
+        showCurrentParameterPage("Effect", String("Factory 8"));
+      }
+      sr.writePin(EFFECT_0, HIGH);
+      sr.writePin(EFFECT_1, HIGH);
+      sr.writePin(EFFECT_2, HIGH);
+      break;
+  }
+}
+
 void updateenvLinLogSW() {
   if (envLinLogSW) {
-    showCurrentParameterPage("Envelope Type", "Linear");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Envelope Type", "Linear");
+    }
     sr.writePin(FILTER_LIN_LOG, HIGH);
     sr.writePin(AMP_LIN_LOG, HIGH);
     srp.writePin(LIN_LOG_RED_LED, HIGH);
     srp.writePin(LIN_LOG_GREEN_LED, LOW);
     midiCCOut(CCenvLinLogSW, 127);
   } else {
-    showCurrentParameterPage("Envelope Type", "Log");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Envelope Type", "Log");
+    }
     sr.writePin(FILTER_LIN_LOG, LOW);
     sr.writePin(AMP_LIN_LOG, LOW);
     srp.writePin(LIN_LOG_RED_LED, LOW);
@@ -1769,7 +2034,9 @@ void updateenvLinLogSW() {
 
 void updateAmpGatedSW() {
   if (!AmpGatedSW) {
-    showCurrentParameterPage("VCA Gate", "Off");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("VCA Gate", "Off");
+    }
     srp.writePin(VCA_GATE_LED, LOW);  // LED off
     ampAttack = oldampAttack;
     ampDecay = oldampDecay;
@@ -1778,7 +2045,9 @@ void updateAmpGatedSW() {
     midiCCOut(CCAmpGatedSW, 0);
 
   } else {
-    showCurrentParameterPage("VCA Gate", "On");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("VCA Gate", "On");
+    }
     srp.writePin(VCA_GATE_LED, HIGH);  // LED on
     ampAttack = 0;
     ampDecay = 0;
@@ -1790,11 +2059,15 @@ void updateAmpGatedSW() {
 
 void updatemonoMultiSW() {
   if (monoMultiSW) {
-    showCurrentParameterPage("Multi Trigger", "On");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Multi Trigger", "On");
+    }
     srp.writePin(MONO_MULTI_LED, HIGH);
     midiCCOut(CCmonoMultiSW, 127);
   } else {
-    showCurrentParameterPage("Multi Trigger", "Off");
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Multi Trigger", "Off");
+    }
     srp.writePin(MONO_MULTI_LED, LOW);
     midiCCOut(CCmonoMultiSW, 0);
   }
@@ -1811,27 +2084,27 @@ void updatemodWheel() {
 void updateAfterTouchDest() {
   switch (AfterTouchDest) {
     case 0:
-      sr.writePin(AFTERTOUCH_A, LOW);
-      sr.writePin(AFTERTOUCH_B, LOW);
-      sr.writePin(AFTERTOUCH_C, LOW);
+      // sr.writePin(AFTERTOUCH_A, LOW);
+      // sr.writePin(AFTERTOUCH_B, LOW);
+      // sr.writePin(AFTERTOUCH_C, LOW);
       break;
 
     case 1:
-      sr.writePin(AFTERTOUCH_A, HIGH);
-      sr.writePin(AFTERTOUCH_B, LOW);
-      sr.writePin(AFTERTOUCH_C, LOW);
+      // sr.writePin(AFTERTOUCH_A, HIGH);
+      // sr.writePin(AFTERTOUCH_B, LOW);
+      // sr.writePin(AFTERTOUCH_C, LOW);
       break;
 
     case 2:
-      sr.writePin(AFTERTOUCH_A, LOW);
-      sr.writePin(AFTERTOUCH_B, HIGH);
-      sr.writePin(AFTERTOUCH_C, LOW);
+      // sr.writePin(AFTERTOUCH_A, LOW);
+      // sr.writePin(AFTERTOUCH_B, HIGH);
+      // sr.writePin(AFTERTOUCH_C, LOW);
       break;
 
     case 3:
-      sr.writePin(AFTERTOUCH_A, HIGH);
-      sr.writePin(AFTERTOUCH_B, HIGH);
-      sr.writePin(AFTERTOUCH_C, LOW);
+      // sr.writePin(AFTERTOUCH_A, HIGH);
+      // sr.writePin(AFTERTOUCH_B, HIGH);
+      // sr.writePin(AFTERTOUCH_C, LOW);
       break;
   }
   oldAfterTouchDest = AfterTouchDest;
@@ -1845,129 +2118,129 @@ void myControlChange(byte channel, byte control, int value) {
   switch (control) {
     case CCosc1Tune:
       osc1Tune = value;
-      osc1Tunestr = map(value, 0, 4095, 0, 127);
+      osc1Tunestr = map(value, 0, readRes, 0, 127);
       osc1Tunestr = PITCH[osc1Tunestr];  // for display
       updateosc1Tune();
       break;
 
     case CCosc1fmDepth:
       osc1fmDepth = value;
-      osc1fmDepthstr = map(value, 0, 4095, 0, 127);
+      osc1fmDepthstr = map(value, 0, readRes, 0, 127);
       updateosc1fmDepth();
       break;
 
     case CCosc2fmDepth:
       osc2fmDepth = value;
-      osc2fmDepthstr = map(value, 0, 4095, 0, 127);
+      osc2fmDepthstr = map(value, 0, readRes, 0, 127);
       updateosc2fmDepth();
       break;
 
     case CCosc2Tune:
       osc2Tune = value;
-      osc2Tunestr = map(value, 0, 4095, 0, 127);
+      osc2Tunestr = map(value, 0, readRes, 0, 127);
       osc2Tunestr = PITCH[osc2Tunestr];  // for display
       updateosc2Tune();
       break;
 
     case CCosc1WaveMod:
       osc1WaveMod = value;
-      osc1WaveModstr = map(value, 0, 4095, 0, 127);
+      osc1WaveModstr = map(value, 0, readRes, 0, 127);
       updateosc1WaveMod();
       break;
 
     case CCosc2WaveMod:
       osc2WaveMod = value;
-      osc2WaveModstr = map(value, 0, 4095, 0, 127);
+      osc2WaveModstr = map(value, 0, readRes, 0, 127);
       updateosc2WaveMod();
       break;
 
     case CCeffect1:
       effect1 = value;
-      effect1str = map(value, 0, 4095, 0, 127);
+      effect1str = map(value, 0, readRes, 0, 127);
       updateeffect1();
       break;
 
     case CCeffect2:
       effect2 = value;
-      effect2str = map(value, 0, 4095, 0, 127);
+      effect2str = map(value, 0, readRes, 0, 127);
       updateeffect2();
       break;
 
     case CCeffect3:
       effect3 = value;
-      effect3str = map(value, 0, 4095, 0, 127);
+      effect3str = map(value, 0, readRes, 0, 127);
       updateeffect3();
       break;
 
     case CCeffectMix:
       effectMix = value;
-      mixa = map(value, 0, 4095, 0, 4095);
-      mixb = map(value, 0, 4095, 4095, 0);
-      mixastr = map(value, 0, 4095, 0, 127);
-      mixbstr = map(value, 0, 4095, 127, 0);
+      mixa = map(value, 0, readRes, 0, readRes);
+      mixb = map(value, 0, readRes, readRes, 0);
+      mixastr = map(value, 0, readRes, 0, 127);
+      mixbstr = map(value, 0, readRes, 127, 0);
       updateeffectMix();
       break;
 
     case CCglideTime:
-      glideTimestr = map(value, 0, 4095, 0, 127);
+      glideTimestr = map(value, 0, readRes, 0, 127);
       glideTimedisplay = LINEAR[glideTimestr];
-      glideTime = value;
+      glideTime = map(value, 0, readRes, 1, 127);
       updateglideTime();
       break;
 
     case CCosc1fmWaveMod:
-      osc1fmWaveModstr = map(value, 0, 4095, 0, 127);
+      osc1fmWaveModstr = map(value, 0, readRes, 0, 127);
       osc1fmWaveMod = value;
       updateosc1fmWaveMod();
       break;
 
     case CCosc2fmWaveMod:
-      osc2fmWaveModstr = map(value, 0, 4095, 0, 127);
+      osc2fmWaveModstr = map(value, 0, readRes, 0, 127);
       osc2fmWaveMod = value;
       updateosc2fmWaveMod();
       break;
 
     case CCnoiseLevel:
       noiseLevel = value;
-      noiseLevelstr = map(value, 0, 4095, 0, 127);
+      noiseLevelstr = map(value, 0, readRes, 0, 127);
       noiseLeveldisplay = LINEARCENTREZERO[noiseLevelstr];
       updatenoiseLevel();
       break;
 
     case CCosc2Level:
       osc2Level = value;
-      osc2Levelstr = map(value, 0, 4095, 0, 127);
+      osc2Levelstr = map(value, 0, readRes, 0, 127);
       updateOsc2Level();
       break;
 
     case CCosc1Level:
       osc1Level = value;
-      osc1Levelstr = map(value, 0, 4095, 0, 127);
+      osc1Levelstr = map(value, 0, readRes, 0, 127);
       updateOsc1Level();
       break;
 
     case CCKeyTrack:
       keyTrack = value;
-      keyTrackstr = map(value, 0, 4095, 0, 127);
+      keyTrackstr = map(value, 0, readRes, 0, 127);
       updateKeyTrack();
       break;
 
     case CCfilterCutoff:
       filterCutoff = value;
-      filterCutoffstr = map(value, 0, 4095, 0, 127);
+      filterCutoffstr = map(value, 0, readRes, 0, 127);
       filterCutoffstr = FILTERCUTOFF[filterCutoffstr];
       updateFilterCutoff();
       break;
 
     case CCfilterLFO:
       filterLFO = value;
-      filterLFOstr = map(value, 0, 4095, 0, 127);
+      filterLFOstr = map(value, 0, readRes, 0, 127);
       updatefilterLFO();
       break;
 
     case CCfilterRes:
       filterRes = value;
-      filterResstr = map(value, 0, 4095, 0, 127);
+      filterResstr = map(value, 0, readRes, 0, 127);
       updatefilterRes();
       break;
 
@@ -1977,45 +2250,51 @@ void myControlChange(byte channel, byte control, int value) {
 
     case CCfilterEGlevel:
       filterEGlevel = value;
-      filterEGlevelstr = map(value, 0, 4095, 0, 127);
+      filterEGlevelstr = map(value, 0, readRes, 0, 127);
       updatefilterEGlevel();
       break;
 
     case CCLFORate:
-      LFORatestr = map(value, 0, 4095, 0, 127);
+      LFORatestr = map(value, 0, readRes, 0, 127);
       LFORatedisplay = LFOTEMPO[LFORatestr];  // for display
       LFORate = value;
       updateLFORate();
       break;
 
     case CCLFOWaveform:
+      Serial.println(value);
+      LFOWaveform= map(value, 0, readRes, 0, 7);
+      updateStratusLFOWaveform();
+      break;
+
+    case CCLFOWaveformButton:
       updateStratusLFOWaveform();
       break;
 
     case CCfilterAttack:
       filterAttack = value;
-      filterAttackstr = map(value, 0, 4095, 0, 127);
+      filterAttackstr = map(value, 0, readRes, 0, 127);
       filterAttackstr = ENVTIMES[filterAttackstr];
       updatefilterAttack();
       break;
 
     case CCfilterDecay:
       filterDecay = value;
-      filterDecaystr = map(value, 0, 4095, 0, 127);
+      filterDecaystr = map(value, 0, readRes, 0, 127);
       filterDecaystr = ENVTIMES[filterDecaystr];
       updatefilterDecay();
       break;
 
     case CCfilterSustain:
       filterSustain = value;
-      filterSustainstr = map(value, 0, 4095, 0, 127);
+      filterSustainstr = map(value, 0, readRes, 0, 127);
       filterSustainstr = LINEAR_FILTERMIXERSTR[filterSustainstr];
       updatefilterSustain();
       break;
 
     case CCfilterRelease:
       filterRelease = value;
-      filterReleasestr = map(value, 0, 4095, 0, 127);
+      filterReleasestr = map(value, 0, readRes, 0, 127);
       filterReleasestr = ENVTIMES[filterReleasestr];
       updatefilterRelease();
       break;
@@ -2023,7 +2302,7 @@ void myControlChange(byte channel, byte control, int value) {
     case CCampAttack:
       ampAttack = value;
       oldampAttack = value;
-      ampAttackstr = map(value, 0, 4095, 0, 127);
+      ampAttackstr = map(value, 0, readRes, 0, 127);
       ampAttackstr = ENVTIMES[ampAttackstr];
       updateampAttack();
       break;
@@ -2031,7 +2310,7 @@ void myControlChange(byte channel, byte control, int value) {
     case CCampDecay:
       ampDecay = value;
       oldampDecay = value;
-      ampDecaystr = map(value, 0, 4095, 0, 127);
+      ampDecaystr = map(value, 0, readRes, 0, 127);
       ampDecaystr = ENVTIMES[ampDecaystr];
       updateampDecay();
       break;
@@ -2039,7 +2318,7 @@ void myControlChange(byte channel, byte control, int value) {
     case CCampSustain:
       ampSustain = value;
       oldampSustain = value;
-      ampSustainstr = map(value, 0, 4095, 0, 127);
+      ampSustainstr = map(value, 0, readRes, 0, 127);
       ampSustainstr = LINEAR_FILTERMIXERSTR[ampSustainstr];
       updateampSustain();
       break;
@@ -2047,32 +2326,32 @@ void myControlChange(byte channel, byte control, int value) {
     case CCampRelease:
       ampRelease = value;
       oldampRelease = value;
-      ampReleasestr = map(value, 0, 4095, 0, 127);
+      ampReleasestr = map(value, 0, readRes, 0, 127);
       ampReleasestr = ENVTIMES[ampReleasestr];
       updateampRelease();
       break;
 
     case CCvolumeControl:
       volumeControl = value;
-      volumeControlstr = map(value, 0, 4095, 0, 127);
+      volumeControlstr = map(value, 0, readRes, 0, 127);
       updatevolumeControl();
       break;
 
     case CClfoDelay:
       lfoDelay = value;
-      lfoDelaystr = map(value, 0, 4095, 0, 127);
+      lfoDelaystr = map(value, 0, readRes, 0, 127);
       updatelfoDelay();
       break;
 
     case CCamDepth:
       amDepth = value;
-      amDepthstr = map(value, 0, 4095, 0, 127);
+      amDepthstr = map(value, 0, readRes, 0, 127);
       updateamDepth();
       break;
 
     case CCPitchBend:
       PitchBendLevel = value;
-      PitchBendLevelstr = map(value, 0, 4095, 0, 127);
+      PitchBendLevelstr = map(value, 0, readRes, 0, 127);
       PitchBendLevelstr = PITCHBEND[PitchBendLevelstr];  // for display
       updatePitchBend();
       break;
@@ -2109,7 +2388,7 @@ void myControlChange(byte channel, byte control, int value) {
 
         case 5:
           modWheelLevel = ((value * 8) / 2.5);
-          osc2fmDepth = (int(modWheelLevel));
+          osc1fmDepth = (int(modWheelLevel));
           //          Serial.print("ModWheel Depth ");
           //          Serial.println(modWheelLevel);
           break;
@@ -2226,6 +2505,10 @@ void myControlChange(byte channel, byte control, int value) {
 
     case CCeffectBankSW:
       updateeffectBankSW();
+      break;
+
+    case CCeffectNumSW:
+      updateeffectNumSW();
       break;
 
     case CCenvLinLogSW:
@@ -2354,22 +2637,21 @@ void setCurrentPatchData(String data[]) {
   keyboardMode = data[72].toInt();
   NotePriority = data[73].toInt();
   monoMultiSW = data[74].toInt();
+  effectNumSW = data[75].toInt();
 
 
   oldfilterCutoff = filterCutoff;
 
   //Switches
 
-  updatefilterPoleSwitch();
-  updatefilterEGinv();
-  updatelfoAlt();
-  updatelfoMult();
   updateosc1Range();
   updateosc2Range();
   updateosc1Bank();
   updateosc2Bank();
-  updateosc1WaveSelect();
-  updateosc2WaveSelect();
+  updatefilterPoleSwitch();
+  updatefilterEGinv();
+  updatelfoAlt();
+  updatelfoMult();
   updateFilterType();
   updateFilterLoop();
   updateAmpLoop();
@@ -2382,7 +2664,8 @@ void setCurrentPatchData(String data[]) {
   updatekeyboardMode();
   updateNotePriority();
   updatemonoMultiSW();
-
+  updateeffectNumSW();
+  
   //Patchname
   updatePatchname();
 
@@ -2400,7 +2683,8 @@ String getCurrentPatchData() {
          + "," + String(osc1WaveC) + "," + String(modWheelLevel) + "," + String(PitchBendLevel) + "," + String(oct1) + "," + String(filterVelSW) + "," + String(oct2) + "," + String(ampVelSW) + "," + String(osc2WaveA)
          + "," + String(osc2WaveB) + "," + String(osc2WaveC) + "," + String(AfterTouchDest) + "," + String(osc2fmDepth) + "," + String(osc2fmWaveMod) + "," + String(effect1) + "," + String(effect2)
          + "," + String(effect3) + "," + String(effectMix) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
-         + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW);
+         + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW)
+         + "," + String(effectNumSW);
 }
 
 void checkMux() {
@@ -2604,7 +2888,7 @@ void checkMux() {
   digitalWriteFast(MUX_0, muxInput & B0001);
   digitalWriteFast(MUX_1, muxInput & B0010);
   digitalWriteFast(MUX_2, muxInput & B0100);
-  delayMicroseconds(75);
+  //delayMicroseconds(75);
 }
 
 void writeDemux() {
@@ -2628,8 +2912,7 @@ void writeDemux() {
       break;
 
     case 1:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2PWM * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2fmWaveMod * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2639,8 +2922,7 @@ void writeDemux() {
       break;
 
     case 2:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1PWM * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1fmWaveMod * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2650,8 +2932,7 @@ void writeDemux() {
       break;
 
     case 3:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(stack * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1Tune * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2661,8 +2942,7 @@ void writeDemux() {
       break;
 
     case 4:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2Detune * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2Tune * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2682,7 +2962,7 @@ void writeDemux() {
       break;
 
     case 6:
-        switch (LFODelayGo) {
+      switch (LFODelayGo) {
         case 1:
           sample_data1 = (channel_a & 0xFFF0000F) | (((int(filterLFO * DACMULT)) & 0xFFFF) << 4);
           break;
@@ -2710,20 +2990,26 @@ void writeDemux() {
       break;
 
     case 8:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1SawLevel * DACMULT)) & 0xFFFF) << 4);
       sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1Level * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
-      //sample_data1 = (channel_c & 0xFFF0000F) | (((int(pwLFO * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      // reuse PWMLFO rate for FM2depth
+      switch (LFODelayGo) {
+        case 1:
+          sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc2fmDepth * DACMULT)) & 0xFFFF) << 4);
+          break;
+
+        case 0:
+          sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+          break;
+      }
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_2, LOW);
       break;
 
     case 9:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1PulseLevel * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(effectWet * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2733,19 +3019,17 @@ void writeDemux() {
       break;
 
     case 10:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2SawLevel * DACMULT)) & 0xFFFF) << 4);
       sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2Level * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
-      sample_data1 = (channel_c & 0xFFF0000F) | (((int(LFOWaveform * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int((LFOWaveCV) * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_2, LOW);
       break;
 
     case 11:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2PulseLevel * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(effect1 * DACMULT3)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2755,7 +3039,7 @@ void writeDemux() {
       break;
 
     case 12:
-      sample_data1 = (channel_a & 0xFFF0000F) | (((int(keyTrack * 12)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(LFOMultCV * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2765,8 +3049,7 @@ void writeDemux() {
       break;
 
     case 13:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1PW * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1WaveMod * DACMULT2)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -2776,13 +3059,11 @@ void writeDemux() {
       break;
 
     case 14:
-      //sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2PW * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2WaveMod * DACMULT2)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
-      //sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc1SubLevel * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(effect2 * DACMULT3)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_2, LOW);
       break;
@@ -2800,8 +3081,7 @@ void writeDemux() {
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
-      //sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc2TriangleLevel * DACMULT)) & 0xFFFF) << 4);
-      sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(effect3 * DACMULT3)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_2, LOW);
       break;
@@ -2840,40 +3120,40 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
 
   if (btnIndex == DCO1_OCT_SW && btnType == ROX_PRESSED) {
     oct1 = oct1 + 1;
-    if (oct1 > 3) {
-      oct1 = 1;
+    if (oct1 > 2) {
+      oct1 = 0;
     }
     myControlChange(midiChannel, CCosc1Oct, oct1);
   }
 
   if (btnIndex == DCO2_OCT_SW && btnType == ROX_PRESSED) {
     oct2 = oct2 + 1;
-    if (oct2 > 3) {
-      oct2 = 1;
+    if (oct2 > 2) {
+      oct2 = 0;
     }
     myControlChange(midiChannel, CCosc2Oct, oct2);
   }
 
   if (btnIndex == DCO1_MODE_SW && btnType == ROX_PRESSED) {
     osc1Bank = osc1Bank + 1;
-    if (osc1Bank > 3) {
-      osc1Bank = 1;
+    if (osc1Bank > 2) {
+      osc1Bank = 0;
     }
     myControlChange(midiChannel, CCosc1Bank, osc1Bank);
   }
 
   if (btnIndex == DCO2_MODE_SW && btnType == ROX_PRESSED) {
     osc2Bank = osc2Bank + 1;
-    if (osc2Bank > 3) {
-      osc2Bank = 1;
+    if (osc2Bank > 2) {
+      osc2Bank = 0;
     }
     myControlChange(midiChannel, CCosc2Bank, osc2Bank);
   }
 
   if (btnIndex == FILTER_TYPE_SW && btnType == ROX_PRESSED) {
     filterType = filterType + 1;
-    if (filterType > 8) {
-      filterType = 1;
+    if (filterType > 7) {
+      filterType = 0;
     }
     myControlChange(midiChannel, CCfilterType, filterType);
   }
@@ -2885,32 +3165,32 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
 
   if (btnIndex == LFO_MULT_SW && btnType == ROX_PRESSED) {
     lfoMult = lfoMult + 1;
-    if (lfoMult > 3) {
-      lfoMult = 1;
+    if (lfoMult > 2) {
+      lfoMult = 0;
     }
     myControlChange(midiChannel, CClfoMult, lfoMult);
   }
 
   if (btnIndex == LFO_WAVE_SW && btnType == ROX_PRESSED) {
     LFOWaveform = LFOWaveform + 1;
-    if (LFOWaveform > 8) {
-      LFOWaveform = 1;
+    if (LFOWaveform > 7) {
+      LFOWaveform = 0;
     }
-    myControlChange(midiChannel, CCLFOWaveform, LFOWaveform);
+    myControlChange(midiChannel, CCLFOWaveformButton, LFOWaveform);
   }
 
   if (btnIndex == DCO1_WAVE_SW && btnType == ROX_PRESSED) {
     osc1WaveSelect = osc1WaveSelect + 1;
-    if (osc1WaveSelect > 8) {
-      osc1WaveSelect = 1;
+    if (osc1WaveSelect > 7) {
+      osc1WaveSelect = 0;
     }
     myControlChange(midiChannel, CCosc1WaveSelect, osc1WaveSelect);
   }
 
   if (btnIndex == DCO2_WAVE_SW && btnType == ROX_PRESSED) {
     osc2WaveSelect = osc2WaveSelect + 1;
-    if (osc2WaveSelect > 8) {
-      osc2WaveSelect = 1;
+    if (osc2WaveSelect > 7) {
+      osc2WaveSelect = 0;
     }
     myControlChange(midiChannel, CCosc2WaveSelect, osc2WaveSelect);
   }
@@ -2927,16 +3207,16 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
 
   if (btnIndex == FILTER_LOOP_SW && btnType == ROX_PRESSED) {
     FilterLoop = FilterLoop + 1;
-    if (FilterLoop > 3) {
-      FilterLoop = 1;
+    if (FilterLoop > 2) {
+      FilterLoop = 0;
     }
     myControlChange(midiChannel, CCFilterLoop, FilterLoop);
   }
 
   if (btnIndex == VCA_LOOP_SW && btnType == ROX_PRESSED) {
     AmpLoop = AmpLoop + 1;
-    if (AmpLoop > 3) {
-      AmpLoop = 1;
+    if (AmpLoop > 2) {
+      AmpLoop = 0;
     }
     myControlChange(midiChannel, CCAmpLoop, AmpLoop);
   }
@@ -2946,10 +3226,16 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
     myControlChange(midiChannel, CCAmpGatedSW, AmpGatedSW);
   }
 
-  if (btnIndex == EFFECT_BANK_SW && btnType == ROX_PRESSED) {
+  if (btnIndex == EFFECT_BANK_SW && btnType == ROX_RELEASED) {
+    effectNumSW = effectNumSW + 1;
+    if (effectNumSW > 7) {
+      effectNumSW = 0;
+    }
+    myControlChange(midiChannel, CCeffectNumSW, effectNumSW);
+  } else if (btnIndex == EFFECT_BANK_SW && btnType == ROX_HELD) {
     effectBankSW = effectBankSW + 1;
-    if (effectBankSW > 4) {
-      effectBankSW = 1;
+    if (effectBankSW > 3) {
+      effectBankSW = 0;
     }
     myControlChange(midiChannel, CCeffectBankSW, effectBankSW);
   }
@@ -2979,7 +3265,6 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
     monoMultiSW = !monoMultiSW;
     myControlChange(midiChannel, CCmonoMultiSW, monoMultiSW);
   }
-
 }
 
 void showSettingsPage() {
@@ -3299,7 +3584,7 @@ void outputDAC(int CHIP_SELECT, uint32_t sample_data) {
 
 void loop() {
 
-  checkMux();           // Read the sliders and switches
+  checkMux();  // Read the sliders and switches
   writeDemux();
   checkSwitches();      // Read the buttons for the program menus etc
   checkEncoder();       // check the encoder status
@@ -3314,5 +3599,6 @@ void loop() {
   midi1.read();  //USB HOST MIDI Class Compliant
   MIDI.read(midiChannel);
   usbMIDI.read(midiChannel);
+  MIDI2.read();
   LFODelayHandle();
 }

@@ -35,7 +35,9 @@ ADC *adc = new ADC();
 #define DEMUX_EN_2 53
 
 //Note DAC
-#define DACMULT 6.4
+#define DACMULT 25.9
+#define DACMULT2 22.9 // reduce 5v to 3.3v
+#define DACMULT3 42.5 // increase 2v to 3.3v
 #define MIDICCTOPOT 8.62
 
 //Mux 1 Connections
@@ -89,39 +91,69 @@ ADC *adc = new ADC();
 #define MUX5_osc1Mod 6
 #define MUX5_osc2Freq 7 // spare mux output
 
+// Polykit 16 DEMUX card 595 outputs
+
+#define FILTER_A 0
+#define FILTER_B 1
+#define FILTER_C 2
+#define FILTER_POLE 3
+#define FILTER_EG_INV 4
+#define FILTER_VELOCITY 5
+#define AMP_VELOCITY 6
+#define LFO_ALT 7
+
+#define SPARE_8 8 
+#define SPARE_9 9
+#define FLOOPBIT0 10
+#define FLOOPBIT1 11
+#define ALOOPBIT0 12
+#define ALOOPBIT1 13
+#define FILTER_LIN_LOG 14
+#define AMP_LIN_LOG 15
+
+#define EFFECT_0 16  // 3.3v
+#define EFFECT_1 17  // 3.3v
+#define EFFECT_2 18  // 3.3v
+#define EFFECT_BANK 19  // 3.3v
+#define FILTER_KEYTRACK 20
+#define SPARE_21 21
+#define EFFECT_ROM_0 22
+#define EFFECT_ROM_1 23
+
+
 // New 595 outputs
 
-#define FILTER_LIN_LOG 4
-#define AMP_LIN_LOG 5
-#define FLOOPBIT1 6
-#define FLOOPBIT0 7
+// #define FILTER_LIN_LOG 4
+// #define AMP_LIN_LOG 5
+// #define FLOOPBIT1 6
+// #define FLOOPBIT0 7
 
-#define NOTEPRIORITYA0 8
-#define NOTEPRIORITYA2 9
-#define ALOOPBIT1 10
-#define ALOOPBIT0 11
-#define EXTCLOCK 12
-#define MIDICLOCK 13
-#define AFTERTOUCH_A 14
-#define AFTERTOUCH_B 15
+// #define NOTEPRIORITYA0 8
+// #define NOTEPRIORITYA2 9
+// #define ALOOPBIT1 10
+// #define ALOOPBIT0 11
+// #define EXTCLOCK 12
+// #define MIDICLOCK 13
+// #define AFTERTOUCH_A 14
+// #define AFTERTOUCH_B 15
 
-#define AFTERTOUCH_C 16
-#define FILTER_POLE 17
-#define FILTER_EG_INV 18
-#define LFO_ALT 19
-#define OSC1_OCTA 20  //3.3v
-#define OSC1_OCTB 21  //3.3v
-#define OSC2_OCTA 22  //3.3v
-#define OSC2_OCTB 23  //3.3v
+// #define AFTERTOUCH_C 16
+// #define FILTER_POLE 17
+// #define FILTER_EG_INV 18
+// #define LFO_ALT 19
+// #define OSC1_OCTA 20  //3.3v
+// #define OSC1_OCTB 21  //3.3v
+// #define OSC2_OCTA 22  //3.3v
+// #define OSC2_OCTB 23  //3.3v
 
-#define OSC1_BANKA 24  //3.3v
-#define OSC1_BANKB 25  //3.3v
-#define OSC2_BANKA 26  //3.3v
-#define OSC2_BANKB 27  //3.3v
-#define FILTER_A 28
-#define FILTER_B 29
-#define FILTER_C 30
-//#define SPARE 31
+// #define OSC1_BANKA 24  //3.3v
+// #define OSC1_BANKB 25  //3.3v
+// #define OSC2_BANKA 26  //3.3v
+// #define OSC2_BANKB 27  //3.3v
+// #define FILTER_A 28
+// #define FILTER_B 29
+// #define FILTER_C 30
+// //#define SPARE 31
 
 // Panel Buttons
 // 0
@@ -214,7 +246,7 @@ ADC *adc = new ADC();
 
 #define MUXCHANNELS 8
 #define DEMUXCHANNELS 16
-#define QUANTISE_FACTOR 31
+#define QUANTISE_FACTOR 10
 
 #define DEBOUNCE 30
 
@@ -250,18 +282,30 @@ TButton recallButton{ RECALL_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };
 Encoder encoder(ENCODER_PINB, ENCODER_PINA);  //This often needs the pins swapping depending on the encoder
 
 void setupHardware() {
-  //Volume Pot is on ADC0
-  adc->adc0->setAveraging(32);                                          // set number of averages 0, 4, 8, 16 or 32.
-  adc->adc0->setResolution(12);                                         // set bits of resolution  8, 10, 12 or 16 bits.
-  adc->adc0->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_LOW_SPEED);  // change the conversion speed
-  adc->adc0->setSamplingSpeed(ADC_SAMPLING_SPEED::MED_SPEED);           // change the sampling speed
+
+  // adc->adc0->setAveraging(32);                                          // set number of averages 0, 4, 8, 16 or 32.
+  // adc->adc0->setResolution(12);                                         // set bits of resolution  8, 10, 12 or 16 bits.
+  // adc->adc0->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_LOW_SPEED);  // change the conversion speed
+  // adc->adc0->setSamplingSpeed(ADC_SAMPLING_SPEED::MED_SPEED);           // change the sampling speed
+
+  // //MUXs on ADC1
+  // adc->adc1->setAveraging(32);                                          // set number of averages 0, 4, 8, 16 or 32.
+  // adc->adc1->setResolution(12);                                         // set bits of resolution  8, 10, 12 or 16 bits.
+  // adc->adc1->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_LOW_SPEED);  // change the conversion speed
+  // adc->adc1->setSamplingSpeed(ADC_SAMPLING_SPEED::MED_SPEED);           // change the sampling speed
+
+  adc->adc0->setAveraging(16); // set number of averages 0, 4, 8, 16 or 32.
+  adc->adc0->setResolution(10); // set bits of resolution  8, 10, 12 or 16 bits.
+  adc->adc0->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_LOW_SPEED); // change the conversion speed
+  adc->adc0->setSamplingSpeed(ADC_SAMPLING_SPEED::MED_SPEED); // change the sampling speed
 
   //MUXs on ADC1
-  adc->adc1->setAveraging(32);                                          // set number of averages 0, 4, 8, 16 or 32.
-  adc->adc1->setResolution(12);                                         // set bits of resolution  8, 10, 12 or 16 bits.
-  adc->adc1->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_LOW_SPEED);  // change the conversion speed
-  adc->adc1->setSamplingSpeed(ADC_SAMPLING_SPEED::MED_SPEED);           // change the sampling speed
+  adc->adc1->setAveraging(16); // set number of averages 0, 4, 8, 16 or 32.
+  adc->adc1->setResolution(10); // set bits of resolution  8, 10, 12 or 16 bits.
+  adc->adc1->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_LOW_SPEED); // change the conversion speed
+  adc->adc1->setSamplingSpeed(ADC_SAMPLING_SPEED::MED_SPEED); // change the sampling speed
 
+  analogReadResolution(10);
   //Mux address pins
 
   pinMode(MUX_0, OUTPUT);
