@@ -5,8 +5,6 @@ Work in progress, taking the earlier Seeed XIAO RP2040 dual oscillator monosynth
 
 Things to do
 
-Fix the poly, uni, mono modes and add note priority buttons etc.
-
-Wire the front panel Teensy controller to the voice card motherboard with a 32 way ribbon cable.
+Build the FX board and test functionality
 
 
