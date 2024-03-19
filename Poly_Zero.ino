@@ -358,7 +358,7 @@ void commandBottomNoteUni() {
     trig.writePin(GATE_NOTE5, LOW);
     trig.writePin(GATE_NOTE6, LOW);
     trig.writePin(GATE_NOTE7, LOW);
-    trig.writePin(GATE_NOTE8, LOW);  // All notes are off
+    trig.writePin(GATE_NOTE8, LOW); 
   }
 }
 
@@ -373,14 +373,14 @@ void commandLastNoteUni() {
       return;
     }
   }
-  trig.writePin(GATE_NOTE1, LOW);
-  trig.writePin(GATE_NOTE2, LOW);
-  trig.writePin(GATE_NOTE3, LOW);
-  trig.writePin(GATE_NOTE4, LOW);
-  trig.writePin(GATE_NOTE5, LOW);
-  trig.writePin(GATE_NOTE6, LOW);
-  trig.writePin(GATE_NOTE7, LOW);
-  trig.writePin(GATE_NOTE8, LOW);  // All notes are off
+    trig.writePin(GATE_NOTE1, LOW);
+    trig.writePin(GATE_NOTE2, LOW);
+    trig.writePin(GATE_NOTE3, LOW);
+    trig.writePin(GATE_NOTE4, LOW);
+    trig.writePin(GATE_NOTE5, LOW);
+    trig.writePin(GATE_NOTE6, LOW);
+    trig.writePin(GATE_NOTE7, LOW);
+    trig.writePin(GATE_NOTE8, LOW); 
 }
 
 void commandNoteUni(int noteMsg) {
@@ -636,7 +636,7 @@ void myNoteOff(byte channel, byte note, byte velocity) {
     case 1:
       noteMsg = note;
 
-      if (velocity == 0) {
+      if (velocity == 0 || velocity == 64) {
         notes[noteMsg] = false;
       } else {
         notes[noteMsg] = true;
@@ -662,7 +662,7 @@ void myNoteOff(byte channel, byte note, byte velocity) {
     case 2:
       noteMsg = note;
 
-      if (velocity == 0) {
+      if (velocity == 0 || velocity == 64 ) {
         notes[noteMsg] = false;
       } else {
         notes[noteMsg] = true;
