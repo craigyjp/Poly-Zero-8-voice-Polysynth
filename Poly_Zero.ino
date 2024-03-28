@@ -851,19 +851,19 @@ void allNotesOff() {
 }
 
 void updateosc1fmWaveMod() {
-  showCurrentParameterPage("Wave Mod", int(osc1fmWaveModstr));
+  parameterGroup = 7;
 }
 
 void updateosc2fmWaveMod() {
-  showCurrentParameterPage("Wave Mod", int(osc2fmWaveModstr));
+  parameterGroup = 8;
 }
 
 void updateosc1fmDepth() {
-  showCurrentParameterPage("OSC1 FM Depth", int(osc1fmDepthstr));
+  parameterGroup = 7;
 }
 
 void updateosc2fmDepth() {
-  showCurrentParameterPage("OSC2 FM Depth", int(osc2fmDepthstr));
+  parameterGroup = 8;
 }
 
 void updateosc1Tune() {
@@ -875,11 +875,11 @@ void updateosc2Tune() {
 }
 
 void updateosc1WaveMod() {
-  showCurrentParameterPage("OSC1 Mod", String(osc1WaveModstr));
+  parameterGroup = 7;
 }
 
 void updateosc2WaveMod() {
-  showCurrentParameterPage("OSC2 Mod", String(osc2WaveModstr));
+  parameterGroup = 8;
 }
 
 void updateosc1Range() {
@@ -1010,23 +1010,18 @@ void updateosc2Bank() {
 }
 
 void updateglideTime() {
-  showCurrentParameterPage("Glide Time", String(glideTimedisplay * 10) + " Seconds");
+  parameterGroup = 5;
   sendCCtoAllDevices(5, glideTime);
 }
 
 void updateglideSW() {
+  parameterGroup = 5;
   if (glideSW == 1) {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Glide", "On");
-    }
     sendCCtoAllDevices(65, 1);
     srp.writePin(GLIDE_LED, HIGH);  // LED on
     midiCCOut(CCglideSW, 127);
     updateglideTime();
   } else {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Glide", "Off");
-    }
     sendCCtoAllDevices(65, 0);
     srp.writePin(GLIDE_LED, LOW);  // LED off
     midiCCOut(CCglideSW, 127);
@@ -1325,150 +1320,95 @@ void updateosc2WaveSelect() {
 }
 
 void updatenoiseLevel() {
-  showCurrentParameterPage("Noise Level", String(noiseLeveldisplay));
+  parameterGroup = 6;
 }
 
 void updateOsc2Level() {
-  showCurrentParameterPage("OSC2 Level", int(osc2Levelstr));
+  parameterGroup = 8;
 }
 
 void updateOsc1Level() {
-  showCurrentParameterPage("OSC1 Level", int(osc1Levelstr));
+  parameterGroup = 7;
 }
 
 void updateKeyTrack() {
-  showCurrentParameterPage("KeyTrack Lev", int(keyTrackstr));
+  parameterGroup = 1;
 }
 
 void updateFilterCutoff() {
-  showCurrentParameterPage("Cutoff", String(filterCutoffstr) + " Hz");
+  parameterGroup = 1;
 }
 
 void updatefilterLFO() {
-  showCurrentParameterPage("TM depth", int(filterLFOstr));
+  parameterGroup = 1;
 }
 
 void updatefilterRes() {
-  showCurrentParameterPage("Resonance", int(filterResstr));
+  parameterGroup = 1;
 }
 
 void updateeffect1() {
-  showCurrentParameterPage("Effect 1", int(effect1str));
+  parameterGroup = 0;
 }
 
 void updateeffect2() {
-  showCurrentParameterPage("Effect 2", int(effect2str));
+  parameterGroup = 0;
 }
 
 void updateeffect3() {
-  showCurrentParameterPage("Effect 3", int(effect3str));
+  parameterGroup = 0;
 }
 
 void updateeffectMix() {
-  showCurrentParameterPage("Effect Mix", "Mix " + String(mixbstr) + " / " + String(mixastr));
+  parameterGroup = 0;
 }
 
 void updateFilterType() {
+  parameterGroup = 1;
   switch (filterType) {
     case 0:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("3P LowPass"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("4P LowPass"));
-        }
-      }
       sr.writePin(FILTER_A, LOW);
       sr.writePin(FILTER_B, LOW);
       sr.writePin(FILTER_C, LOW);
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("1P LowPass"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("2P LowPass"));
-        }
-      }
       sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, LOW);
       sr.writePin(FILTER_C, LOW);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("3P HP + 1P LP"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("4P HighPass"));
-        }
-      }
       sr.writePin(FILTER_A, LOW);
       sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, LOW);
       break;
 
     case 3:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("1P HP + 1P LP"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("2P HighPass"));
-        }
-      }
       sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, LOW);
       break;
 
     case 4:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("2P HP + 1P LP"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("4P BandPass"));
-        }
-      }
       sr.writePin(FILTER_A, LOW);
       sr.writePin(FILTER_B, LOW);
       sr.writePin(FILTER_C, HIGH);
       break;
 
     case 5:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("2P BP + 1P LP"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("2P BandPass"));
-        }
-      }
       sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, LOW);
       sr.writePin(FILTER_C, HIGH);
       break;
 
     case 6:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("3P AP + 1P LP"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("3P AllPass"));
-        }
-      }
       sr.writePin(FILTER_A, LOW);
       sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, HIGH);
       break;
 
     case 7:
-      if (!recallPatchFlag) {
-        if (!filterPoleSW) {
-          showCurrentParameterPage("Filter Type", String("2P Notch + LP"));
-        } else {
-          showCurrentParameterPage("Filter Type", String("Notch"));
-        }
-      }
       sr.writePin(FILTER_A, HIGH);
       sr.writePin(FILTER_B, HIGH);
       sr.writePin(FILTER_C, HIGH);
@@ -1479,22 +1419,23 @@ void updateFilterType() {
 }
 
 void updatefilterEGlevel() {
-  showCurrentParameterPage("EG Depth", int(filterEGlevelstr));
+  parameterGroup = 1;
 }
 
 void updateLFORate() {
-  showCurrentParameterPage("LFO Rate", String(LFORatedisplay) + " Hz");
+  parameterGroup = 4;
 }
 
 void updatelfoDelay() {
-  showCurrentParameterPage("LFO Delay", String(lfoDelaystr) + " mS");
+  parameterGroup = 4;
 }
 
 void updateamDepth() {
-  showCurrentParameterPage("AM Depth", String(amDepthstr));
+  parameterGroup = 6;
 }
 
 void updateStratusLFOWaveform() {
+  parameterGroup = 4;
   if (!lfoAlt) {
     switch (LFOWaveform) {
       case 0:
@@ -1581,73 +1522,46 @@ void updateStratusLFOWaveform() {
         break;
     }
   }
-  //pixel.clear();
+
   pixel.setPixelColor(3, pixel.Color(colour[LFOWaveform][0], colour[LFOWaveform][1], colour[LFOWaveform][2]));
   pixel.show();
-  if (!recallPatchFlag) {
-    showCurrentParameterPage("LFO Wave", StratusLFOWaveform);
-  }
-  //LFOWaveCV = map(LFOWaveform, 0, 7, 0, 1023);
+
 }
 
 void updatefilterAttack() {
-  if (filterAttackstr < 1000) {
-    showCurrentParameterPage("VCF Attack", String(int(filterAttackstr)) + " ms");
-  } else {
-    showCurrentParameterPage("VCF Attack", String(filterAttackstr * 0.001) + " s");
-  }
+  parameterGroup = 2;
 }
 
 void updatefilterDecay() {
-  if (filterDecaystr < 1000) {
-    showCurrentParameterPage("VCF Decay", String(int(filterDecaystr)) + " ms");
-  } else {
-    showCurrentParameterPage("VCF Decay", String(filterDecaystr * 0.001) + " s");
-  }
+  parameterGroup = 2;
 }
 
 void updatefilterSustain() {
-  showCurrentParameterPage("VCF Sustain", String(filterSustainstr));
+  parameterGroup = 2;
 }
 
 void updatefilterRelease() {
-  if (filterReleasestr < 1000) {
-    showCurrentParameterPage("VCF Release", String(int(filterReleasestr)) + " ms");
-  } else {
-    showCurrentParameterPage("VCF Release", String(filterReleasestr * 0.001) + " s");
-  }
+  parameterGroup = 2;
 }
 
 void updateampAttack() {
-  if (ampAttackstr < 1000) {
-    showCurrentParameterPage("VCA Attack", String(int(ampAttackstr)) + " ms");
-  } else {
-    showCurrentParameterPage("VCA Attack", String(ampAttackstr * 0.001) + " s");
-  }
+  parameterGroup = 3;
 }
 
 void updateampDecay() {
-  if (ampDecaystr < 1000) {
-    showCurrentParameterPage("VCA Decay", String(int(ampDecaystr)) + " ms");
-  } else {
-    showCurrentParameterPage("VCA Decay", String(ampDecaystr * 0.001) + " s");
-  }
+  parameterGroup = 3;
 }
 
 void updateampSustain() {
-  showCurrentParameterPage("VCA Sustain", String(ampSustainstr));
+  parameterGroup = 3;
 }
 
 void updateampRelease() {
-  if (ampReleasestr < 1000) {
-    showCurrentParameterPage("VCA Release", String(int(ampReleasestr)) + " ms");
-  } else {
-    showCurrentParameterPage("VCA Release", String(ampReleasestr * 0.001) + " s");
-  }
+  parameterGroup = 3;
 }
 
 void updatevolumeControl() {
-  showCurrentParameterPage("Volume", int(volumeControlstr));
+  parameterGroup = 6;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1670,11 +1584,9 @@ void updatefilterPoleSwitch() {
 }
 
 void updateFilterLoop() {
+  parameterGroup = 2;
   switch (FilterLoop) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Filter Loop", "Off");
-      }
       srp.writePin(FILTER_LOOP_RED_LED, LOW);
       srp.writePin(FILTER_LOOP_GREEN_LED, LOW);
       sr.writePin(FLOOPBIT0, LOW);
@@ -1682,9 +1594,6 @@ void updateFilterLoop() {
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Filter Loop", "Gated Mode");
-      }
       srp.writePin(FILTER_LOOP_RED_LED, HIGH);
       srp.writePin(FILTER_LOOP_GREEN_LED, LOW);
       sr.writePin(FLOOPBIT0, HIGH);
@@ -1692,9 +1601,6 @@ void updateFilterLoop() {
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Filter Loop", "LFO Mode");
-      }
       srp.writePin(FILTER_LOOP_RED_LED, LOW);
       srp.writePin(FILTER_LOOP_GREEN_LED, HIGH);
       sr.writePin(FLOOPBIT0, HIGH);
@@ -1704,17 +1610,12 @@ void updateFilterLoop() {
 }
 
 void updatefilterEGinv() {
+  parameterGroup = 2;
   if (filterEGinv) {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Filter Env", "Positive");
-    }
     sr.writePin(FILTER_EG_INV, LOW);
     srp.writePin(EG_INV_LED, LOW);
     midiCCOut(CCfilterEGinv, 0);
   } else {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Filter Env", "Negative");
-    }
     sr.writePin(FILTER_EG_INV, HIGH);
     srp.writePin(EG_INV_LED, HIGH);
     midiCCOut(CCfilterEGinv, 127);
@@ -1722,17 +1623,12 @@ void updatefilterEGinv() {
 }
 
 void updatefilterVelSW() {
+  parameterGroup = 2;
   if (filterVelSW) {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Filter Velocity", "On");
-    }
     sr.writePin(FILTER_VELOCITY, HIGH);
     srp.writePin(FILTER_VELOCITY_LED, HIGH);
     midiCCOut(CCfilterVelSW, 127);
   } else {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Filter Velocity", "Off");
-    }
     sr.writePin(FILTER_VELOCITY, LOW);
     srp.writePin(FILTER_VELOCITY_LED, LOW);
     midiCCOut(CCfilterVelSW, 0);
@@ -1740,17 +1636,12 @@ void updatefilterVelSW() {
 }
 
 void updateampVelSW() {
+  parameterGroup = 3;
   if (ampVelSW) {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Amp Velocity", "On");
-    }
     sr.writePin(AMP_VELOCITY, HIGH);
     srp.writePin(VCA_VELOCITY_LED, HIGH);
     midiCCOut(CCampVelSW, 127);
   } else {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Amp Velocity", "Off");
-    }
     sr.writePin(AMP_VELOCITY, LOW);
     srp.writePin(VCA_VELOCITY_LED, LOW);
     midiCCOut(CCampVelSW, 0);
@@ -1758,11 +1649,9 @@ void updateampVelSW() {
 }
 
 void updateAmpLoop() {
+  parameterGroup = 3;
   switch (AmpLoop) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("VCA Loop", "Off");
-      }
       srp.writePin(VCA_LOOP_RED_LED, LOW);
       srp.writePin(VCA_LOOP_GREEN_LED, LOW);
       sr.writePin(ALOOPBIT0, LOW);
@@ -1770,9 +1659,6 @@ void updateAmpLoop() {
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("VCA Loop", "Gated Mode");
-      }
       srp.writePin(VCA_LOOP_RED_LED, HIGH);
       srp.writePin(VCA_LOOP_GREEN_LED, LOW);
       sr.writePin(ALOOPBIT0, HIGH);
@@ -1780,9 +1666,6 @@ void updateAmpLoop() {
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("VCA Loop", "LFO Mode");
-      }
       srp.writePin(VCA_LOOP_RED_LED, LOW);
       srp.writePin(VCA_LOOP_GREEN_LED, HIGH);
       sr.writePin(ALOOPBIT0, HIGH);
@@ -1792,29 +1675,21 @@ void updateAmpLoop() {
 }
 
 void updatekeyboardMode() {
+  parameterGroup = 5;
   switch (keyboardMode) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Keyboard Mode", "Poly");
-      }
       srp.writePin(POLY_MODE_RED_LED, HIGH);
       srp.writePin(POLY_MODE_GREEN_LED, LOW);
       allNotesOff();
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Keyboard Mode", "Mono");
-      }
       srp.writePin(POLY_MODE_RED_LED, LOW);
       srp.writePin(POLY_MODE_GREEN_LED, HIGH);
       allNotesOff();
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Keyboard Mode", "Unison");
-      }
       srp.writePin(POLY_MODE_RED_LED, HIGH);
       srp.writePin(POLY_MODE_GREEN_LED, HIGH);
       allNotesOff();
@@ -1823,27 +1698,19 @@ void updatekeyboardMode() {
 }
 
 void updateNotePriority() {
+  parameterGroup = 5;
   switch (NotePriority) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Note Priority", "Top Note");
-      }
       srp.writePin(PRIORITY_RED_LED, HIGH);
       srp.writePin(PRIORITY_GREEN_LED, LOW);
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Note Priority", "Bottom Note");
-      }
       srp.writePin(PRIORITY_RED_LED, LOW);
       srp.writePin(PRIORITY_GREEN_LED, HIGH);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Note Priority", "Last Note");
-      }
       srp.writePin(PRIORITY_RED_LED, HIGH);
       srp.writePin(PRIORITY_GREEN_LED, HIGH);
       break;
@@ -1867,30 +1734,22 @@ void updatelfoAlt() {
 }
 
 void updatelfoMult() {
+  parameterGroup = 4;
   switch (lfoMult) {
 
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Lfo Multi", String("X 0.5"));
-      }
       srp.writePin(LFO_MULT_RED_LED, HIGH);
       srp.writePin(LFO_MULT_GREEN_LED, LOW);
       LFOMultCV = 40;
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Lfo Multi", String("X 1.0"));
-      }
       srp.writePin(LFO_MULT_RED_LED, HIGH);
       srp.writePin(LFO_MULT_GREEN_LED, HIGH);
       LFOMultCV = 400;
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Lfo Multi", String("X 2.0"));
-      }
       srp.writePin(LFO_MULT_RED_LED, LOW);
       srp.writePin(LFO_MULT_GREEN_LED, HIGH);
       LFOMultCV = 1023;
@@ -1899,110 +1758,108 @@ void updatelfoMult() {
 }
 
 void updateeffectBankSW() {
+  parameterGroup = 0;
   switch (effectBankSW) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effects Bank", String("Factory"));
-      }
       srp.writePin(EFFECT_BANK_RED_LED, LOW);
       srp.writePin(EFFECT_BANK_GREEN_LED, LOW);
+      sr.writePin(EFFECT_BANK, LOW);
+
+      sr.writePin(EFFECT_ROM_0, HIGH);
+      sr.writePin(EFFECT_ROM_1, HIGH);
+
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effects Bank", String("User 1"));
-      }
       srp.writePin(EFFECT_BANK_RED_LED, HIGH);
       srp.writePin(EFFECT_BANK_GREEN_LED, LOW);
+      sr.writePin(EFFECT_BANK, HIGH);
+
+      sr.writePin(EFFECT_ROM_0, LOW);
+      sr.writePin(EFFECT_ROM_1, LOW);
+      delay(5);
+      sr.writePin(EFFECT_BANK, LOW);
+      delay(5);
+      sr.writePin(EFFECT_BANK, HIGH);
+      delay(5);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effects Bank", String("User 2"));
-      }
       srp.writePin(EFFECT_BANK_RED_LED, LOW);
       srp.writePin(EFFECT_BANK_GREEN_LED, HIGH);
+      sr.writePin(EFFECT_BANK, HIGH);
+
+      sr.writePin(EFFECT_ROM_0, HIGH);
+      sr.writePin(EFFECT_ROM_1, LOW);
+      delay(5);
+      sr.writePin(EFFECT_BANK, LOW);
+      delay(5);
+      sr.writePin(EFFECT_BANK, HIGH);
+      delay(5);
       break;
 
     case 3:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effects Bank", String("User 3"));
-      }
       srp.writePin(EFFECT_BANK_RED_LED, HIGH);
       srp.writePin(EFFECT_BANK_GREEN_LED, HIGH);
+      sr.writePin(EFFECT_BANK, HIGH);
+
+      sr.writePin(EFFECT_ROM_0, LOW);
+      sr.writePin(EFFECT_ROM_1, HIGH);
+      delay(5);
+      sr.writePin(EFFECT_BANK, LOW);
+      delay(5);
+      sr.writePin(EFFECT_BANK, HIGH);
+      delay(5);
       break;
   }
 }
 
 void updateeffectNumSW() {
+  parameterGroup = 0;
   switch (effectNumSW) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 1"));
-      }
       sr.writePin(EFFECT_0, LOW);
       sr.writePin(EFFECT_1, LOW);
       sr.writePin(EFFECT_2, LOW);
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 2"));
-      }
       sr.writePin(EFFECT_0, HIGH);
       sr.writePin(EFFECT_1, LOW);
       sr.writePin(EFFECT_2, LOW);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 3"));
-      }
       sr.writePin(EFFECT_0, LOW);
       sr.writePin(EFFECT_1, HIGH);
       sr.writePin(EFFECT_2, LOW);
       break;
 
     case 3:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 4"));
-      }
       sr.writePin(EFFECT_0, HIGH);
       sr.writePin(EFFECT_1, HIGH);
       sr.writePin(EFFECT_2, LOW);
       break;
 
     case 4:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 5"));
-      }
       sr.writePin(EFFECT_0, LOW);
       sr.writePin(EFFECT_1, LOW);
       sr.writePin(EFFECT_2, HIGH);
       break;
 
     case 5:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 6"));
-      }
       sr.writePin(EFFECT_0, HIGH);
       sr.writePin(EFFECT_1, LOW);
       sr.writePin(EFFECT_2, HIGH);
       break;
 
     case 6:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 7"));
-      }
       sr.writePin(EFFECT_0, LOW);
       sr.writePin(EFFECT_1, HIGH);
       sr.writePin(EFFECT_2, HIGH);
       break;
 
     case 7:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Effect", String("Factory 8"));
-      }
       sr.writePin(EFFECT_0, HIGH);
       sr.writePin(EFFECT_1, HIGH);
       sr.writePin(EFFECT_2, HIGH);
@@ -2011,19 +1868,14 @@ void updateeffectNumSW() {
 }
 
 void updateenvLinLogSW() {
+  parameterGroup = 2;
   if (envLinLogSW) {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Envelope Type", "Linear");
-    }
     sr.writePin(FILTER_LIN_LOG, HIGH);
     sr.writePin(AMP_LIN_LOG, HIGH);
     srp.writePin(LIN_LOG_RED_LED, HIGH);
     srp.writePin(LIN_LOG_GREEN_LED, LOW);
     midiCCOut(CCenvLinLogSW, 127);
   } else {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Envelope Type", "Log");
-    }
     sr.writePin(FILTER_LIN_LOG, LOW);
     sr.writePin(AMP_LIN_LOG, LOW);
     srp.writePin(LIN_LOG_RED_LED, LOW);
@@ -2033,10 +1885,8 @@ void updateenvLinLogSW() {
 }
 
 void updateAmpGatedSW() {
+  parameterGroup = 3;
   if (!AmpGatedSW) {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("VCA Gate", "Off");
-    }
     srp.writePin(VCA_GATE_LED, LOW);  // LED off
     ampAttack = oldampAttack;
     ampDecay = oldampDecay;
@@ -2045,9 +1895,6 @@ void updateAmpGatedSW() {
     midiCCOut(CCAmpGatedSW, 0);
 
   } else {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("VCA Gate", "On");
-    }
     srp.writePin(VCA_GATE_LED, HIGH);  // LED on
     ampAttack = 0;
     ampDecay = 0;
@@ -2058,16 +1905,11 @@ void updateAmpGatedSW() {
 }
 
 void updatemonoMultiSW() {
+  parameterGroup = 4;
   if (monoMultiSW) {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Multi Trigger", "On");
-    }
     srp.writePin(MONO_MULTI_LED, HIGH);
     midiCCOut(CCmonoMultiSW, 127);
   } else {
-    if (!recallPatchFlag) {
-      showCurrentParameterPage("Multi Trigger", "Off");
-    }
     srp.writePin(MONO_MULTI_LED, LOW);
     midiCCOut(CCmonoMultiSW, 0);
   }
@@ -2173,9 +2015,7 @@ void myControlChange(byte channel, byte control, int value) {
       break;
 
     case CCeffectMix:
-      effectMix = value;
       mixa = map(value, 0, readRes, 0, readRes);
-      mixb = map(value, 0, readRes, readRes, 0);
       mixastr = map(value, 0, readRes, 0, 127);
       mixbstr = map(value, 0, readRes, 127, 0);
       updateeffectMix();
@@ -2624,7 +2464,7 @@ void setCurrentPatchData(String data[]) {
   effect1 = data[59].toFloat();
   effect2 = data[60].toFloat();
   effect3 = data[61].toFloat();
-  effectMix = data[62].toFloat();
+  mixa = data[62].toFloat();
   glideSW = data[63].toInt();
   lfoDelay = data[64].toFloat();
   lfoMult = data[65].toInt();
@@ -2682,7 +2522,7 @@ String getCurrentPatchData() {
          + "," + String(filterEGinv) + "," + String(osc1BankB) + "," + String(AmpLoop) + "," + String(osc2Bank) + "," + String(osc2BankB) + "," + String(lfoAlt) + "," + String(osc1WaveA) + "," + String(osc1WaveB)
          + "," + String(osc1WaveC) + "," + String(modWheelLevel) + "," + String(PitchBendLevel) + "," + String(oct1) + "," + String(filterVelSW) + "," + String(oct2) + "," + String(ampVelSW) + "," + String(osc2WaveA)
          + "," + String(osc2WaveB) + "," + String(osc2WaveC) + "," + String(AfterTouchDest) + "," + String(osc2fmDepth) + "," + String(osc2fmWaveMod) + "," + String(effect1) + "," + String(effect2)
-         + "," + String(effect3) + "," + String(effectMix) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
+         + "," + String(effect3) + "," + String(mixa) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
          + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW)
          + "," + String(effectNumSW);
 }
@@ -3009,7 +2849,7 @@ void writeDemux() {
       break;
 
     case 9:
-      sample_data1 = (channel_a & 0xFFF0000F) | (((int(effectWet * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_a & 0xFFF0000F) | (((int(mixa * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
@@ -3588,7 +3428,7 @@ void loop() {
   writeDemux();
   checkSwitches();      // Read the buttons for the program menus etc
   checkEncoder();       // check the encoder status
-  octoswitch.update();  // read all the buttons for the Quadra
+  octoswitch.update();  // read all the buttons for the Synth
   trig.update();        // update all the triggers
   srp.update();         // update all the LEDs in the buttons
   sr.update();          // update all the outputs

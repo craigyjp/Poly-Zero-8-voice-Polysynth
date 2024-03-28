@@ -1,17 +1,18 @@
 #include "TeensyThreads.h"
+#include "ScreenParams.h"
 
 // This Teensy3 native optimized version requires specific pins
 //#define sclk 27 // SCLK can also use pin 14
 //#define mosi 26 // MOSI can also use pin 7
-#define cs 2    // CS & DC can use pins 2, 6, 9, 10, 15, 20, 21, 22, 23
-#define dc 3    //but certain pairs must NOT be used: 2+10, 6+9, 20+23, 21+22
-#define rst 9   // RST can use any pin
+#define cs 2   // CS & DC can use pins 2, 6, 9, 10, 15, 20, 21, 22, 23
+#define dc 3   //but certain pairs must NOT be used: 2+10, 6+9, 20+23, 21+22
+#define rst 9  // RST can use any pin
 #define DISPLAYTIMEOUT 1500
 
 #include <Adafruit_GFX.h>
 //#include "ST7735_t3.h" // Local copy from TD1.48 that works for 0.96" IPS 160x80 display
-#include <ST7735_t3.h> // Hardware-specific library
-#include <ST7789_t3.h> // Hardware-specific library
+#include <ST7735_t3.h>  // Hardware-specific library
+#include <ST7789_t3.h>  // Hardware-specific library
 
 #include <Fonts/Org_01.h>
 #include "Yeysk16pt7b.h"
@@ -36,8 +37,8 @@ float currentFloatValue = 0.0;
 String currentPgmNum = "";
 String currentPatchName = "";
 String newPatchName = "";
-const char * currentSettingsOption = "";
-const char * currentSettingsValue = "";
+const char *currentSettingsOption = "";
+const char *currentSettingsValue = "";
 int currentSettingsPart = SETTINGS;
 int paramType = PARAMETER;
 
@@ -45,16 +46,13 @@ boolean MIDIClkSignal = false;
 
 unsigned long timer = 0;
 
-void startTimer()
-{
-  if (state == PARAMETER)
-  {
+void startTimer() {
+  if (state == PARAMETER) {
     timer = millis();
   }
 }
 
-void renderBootUpPage()
-{
+void renderBootUpPage() {
   tft.fillScreen(ST7735_BLACK);
   tft.drawRect(42, 30, 46, 11, ST7735_WHITE);
   tft.fillRect(88, 30, 61, 11, ST7735_WHITE);
@@ -77,114 +75,563 @@ void renderBootUpPage()
   tft.println(VERSION);
 }
 
-void renderCurrentPatchPage()
-{
-  tft.fillScreen(ST7735_BLACK);
-  tft.setFont(&FreeSansBold18pt7b);
-  tft.setCursor(5, 53);
-  tft.setTextColor(ST7735_YELLOW);
-  tft.setTextSize(1);
-  tft.println(currentPgmNum);
+// void renderCurrentPatchPage()
+// {
+//   tft.fillScreen(ST7735_BLACK);
+//   tft.setFont(&FreeSansBold18pt7b);
+//   tft.setCursor(5, 53);
+//   tft.setTextColor(ST7735_YELLOW);
+//   tft.setTextSize(1);
+//   tft.println(currentPgmNum);
 
-  tft.setTextColor(ST7735_BLACK);
-  tft.setFont(&Org_01);
+//   tft.setTextColor(ST7735_BLACK);
+//   tft.setFont(&Org_01);
 
-  if (MIDIClkSignal) {
-    tft.fillRect(93, 28, 19, 7, ST77XX_ORANGE);
-    tft.setCursor(94, 33);
-    tft.println("CLK");
-  }
+//   if (MIDIClkSignal) {
+//     tft.fillRect(93, 28, 19, 7, ST77XX_ORANGE);
+//     tft.setCursor(94, 33);
+//     tft.println("CLK");
+//   }
 
-//  tft.drawRect(115, 28, 12, 12, ST7735_BLUE);
-//  tft.drawRect(130, 28, 12, 12, ST7735_BLUE);
-//  tft.drawRect(145, 28, 12, 12, ST7735_BLUE);
-//  tft.drawRect(115, 43, 12, 12, ST7735_BLUE);
-//  tft.drawRect(130, 43, 12, 12, ST7735_BLUE);
-//  tft.drawRect(145, 43, 12, 12, ST7735_BLUE);
+//   tft.drawFastHLine(10, 62, tft.width() - 20, ST7735_RED);
+//   tft.setFont(&FreeSans12pt7b);
+//   tft.setTextColor(ST7735_YELLOW);
+//   tft.setCursor(1, 90);
+//   tft.setTextColor(ST7735_WHITE);
+//   tft.println(currentPatchName);
+// }
 
-
-//  if (voiceOn[0])
-//  {
-//    tft.fillRect(115, 28, 12, 12, ST7735_BLUE);
-//    tft.setCursor(120, 36);
-//    tft.println("1");
-//  }
-//  if (voiceOn[1])
-//  {
-//    tft.fillRect(130, 28, 12, 12, ST7735_BLUE);
-//    tft.setCursor(133, 36);
-//    tft.println("2");
-//  }
-//  if (voiceOn[2])
-//  {
-//    tft.fillRect(145, 28, 12, 12, ST7735_BLUE);
-//    tft.setCursor(148, 36);
-//    tft.println("3");
-//  }
-//  if (voiceOn[3])
-//  {
-//    tft.fillRect(115, 43, 12, 12, ST7735_BLUE);
-//    tft.setCursor(118, 51);
-//    tft.println("4");
-//  }
-//  if (voiceOn[4])
-//  {
-//    tft.fillRect(130, 43, 12, 12, ST7735_BLUE);
-//    tft.setCursor(133, 51);
-//    tft.println("5");
-//  }
-//  if (voiceOn[5])
-//  {
-//    tft.fillRect(145, 43, 12, 12, ST7735_BLUE);
-//    tft.setCursor(148, 51);
-//    tft.println("6");
-//  }
-
-  tft.drawFastHLine(10, 62, tft.width() - 20, ST7735_RED);
+void renderCurrentPatchPage() {
   tft.setFont(&FreeSans12pt7b);
-  tft.setTextColor(ST7735_YELLOW);
-  tft.setCursor(1, 90);
+  tft.fillScreen(ST7735_BLACK);
+  tft.setCursor(5, 5);
+  tft.setTextSize(3);
+  tft.setTextColor(ST7735_BLUE);
+  tft.println(currentPgmNum);
+  tft.setCursor(80, 15);
+  tft.setTextSize(2);
   tft.setTextColor(ST7735_WHITE);
   tft.println(currentPatchName);
+  tft.drawFastHLine(0, 58, tft.width(), ST7735_RED);
+  tft.setTextColor(ST7735_WHITE);
+
+  switch (parameterGroup) {
+    case 0:
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);  //effect mix
+      tft.print("Effect:");
+      tft.setCursor(80, 70);
+      tft.setTextColor(ST7735_YELLOW);
+      char buf1[30];  // first word of effect name
+      if (effectBankSW == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name01[effectNumSW])));
+      }
+      if (effectBankSW == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name11[effectNumSW])));
+      }
+      if (effectBankSW == 2) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name21[effectNumSW])));
+      }
+      if (effectBankSW == 3) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name31[effectNumSW])));
+      }
+
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(buf1, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.setTextSize(1);
+      tft.print(buf1);
+      tft.print(" ");
+
+      char buf2[30];  // second word of effect name
+      if (effectBankSW == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name02[effectNumSW])));
+      }
+      if (effectBankSW == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name12[effectNumSW])));
+      }
+      if (effectBankSW == 2) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name22[effectNumSW])));
+      }
+      if (effectBankSW == 3) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name32[effectNumSW])));
+      }
+
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(buf2, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.print(buf2);
+      tft.setTextSize(1);
+      tft.setTextColor(ST7735_WHITE);
+      tft.setCursor(0, 100);
+      tft.print("Bank:");
+      tft.setTextColor(ST7735_YELLOW);
+      tft.setCursor(80, 100);
+      tft.print(effectBankSW + 1);
+      tft.setTextColor(ST7735_WHITE);
+      tft.setCursor(160, 100);
+      tft.print("Number:");
+      tft.setTextColor(ST7735_YELLOW);
+      tft.setCursor(270, 100);
+      tft.print(effectNumSW + 1);
+      tft.setTextSize(1);
+      tft.setTextColor(ST7735_WHITE);
+
+      tft.setCursor(0, 130);  //effect param1
+      char buf3[30];
+      if (effectBankSW == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name03[effectNumSW])));
+      }
+      if (effectBankSW == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name13[effectNumSW])));
+      }
+      if (effectBankSW == 2) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name23[effectNumSW])));
+      }
+      if (effectBankSW == 3) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name33[effectNumSW])));
+      }
+
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(buf3, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.setTextSize(1);
+      tft.print(buf3);
+
+      tft.setCursor(0, 160);  //effect param2
+      char buf4[30];
+      if (effectBankSW == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name04[effectNumSW])));
+      }
+      if (effectBankSW == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name14[effectNumSW])));
+      }
+      if (effectBankSW == 2) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name24[effectNumSW])));
+      }
+      if (effectBankSW == 3) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name34[effectNumSW])));
+      }
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(buf4, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.setTextSize(1);
+      tft.print(buf4);
+
+      tft.setCursor(0, 190);  //effect param3
+      char buf5[30];
+      if (effectBankSW == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name05[effectNumSW])));
+      }
+      if (effectBankSW == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name15[effectNumSW])));
+      }
+      if (effectBankSW == 2) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name25[effectNumSW])));
+      }
+      if (effectBankSW == 3) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name35[effectNumSW])));
+      }
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(buf5, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.setTextSize(1);
+      tft.print(buf5);
+
+
+      tft.setCursor(0, 220);  //effect mix
+      tft.print("Effects Mix");
+
+      tft.fillRoundRect(160, 128, int(effect1 / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(effect2 / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 188, int(effect3 / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 218, int(mixa / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+    case 1:
+
+      char filterDisplay[30];
+      if (filterPoleSW == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(filter01[filterType])));
+      }
+      if (filterPoleSW == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(filter02[filterType])));
+      }
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(filterDisplay, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);  //effect mix
+      tft.print("Filter Type");
+      tft.setCursor(160, 70);
+      tft.setTextColor(ST7735_YELLOW);
+      tft.print(filterDisplay);
+      tft.setTextSize(1);
+      tft.setTextColor(ST7735_WHITE);
+      tft.setCursor(0, 100);  //effect mix
+      tft.print("Filter Cutoff");
+      tft.setCursor(0, 130);  //effect mix
+      tft.print("Filter Res");
+      tft.setCursor(0, 160);  //effect mix
+      tft.print("Filter Env");
+      tft.setCursor(0, 190);  //effect mix
+      tft.print("KeyTrack");
+      tft.setCursor(0, 220);  //effect mix
+      tft.print("LFO Depth");
+
+      tft.fillRoundRect(160, 98, int(filterCutoff / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(filterRes / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(filterEGlevel / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 188, int(keyTrack / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 218, int(filterLFO / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+    case 2:  // filter ADSR
+
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);
+      tft.print("Filter Attack");
+      tft.setCursor(0, 100);
+      tft.print("Filter Decay");
+      tft.setCursor(0, 130);
+      tft.print("Filter Sustain");
+      tft.setCursor(0, 160);
+      tft.print("Filter Release");
+      tft.setCursor(0, 190);
+      tft.print("Looping");
+      tft.setCursor(160, 190);
+      tft.print("Velocity");
+      tft.setCursor(0, 220);
+      tft.print("EG Inv");
+      tft.setCursor(160, 220);
+      tft.print("EnvType");
+      tft.setTextColor(ST7735_YELLOW);
+      tft.setCursor(90, 190);
+      switch (FilterLoop) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("Gated");
+          break;
+        case 2:
+          tft.print("LFO");
+          break;
+      }
+      tft.setCursor(257, 190);
+      switch (filterVelSW) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("On");
+          break;
+      }
+      tft.setCursor(90, 220);
+      switch (filterEGinv) {
+        case 0:
+          tft.print("Neg");
+          break;
+        case 1:
+          tft.print("Pos");
+          break;
+      }
+      tft.setCursor(257, 220);
+      switch (envLinLogSW) {
+        case 0:
+          tft.print("Log");
+          break;
+        case 1:
+          tft.print("Lin");
+          break;
+      }
+
+      tft.fillRoundRect(160, 68, int(filterAttack / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 98, int(filterDecay / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(filterSustain / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(filterRelease / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+    case 3:  // VCA ADSR
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);
+      tft.print("Amp Attack");
+      tft.setCursor(0, 100);
+      tft.print("Amp Decay");
+      tft.setCursor(0, 130);
+      tft.print("Amp Sustain");
+      tft.setCursor(0, 160);
+      tft.print("Amp Release");
+      tft.setCursor(0, 190);
+      tft.print("Looping");
+      tft.setCursor(160, 190);
+      tft.print("Velocity");
+      tft.setCursor(0, 220);
+      tft.print("Gated");
+      tft.setCursor(160, 220);
+      tft.print("EnvType");
+      tft.setTextColor(ST7735_YELLOW);
+      tft.setCursor(90, 190);
+      switch (AmpLoop) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("Gated");
+          break;
+        case 2:
+          tft.print("LFO");
+          break;
+      }
+      tft.setCursor(257, 190);
+      switch (ampVelSW) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("On");
+          break;
+      }
+      tft.setCursor(90, 220);
+      switch (AmpGatedSW) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("On");
+          break;
+      }
+      tft.setCursor(257, 220);
+      switch (envLinLogSW) {
+        case 0:
+          tft.print("Log");
+          break;
+        case 1:
+          tft.print("Lin");
+          break;
+      }
+
+      tft.fillRoundRect(160, 68, int(ampAttack / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 98, int(ampDecay / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(ampSustain / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(ampRelease / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+    case 4:  // LFO
+      char lfoDisplay[30];
+      if (lfoAlt == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(lfo02[LFOWaveform])));
+      }
+      if (lfoAlt == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(lfo01[LFOWaveform])));
+      }
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(lfoDisplay, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);  //effect mix
+      tft.print("LFO Wave");
+      tft.setCursor(160, 70);
+      tft.setTextColor(ST7735_YELLOW);
+      tft.print(lfoDisplay);
+      tft.setTextColor(ST7735_WHITE);
+      tft.setCursor(0, 100);
+      tft.print("LFO Rate");
+      tft.setCursor(0, 130);
+      tft.print("LFO Delay");
+      tft.setCursor(0, 160);
+      tft.print("LFO Multiplier");
+      tft.setCursor(0, 190);
+      tft.print("Multi Trigger");
+      tft.setTextColor(ST7735_YELLOW);
+      tft.setCursor(160, 160);
+      switch (lfoMult) {
+        case 0:
+          tft.print("x 0.5");
+          break;
+        case 1:
+          tft.print("x 1.0");
+          break;
+        case 2:
+          tft.print("x 2.0");
+          break;
+      }
+      tft.setCursor(160, 190);
+      switch (monoMultiSW) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("On");
+          break;
+      }
+
+      tft.fillRoundRect(160, 98, int(LFORate / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(lfoDelay / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+      case 5:
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);  //effect mix
+      tft.print("Glide Time");
+      tft.setCursor(0, 100);  //effect mix
+      tft.print("Glide");
+      tft.setCursor(0, 130);  //effect mix
+      tft.print("Key Mode");
+      tft.setCursor(0, 160);  //effect mix
+      tft.print("Note Priority");
+      tft.setTextColor(ST7735_YELLOW);
+      tft.setCursor(160, 100);
+      switch (glideSW) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("On");
+          break;
+      }
+      tft.setCursor(160, 130);
+      switch (keyboardMode) {
+        case 0:
+          tft.print("Poly");
+          break;
+        case 1:
+          tft.print("Mono");
+          break;
+        case 2:
+          tft.print("Unison");
+          break;
+      }
+      tft.setCursor(160, 160);
+      switch (NotePriority) {
+        case 0:
+          tft.print("Top Note");
+          break;
+        case 1:
+          tft.print("Bottom Note");
+          break;
+        case 2:
+          tft.print("Last Note");
+          break;
+      }
+      tft.fillRoundRect(160, 68, int((glideTime * 8) / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+      case 6:
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);  //effect mix
+      tft.print("Volume");
+      tft.setCursor(0, 100);  //effect mix
+      tft.print("AM Depth");
+      tft.setCursor(0, 130);  //effect mix
+      tft.print("Noise Level");
+
+      tft.fillRoundRect(160, 68, int(volumeControl / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 98, int(amDepth / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(noiseLevel / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+      case 7: // Osc1
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);  //effect mix
+      tft.print("OSC1 Mod");
+      tft.setCursor(0, 100);  //effect mix
+      tft.print("LFO Wave");
+      tft.setCursor(0, 130);  //effect mix
+      tft.print("OSC1 FM");
+      tft.setCursor(0, 160);  //effect mix
+      tft.print("OSC1 Level");
+
+      tft.fillRoundRect(160, 68, int(osc1WaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 98, int(osc1fmWaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(osc1fmDepth / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(osc1Level / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+
+      case 8: // Osc1
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(0, 70);  //effect mix
+      tft.print("OSC2 Mod");
+      tft.setCursor(0, 100);  //effect mix
+      tft.print("LFO Wave");
+      tft.setCursor(0, 130);  //effect mix
+      tft.print("OSC2 FM ");
+      tft.setCursor(0, 160);  //effect mix
+      tft.print("OSC2 Level");
+
+      tft.fillRoundRect(160, 68, int(osc2WaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 98, int(osc2fmWaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(osc2fmDepth / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(osc2Level / 6.5), 16, 2, ST7735_YELLOW);
+      break;
+  }
 }
 
-void renderPulseWidth(float value)
-{
+
+void renderPulseWidth(float value) {
   tft.drawFastHLine(108, 74, 15 + (value * 13), ST7735_CYAN);
   tft.drawFastVLine(123 + (value * 13), 74, 20, ST7735_CYAN);
   tft.drawFastHLine(123 + (value * 13), 94, 16 - (value * 13), ST7735_CYAN);
-  if (value < 0)
-  {
+  if (value < 0) {
     tft.drawFastVLine(108, 74, 21, ST7735_CYAN);
-  }
-  else
-  {
+  } else {
     tft.drawFastVLine(138, 74, 21, ST7735_CYAN);
   }
 }
 
-void renderVarTriangle(float value)
-{
+void renderVarTriangle(float value) {
   tft.drawLine(110, 94, 123 + (value * 13), 74, ST7735_CYAN);
   tft.drawLine(123 + (value * 13), 74, 136, 94, ST7735_CYAN);
 }
 
-void renderEnv(float att, float dec, float sus, float rel)
-{
+void renderEnv(float att, float dec, float sus, float rel) {
   tft.drawLine(100, 94, 100 + (att * 60), 74, ST7735_CYAN);
   tft.drawLine(100 + (att * 60), 74.0, 100 + ((att + dec) * 60), 94 - (sus / 52), ST7735_CYAN);
   tft.drawFastHLine(100 + ((att + dec) * 60), 94 - (sus / 52), 40 - ((att + dec) * 60), ST7735_CYAN);
   tft.drawLine(139, 94 - (sus / 52), 139 + (rel * 60), 94, ST7735_CYAN);
-//  tft.drawLine(100, 94, 100 + (att * 15), 74, ST7735_CYAN);
-//  tft.drawLine(100 + (att * 15), 74.0, 100 + ((att + dec) * 15), 94 - (sus / 52), ST7735_CYAN);
-//  tft.drawFastHLine(100 + ((att + dec) * 15 ), 94 - (sus / 52), 40 - ((att + dec) * 15), ST7735_CYAN);
-//  tft.drawLine(139, 94 - (sus / 52), 139 + (rel * 15), 94, ST7735_CYAN);
+  //  tft.drawLine(100, 94, 100 + (att * 15), 74, ST7735_CYAN);
+  //  tft.drawLine(100 + (att * 15), 74.0, 100 + ((att + dec) * 15), 94 - (sus / 52), ST7735_CYAN);
+  //  tft.drawFastHLine(100 + ((att + dec) * 15 ), 94 - (sus / 52), 40 - ((att + dec) * 15), ST7735_CYAN);
+  //  tft.drawLine(139, 94 - (sus / 52), 139 + (rel * 15), 94, ST7735_CYAN);
 }
 
-void renderCurrentParameterPage()
-{
-  switch (state)
-  {
+void renderCurrentParameterPage() {
+  switch (state) {
     case PARAMETER:
       tft.fillScreen(ST7735_BLACK);
       tft.setFont(&FreeSans12pt7b);
@@ -196,8 +643,7 @@ void renderCurrentParameterPage()
       tft.setCursor(1, 90);
       tft.setTextColor(ST7735_WHITE);
       tft.println(currentValue);
-      switch (paramType)
-      {
+      switch (paramType) {
         case PULSE:
           renderPulseWidth(currentFloatValue);
           break;
@@ -212,8 +658,7 @@ void renderCurrentParameterPage()
   }
 }
 
-void renderDeletePatchPage()
-{
+void renderDeletePatchPage() {
   tft.fillScreen(ST7735_BLACK);
   tft.setFont(&FreeSansBold18pt7b);
   tft.setCursor(5, 53);
@@ -248,8 +693,7 @@ void renderDeleteMessagePage() {
   tft.println("SD Card");
 }
 
-void renderSavePage()
-{
+void renderSavePage() {
   tft.fillScreen(ST7735_BLACK);
   tft.setFont(&FreeSansBold18pt7b);
   tft.setCursor(5, 53);
@@ -273,8 +717,7 @@ void renderSavePage()
   tft.println(patches.last().patchName);
 }
 
-void renderReinitialisePage()
-{
+void renderReinitialisePage() {
   tft.fillScreen(ST7735_BLACK);
   tft.setFont(&FreeSans12pt7b);
   tft.setTextColor(ST7735_YELLOW);
@@ -285,8 +728,7 @@ void renderReinitialisePage()
   tft.println("panel setting");
 }
 
-void renderPatchNamingPage()
-{
+void renderPatchNamingPage() {
   tft.fillScreen(ST7735_BLACK);
   tft.setFont(&FreeSans12pt7b);
   tft.setTextColor(ST7735_YELLOW);
@@ -299,8 +741,7 @@ void renderPatchNamingPage()
   tft.println(newPatchName);
 }
 
-void renderRecallPage()
-{
+void renderRecallPage() {
   tft.fillScreen(ST7735_BLACK);
   tft.setFont(&FreeSans9pt7b);
   tft.setCursor(0, 45);
@@ -326,13 +767,11 @@ void renderRecallPage()
   patches.size() > 1 ? tft.println(patches[1].patchName) : tft.println(patches.last().patchName);
 }
 
-void showRenamingPage(String newName)
-{
+void showRenamingPage(String newName) {
   newPatchName = newName;
 }
 
-void renderUpDown(uint16_t  x, uint16_t  y, uint16_t  colour)
-{
+void renderUpDown(uint16_t x, uint16_t y, uint16_t colour) {
   //Produces up/down indicator glyph at x,y
   tft.setCursor(x, y);
   tft.fillTriangle(x, y, x + 8, y - 8, x + 16, y, colour);
@@ -340,8 +779,7 @@ void renderUpDown(uint16_t  x, uint16_t  y, uint16_t  colour)
 }
 
 
-void renderSettingsPage()
-{
+void renderSettingsPage() {
   tft.fillScreen(ST7735_BLACK);
   tft.setFont(&FreeSans12pt7b);
   tft.setTextColor(ST7735_YELLOW);
@@ -356,8 +794,7 @@ void renderSettingsPage()
   if (currentSettingsPart == SETTINGSVALUE) renderUpDown(140, 80, ST7735_WHITE);
 }
 
-void showCurrentParameterPage(const char *param, float val, int pType)
-{
+void showCurrentParameterPage(const char *param, float val, int pType) {
   currentParameter = param;
   currentValue = String(val);
   currentFloatValue = val;
@@ -365,46 +802,37 @@ void showCurrentParameterPage(const char *param, float val, int pType)
   startTimer();
 }
 
-void showCurrentParameterPage(const char *param, String val, int pType)
-{
-  if (state == SETTINGS || state == SETTINGSVALUE)state = PARAMETER;//Exit settings page if showing
+void showCurrentParameterPage(const char *param, String val, int pType) {
+  if (state == SETTINGS || state == SETTINGSVALUE) state = PARAMETER;  //Exit settings page if showing
   currentParameter = param;
   currentValue = val;
   paramType = pType;
   startTimer();
 }
 
-void showCurrentParameterPage(const char *param, String val)
-{
+void showCurrentParameterPage(const char *param, String val) {
   showCurrentParameterPage(param, val, PARAMETER);
 }
 
-void showPatchPage(String number, String patchName)
-{
+void showPatchPage(String number, String patchName) {
   currentPgmNum = number;
   currentPatchName = patchName;
 }
 
-void showSettingsPage(const char *  option, const char * value, int settingsPart) {
+void showSettingsPage(const char *option, const char *value, int settingsPart) {
   currentSettingsOption = option;
   currentSettingsValue = value;
   currentSettingsPart = settingsPart;
 }
 
-void displayThread()
-{
-  threads.delay(2000); //Give bootup page chance to display
-  while (1)
-  {
-    switch (state)
-    {
+void displayThread() {
+  threads.delay(2000);  //Give bootup page chance to display
+  while (1) {
+    switch (state) {
       case PARAMETER:
-        if ((millis() - timer) > DISPLAYTIMEOUT)
-        {
+        if ((millis() - timer) > DISPLAYTIMEOUT) {
           renderCurrentPatchPage();
-        }
-        else
-        {
+        } else {
           renderCurrentParameterPage();
         }
         break;
@@ -416,7 +844,7 @@ void displayThread()
         break;
       case REINITIALISE:
         renderReinitialisePage();
-        tft.updateScreen(); //update before delay
+        tft.updateScreen();  //update before delay
         threads.delay(1000);
         state = PARAMETER;
         break;
@@ -441,10 +869,9 @@ void displayThread()
   }
 }
 
-void setupDisplay()
-{
-   
-  tft.init(240, 320);  
+void setupDisplay() {
+
+  tft.init(240, 320);
   tft.useFrameBuffer(true);
   //tft.initR(INITR_18BLACKTAB);
   tft.setRotation(1);
@@ -454,4 +881,3 @@ void setupDisplay()
   tft.updateScreen();
   threads.addThread(displayThread);
 }
-

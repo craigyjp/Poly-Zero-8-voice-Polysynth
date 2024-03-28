@@ -4,6 +4,7 @@ int keyboardMode = 0;
 int noteMsg;
 unsigned int velmV;
 int readRes = 1023;
+int parameterGroup = 0;
 
 
 //Values below are just for initialising and will be changed when synth is initialised to current panel controls & EEPROM settings
@@ -13,6 +14,7 @@ byte LEDintensity = 10;//(EEPROM)
 byte oldLEDintensity;
 int SLIDERintensity = 1;//(EEPROM)
 int oldSLIDERintensity;
+int i = 0;
 
 //Delayed LFO
 int numberOfNotes = 0;
@@ -148,14 +150,9 @@ float effect2 = 0;
 int effect2str = 0;
 float effect3 = 0;
 int effect3str = 0;
-float effectMix = 0;
-float effectWet = 0;
-float effectDry = 0;
 int mixa = 0;
-int mixb = 0;
 int mixastr = 0;
 int mixbstr = 0;
-int effectMixstr = 0;
 int osc1Bank = 0;
 int osc1BankB = 0;
 int osc2Bank = 0;
@@ -181,6 +178,7 @@ int ampVelSW = 0;
 int monoMultiSW = 0;
 
 int effectBankSW = 0;
+int currentbank = 0;
 int effectNumSW = 0;
 
 int envLinLogSW = 0;
