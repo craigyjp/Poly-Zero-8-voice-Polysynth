@@ -883,29 +883,21 @@ void updateosc2WaveMod() {
 }
 
 void updateosc1Range() {
+  parameterGroup = 7;
   switch (oct1) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc1 Range", String("-1"));
-      }
       sendCCtoAllDevices(17, 0);
       srp.writePin(DCO1_OCT_RED_LED, HIGH);
       srp.writePin(DCO1_OCT_GREEN_LED, LOW);
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc1 Range", String("0"));
-      }
       sendCCtoAllDevices(17, 64);
       srp.writePin(DCO1_OCT_RED_LED, HIGH);
       srp.writePin(DCO1_OCT_GREEN_LED, HIGH);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc1 Range", String("+1"));
-      }
       sendCCtoAllDevices(17, 127);
       srp.writePin(DCO1_OCT_RED_LED, LOW);
       srp.writePin(DCO1_OCT_GREEN_LED, HIGH);
@@ -914,29 +906,21 @@ void updateosc1Range() {
 }
 
 void updateosc2Range() {
+  parameterGroup = 8;
   switch (oct2) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc2 Range", String("-1"));
-      }
       sendCCtoAllDevices(19, 0);
       srp.writePin(DCO2_OCT_RED_LED, HIGH);
       srp.writePin(DCO2_OCT_GREEN_LED, LOW);
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc2 Range", String("0"));
-      }
       sendCCtoAllDevices(19, 64);
       srp.writePin(DCO2_OCT_RED_LED, HIGH);
       srp.writePin(DCO2_OCT_GREEN_LED, HIGH);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc2 Range", String("+1"));
-      }
       sendCCtoAllDevices(19, 127);
       srp.writePin(DCO2_OCT_RED_LED, LOW);
       srp.writePin(DCO2_OCT_GREEN_LED, HIGH);
@@ -947,27 +931,18 @@ void updateosc2Range() {
 void updateosc1Bank() {
   switch (osc1Bank) {
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc1 Bank", String("Fold"));
-      }
       sendCCtoAllDevices(16, 0);
       srp.writePin(DCO1_MODE_RED_LED, HIGH);
       srp.writePin(DCO1_MODE_GREEN_LED, LOW);
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc1 Bank", String("FM"));
-      }
       sendCCtoAllDevices(16, 1);
       srp.writePin(DCO1_MODE_RED_LED, HIGH);
       srp.writePin(DCO1_MODE_GREEN_LED, HIGH);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc1 Bank", String("AM"));
-      }
       sendCCtoAllDevices(16, 2);
       srp.writePin(DCO1_MODE_RED_LED, LOW);
       srp.writePin(DCO1_MODE_GREEN_LED, HIGH);
@@ -980,27 +955,18 @@ void updateosc2Bank() {
   switch (osc2Bank) {
 
     case 0:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc2 Bank", String("Fold"));
-      }
       sendCCtoAllDevices(18, 0);
       srp.writePin(DCO2_MODE_RED_LED, HIGH);
       srp.writePin(DCO2_MODE_GREEN_LED, LOW);
       break;
 
     case 1:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc2 Bank", String("FM"));
-      }
       sendCCtoAllDevices(18, 1);
       srp.writePin(DCO2_MODE_RED_LED, HIGH);
       srp.writePin(DCO2_MODE_GREEN_LED, HIGH);
       break;
 
     case 2:
-      if (!recallPatchFlag) {
-        showCurrentParameterPage("Osc2 Bank", String("AM"));
-      }
       sendCCtoAllDevices(18, 2);
       srp.writePin(DCO2_MODE_RED_LED, LOW);
       srp.writePin(DCO2_MODE_GREEN_LED, HIGH);
@@ -1036,46 +1002,39 @@ void sendCCtoAllDevices(int CCnumberTosend, int value) {
 }
 
 void updateosc1WaveSelect() {
+  parameterGroup = 7;
   switch (osc1Bank) {
     case 0:
       switch (osc1WaveSelect) {
         case 0:
-          Oscillator1Waveform = "Sawtooth";
           sendCCtoAllDevices(70, 0);
           break;
 
         case 1:
-          Oscillator1Waveform = "Sinewave";
           sendCCtoAllDevices(70, 1);
           break;
 
         case 2:
-          Oscillator1Waveform = "Squarewave";
           sendCCtoAllDevices(70, 2);
           break;
 
         case 3:
-          Oscillator1Waveform = "Triangle";
           sendCCtoAllDevices(70, 3);
           break;
 
         case 4:
-          Oscillator1Waveform = "Octave Saw";
           sendCCtoAllDevices(70, 4);
           break;
 
         case 5:
-          Oscillator1Waveform = "FM 1";
           sendCCtoAllDevices(70, 5);
           break;
 
         case 6:
-          Oscillator1Waveform = "FM 2";
           sendCCtoAllDevices(70, 6);
           break;
 
         case 7:
-          Oscillator1Waveform = "FM 3";
           sendCCtoAllDevices(70, 7);
           break;
       }
@@ -1084,42 +1043,34 @@ void updateosc1WaveSelect() {
     case 1:
       switch (osc1WaveSelect) {
         case 0:
-          Oscillator1Waveform = "FM 1";
           sendCCtoAllDevices(70, 0);
           break;
 
         case 1:
-          Oscillator1Waveform = "FM 2";
           sendCCtoAllDevices(70, 1);
           break;
 
         case 2:
-          Oscillator1Waveform = "FM 3";
           sendCCtoAllDevices(70, 2);
           break;
 
         case 3:
-          Oscillator1Waveform = "FM 4";
           sendCCtoAllDevices(70, 3);
           break;
 
         case 4:
-          Oscillator1Waveform = "FM 5";
           sendCCtoAllDevices(70, 4);
           break;
 
         case 5:
-          Oscillator1Waveform = "FM 6";
           sendCCtoAllDevices(70, 5);
           break;
 
         case 6:
-          Oscillator1Waveform = "FM 7";
           sendCCtoAllDevices(70, 6);
           break;
 
         case 7:
-          Oscillator1Waveform = "FM 8";
           sendCCtoAllDevices(70, 7);
           break;
       }
@@ -1128,42 +1079,34 @@ void updateosc1WaveSelect() {
     case 2:
       switch (osc1WaveSelect) {
         case 0:
-          Oscillator1Waveform = "Sawtooth";
           sendCCtoAllDevices(70, 0);
           break;
 
         case 1:
-          Oscillator1Waveform = "FM 1";
           sendCCtoAllDevices(70, 1);
           break;
 
         case 2:
-          Oscillator1Waveform = "FM 2";
           sendCCtoAllDevices(70, 2);
           break;
 
         case 3:
-          Oscillator1Waveform = "FM 3";
           sendCCtoAllDevices(70, 3);
           break;
 
         case 4:
-          Oscillator1Waveform = "FM 1 Multi";
           sendCCtoAllDevices(70, 4);
           break;
 
         case 5:
-          Oscillator1Waveform = "FM 2 Multi";
           sendCCtoAllDevices(70, 5);
           break;
 
         case 6:
-          Oscillator1Waveform = "FM 3 Multi";
           sendCCtoAllDevices(70, 6);
           break;
 
         case 7:
-          Oscillator1Waveform = "FM 3 Multi";
           sendCCtoAllDevices(70, 7);
           break;
       }
@@ -1172,52 +1115,42 @@ void updateosc1WaveSelect() {
   //pixel.clear();
   pixel.setPixelColor(1, pixel.Color(colour[osc1WaveSelect][0], colour[osc1WaveSelect][1], colour[osc1WaveSelect][2]));
   pixel.show();
-  if (!recallPatchFlag) {
-    showCurrentParameterPage("OSC1 Wave", Oscillator1Waveform);
-  }
 }
 
 void updateosc2WaveSelect() {
+  parameterGroup = 8;
   switch (osc2Bank) {
     case 0:
       switch (osc2WaveSelect) {
         case 0:
-          Oscillator2Waveform = "Sawtooth";
           sendCCtoAllDevices(71, 0);
           break;
 
         case 1:
-          Oscillator2Waveform = "Sinewave";
           sendCCtoAllDevices(71, 1);
           break;
 
         case 2:
-          Oscillator2Waveform = "Squarewave";
           sendCCtoAllDevices(71, 2);
           break;
 
         case 3:
-          Oscillator2Waveform = "Triangle";
           sendCCtoAllDevices(71, 3);
           break;
 
         case 4:
-          Oscillator2Waveform = "Octave Saw";
           sendCCtoAllDevices(71, 4);
           break;
 
         case 5:
-          Oscillator2Waveform = "FM 1";
           sendCCtoAllDevices(71, 5);
           break;
 
         case 6:
-          Oscillator2Waveform = "FM 2";
           sendCCtoAllDevices(71, 6);
           break;
 
         case 7:
-          Oscillator2Waveform = "FM 3";
           sendCCtoAllDevices(71, 7);
           break;
       }
@@ -1226,42 +1159,34 @@ void updateosc2WaveSelect() {
     case 1:
       switch (osc2WaveSelect) {
         case 0:
-          Oscillator2Waveform = "FM 1";
           sendCCtoAllDevices(71, 0);
           break;
 
         case 1:
-          Oscillator2Waveform = "FM 2";
           sendCCtoAllDevices(71, 1);
           break;
 
         case 2:
-          Oscillator2Waveform = "FM 3";
           sendCCtoAllDevices(71, 2);
           break;
 
         case 3:
-          Oscillator2Waveform = "FM 4";
           sendCCtoAllDevices(71, 3);
           break;
 
         case 4:
-          Oscillator2Waveform = "FM 5";
           sendCCtoAllDevices(71, 4);
           break;
 
         case 5:
-          Oscillator2Waveform = "FM 6";
           sendCCtoAllDevices(71, 5);
           break;
 
         case 6:
-          Oscillator2Waveform = "FM 7";
           sendCCtoAllDevices(71, 6);
           break;
 
         case 7:
-          Oscillator2Waveform = "FM 8";
           sendCCtoAllDevices(71, 7);
           break;
       }
@@ -1270,42 +1195,34 @@ void updateosc2WaveSelect() {
     case 2:
       switch (osc2WaveSelect) {
         case 0:
-          Oscillator2Waveform = "Sawtooth";
           sendCCtoAllDevices(71, 0);
           break;
 
         case 1:
-          Oscillator2Waveform = "FM 1";
           sendCCtoAllDevices(71, 1);
           break;
 
         case 2:
-          Oscillator2Waveform = "FM 2";
           sendCCtoAllDevices(71, 2);
           break;
 
         case 3:
-          Oscillator2Waveform = "FM 3";
           sendCCtoAllDevices(71, 3);
           break;
 
         case 4:
-          Oscillator2Waveform = "FM 1 Multi";
           sendCCtoAllDevices(71, 4);
           break;
 
         case 5:
-          Oscillator2Waveform = "FM 2 Multi";
           sendCCtoAllDevices(71, 5);
           break;
 
         case 6:
-          Oscillator2Waveform = "FM 3 Multi";
           sendCCtoAllDevices(71, 6);
           break;
 
         case 7:
-          Oscillator2Waveform = "FM 3 Multi";
           sendCCtoAllDevices(71, 7);
           break;
       }
@@ -1314,9 +1231,6 @@ void updateosc2WaveSelect() {
   //pixel.clear();
   pixel.setPixelColor(2, pixel.Color(colour[osc2WaveSelect][0], colour[osc2WaveSelect][1], colour[osc2WaveSelect][2]));
   pixel.show();
-  if (!recallPatchFlag) {
-    showCurrentParameterPage("OSC2 Wave", Oscillator2Waveform);
-  }
 }
 
 void updatenoiseLevel() {
@@ -1439,85 +1353,68 @@ void updateStratusLFOWaveform() {
   if (!lfoAlt) {
     switch (LFOWaveform) {
       case 0:
-        StratusLFOWaveform = "Saw +Oct";
         LFOWaveCV = 40;
-        break;
         break;
 
       case 1:
-        StratusLFOWaveform = "Quad Saw";
         LFOWaveCV = 160;
         break;
 
       case 2:
-        StratusLFOWaveform = "Quad Pulse";
         LFOWaveCV = 280;
         break;
 
       case 3:
-        StratusLFOWaveform = "Tri Step";
         LFOWaveCV = 376;
         break;
 
       case 4:
-        StratusLFOWaveform = "Sine +Oct";
         LFOWaveCV = 592;
         break;
 
       case 5:
-        StratusLFOWaveform = "Sine +3rd";
         LFOWaveCV = 720;
         break;
 
       case 6:
-        StratusLFOWaveform = "Sine +4th";
         LFOWaveCV = 840;
         break;
 
       case 7:
-        StratusLFOWaveform = "Rand Slopes";
         LFOWaveCV = 968;
         break;
     }
   } else {
     switch (LFOWaveform) {
       case 0:
-        StratusLFOWaveform = "Sawtooth Up";
         LFOWaveCV = 40;
         break;
 
       case 1:
-        StratusLFOWaveform = "Sawtooth Down";
         LFOWaveCV = 160;
         break;
 
       case 2:
-        StratusLFOWaveform = "Squarewave";
         LFOWaveCV = 280;
         break;
 
       case 3:
-        StratusLFOWaveform = "Triangle";
         LFOWaveCV = 376;
         break;
 
       case 4:
-        StratusLFOWaveform = "Sinewave";
         LFOWaveCV = 592;
         break;
 
       case 5:
-        StratusLFOWaveform = "Sweeps";
         LFOWaveCV = 720;
         break;
 
       case 6:
-        StratusLFOWaveform = "Lumps";
         LFOWaveCV = 840;
         break;
 
       case 7:
-        StratusLFOWaveform = "Sample & Hold";
         LFOWaveCV = 968;
         break;
     }

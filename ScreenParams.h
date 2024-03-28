@@ -177,7 +177,7 @@ const char* const filter01[] PROGMEM = {
  str41[0], str41[1], str41[2], str41[3], str41[4], str41[5], str41[6], str41[7],
 };
 
-//filter01
+//lfo01
 const char str42[8][14] PROGMEM = {//str1 is effect name of 1st line
 "Sawtooth Up","Sawtooth Dn","Square","Triangle","Sine","Sweep","Lumps","Random"
 };
@@ -185,10 +185,34 @@ const char* const lfo01[] PROGMEM = {
  str42[0], str42[1], str42[2], str42[3], str42[4], str42[5], str42[6], str42[7],
 };
 
-//filter02
+//lfo02
 const char str43[8][14] PROGMEM = {//str1 is effect name of 1st line
 "Saw + Octave","Quad Saw","Quad Pulse","Tri Step","Sine + Octave","Sine + 3rd","Sine + 4th","Slopes"
 };
 const char* const lfo02[] PROGMEM = {
  str43[0], str43[1], str43[2], str43[3], str43[4], str43[5], str43[6], str43[7],
+};
+
+//vco01
+const char str44[8][14] PROGMEM = {
+"Sawtooth","Sinewave","Squarewave","Triangle","Octave Saw","FM 1","FM2 ","FM3"
+};
+const char* const vco01[] PROGMEM = {
+ str44[0], str44[1], str44[2], str44[3], str44[4], str44[5], str44[6], str44[7],
+};
+
+//vco02
+const char str45[8][14] PROGMEM = {//str1 is effect name of 1st line
+"FM 1","FM 2","FM 3","FM 4","FM 5","FM 6","FM 7","FM 8"
+};
+const char* const vco02[] PROGMEM = {
+ str45[0], str45[1], str45[2], str45[3], str45[4], str45[5], str45[6], str45[7],
+};
+
+//vco02
+const char str46[8][14] PROGMEM = {//str1 is effect name of 1st line
+"Sawtooth","FM 1","FM 2","FM 3","FM 1 Multi","FM 2 Multi","FM 3 Multi","FM 4 Multi"
+};
+const char* const vco03[] PROGMEM = {
+ str46[0], str46[1], str46[2], str46[3], str46[4], str46[5], str46[6], str46[7],
 };

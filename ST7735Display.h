@@ -567,37 +567,144 @@ void renderCurrentPatchPage() {
       case 7: // Osc1
       tft.setTextColor(ST7735_WHITE);
       tft.setTextSize(1);
-      tft.setCursor(0, 70);  //effect mix
+      tft.setCursor(0, 70);
+      tft.print("OSC1 Wave");
+      tft.setCursor(0, 100);
       tft.print("OSC1 Mod");
-      tft.setCursor(0, 100);  //effect mix
+      tft.setCursor(0, 130);
       tft.print("LFO Wave");
-      tft.setCursor(0, 130);  //effect mix
+      tft.setCursor(0, 160);
       tft.print("OSC1 FM");
-      tft.setCursor(0, 160);  //effect mix
+      tft.setCursor(0, 190);
       tft.print("OSC1 Level");
+      tft.setCursor(0, 220);  //effect mix
+      tft.print("Bank");
+      tft.setCursor(160, 220);  //effect mix
+      tft.print("Octave");
 
-      tft.fillRoundRect(160, 68, int(osc1WaveMod / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 98, int(osc1fmWaveMod / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 128, int(osc1fmDepth / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 158, int(osc1Level / 6.5), 16, 2, ST7735_YELLOW);
+      char vcoDisplay[30];
+      if (osc1Bank == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco01[osc1WaveSelect])));
+      }
+      if (osc1Bank == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco02[osc1WaveSelect])));
+      }
+      if (osc1Bank == 2) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco03[osc1WaveSelect])));
+      }
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(vcoDisplay, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+
+      tft.setCursor(160, 70);
+      tft.setTextColor(ST7735_YELLOW);
+      tft.print(vcoDisplay);
+
+      tft.setCursor(80, 220);
+      switch (osc1Bank) {
+        case 0:
+          tft.print("Fold");
+          break;
+        case 1:
+          tft.print("FM");
+          break;
+        case 2:
+          tft.print("AM");
+          break;
+      }
+      tft.setCursor(270, 220);
+      switch (oct1) {
+        case 0:
+          tft.print("-1");
+          break;
+        case 1:
+          tft.print("0");
+          break;
+        case 2:
+          tft.print("+1");
+          break;
+      }
+      tft.setTextColor(ST7735_WHITE);
+
+      tft.fillRoundRect(160, 98, int(osc1WaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(osc1fmWaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(osc1fmDepth / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 188, int(osc1Level / 6.5), 16, 2, ST7735_YELLOW);
       break;
 
-      case 8: // Osc1
+      case 8: // Osc2
       tft.setTextColor(ST7735_WHITE);
       tft.setTextSize(1);
       tft.setCursor(0, 70);  //effect mix
-      tft.print("OSC2 Mod");
+      tft.print("OSC2 Wave");
       tft.setCursor(0, 100);  //effect mix
-      tft.print("LFO Wave");
+      tft.print("OSC2 Mod");
       tft.setCursor(0, 130);  //effect mix
-      tft.print("OSC2 FM ");
+      tft.print("LFO Wave");
       tft.setCursor(0, 160);  //effect mix
+      tft.print("OSC2 FM ");
+      tft.setCursor(0, 190);  //effect mix
       tft.print("OSC2 Level");
+      tft.setCursor(0, 220);  //effect mix
+      tft.print("Bank");
+      tft.setCursor(160, 220);  //effect mix
+      tft.print("Octave");
 
-      tft.fillRoundRect(160, 68, int(osc2WaveMod / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 98, int(osc2fmWaveMod / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 128, int(osc2fmDepth / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 158, int(osc2Level / 6.5), 16, 2, ST7735_YELLOW);
+
+      char vco2Display[30];
+      if (osc2Bank == 0) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco01[osc2WaveSelect])));
+      }
+      if (osc2Bank == 1) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco02[osc2WaveSelect])));
+      }
+      if (osc2Bank == 2) {
+        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco03[osc2WaveSelect])));
+      }
+      // Check if the pointer is valid
+      if (str_ptr != nullptr) {
+        // Copy the string from program memory to RAM
+        strcpy_P(vco2Display, str_ptr);
+      } else {
+        // Handle the case where the pointer is NULL (if needed)
+      }
+      tft.setCursor(160, 70);
+      tft.setTextColor(ST7735_YELLOW);
+      tft.print(vco2Display);
+      tft.setCursor(80, 220);
+      switch (osc2Bank) {
+        case 0:
+          tft.print("Fold");
+          break;
+        case 1:
+          tft.print("FM");
+          break;
+        case 2:
+          tft.print("AM");
+          break;
+      }
+      tft.setCursor(270, 220);
+      switch (oct2) {
+        case 0:
+          tft.print("-1");
+          break;
+        case 1:
+          tft.print("0");
+          break;
+        case 2:
+          tft.print("+1");
+          break;
+      }
+      tft.setTextColor(ST7735_WHITE);
+
+      tft.fillRoundRect(160, 98, int(osc2WaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 128, int(osc2fmWaveMod / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 158, int(osc2fmDepth / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 188, int(osc2Level / 6.5), 16, 2, ST7735_YELLOW);
       break;
   }
 }
