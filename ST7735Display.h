@@ -276,7 +276,7 @@ void renderCurrentPatchPage() {
       tft.fillRoundRect(160, 128, int(effect1 / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect(160, 158, int(effect2 / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect(160, 188, int(effect3 / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 218, int(mixa / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect((int(mixa / 6.7) + 160), 218, 8, 16, 2, ST7735_YELLOW);
       break;
 
     case 1:
@@ -298,22 +298,22 @@ void renderCurrentPatchPage() {
         // Handle the case where the pointer is NULL (if needed)
       }
       tft.setTextSize(1);
-      tft.setCursor(0, 70);  //effect mix
+      tft.setCursor(0, 70);
       tft.print("Filter Type");
       tft.setCursor(160, 70);
       tft.setTextColor(ST7735_YELLOW);
       tft.print(filterDisplay);
       tft.setTextSize(1);
       tft.setTextColor(ST7735_WHITE);
-      tft.setCursor(0, 100);  //effect mix
+      tft.setCursor(0, 100);
       tft.print("Filter Cutoff");
-      tft.setCursor(0, 130);  //effect mix
+      tft.setCursor(0, 130);
       tft.print("Filter Res");
-      tft.setCursor(0, 160);  //effect mix
+      tft.setCursor(0, 160);
       tft.print("Filter Env");
-      tft.setCursor(0, 190);  //effect mix
+      tft.setCursor(0, 190);
       tft.print("KeyTrack");
-      tft.setCursor(0, 220);  //effect mix
+      tft.setCursor(0, 220);
       tft.print("LFO Depth");
 
       tft.fillRoundRect(160, 98, int(filterCutoff / 6.5), 16, 2, ST7735_YELLOW);
@@ -474,7 +474,7 @@ void renderCurrentPatchPage() {
         // Handle the case where the pointer is NULL (if needed)
       }
       tft.setTextSize(1);
-      tft.setCursor(0, 70);  //effect mix
+      tft.setCursor(0, 70);
       tft.print("LFO Wave");
       tft.setCursor(160, 70);
       tft.setTextColor(ST7735_YELLOW);
@@ -576,8 +576,8 @@ void renderCurrentPatchPage() {
           break;
       }
       tft.fillRoundRect(160, 68, int((glideTime * 8) / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 188, int(osc1Tune / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 218, int(osc2Tune / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect((int(osc1Tune / 6.7) + 160), 188, 8, 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect((int(osc2Tune / 6.7) + 160), 218, 8, 16, 2, ST7735_YELLOW);
       break;
 
     case 6:
@@ -592,7 +592,7 @@ void renderCurrentPatchPage() {
 
       tft.fillRoundRect(160, 68, int(volumeControl / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect(160, 98, int(amDepth / 6.5), 16, 2, ST7735_YELLOW);
-      tft.fillRoundRect(160, 128, int(noiseLevel / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect((int(noiseLevel / 6.7) + 160), 128, 8, 16, 2, ST7735_YELLOW);
       break;
 
     case 7:  // Osc1
@@ -608,9 +608,9 @@ void renderCurrentPatchPage() {
       tft.print("OSC1 FM");
       tft.setCursor(0, 190);
       tft.print("OSC1 Level");
-      tft.setCursor(0, 220);  //effect mix
+      tft.setCursor(0, 220);
       tft.print("Bank");
-      tft.setCursor(160, 220);  //effect mix
+      tft.setCursor(160, 220);
       tft.print("Octave");
 
       char vcoDisplay[30];
