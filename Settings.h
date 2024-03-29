@@ -3,12 +3,18 @@
 void settingsMIDICh();
 void settingsMIDIOutCh();
 void settingsEncoderDir();
+void settingsModWheelDepth();
+void settingsAfterTouch();
+void settingsafterTouchDepth();
 void settingsUpdateParams();
 void settingsSendNotes();
 
 int currentIndexMIDICh();
 int currentIndexMIDIOutCh();
 int currentIndexEncoderDir();
+int currentIndexModWheelDepth();
+int currentIndexAfterTouch();
+int currentIndexafterTouchDepth();
 int currentIndexUpdateParams();
 int currentIndexSendNotes();
 
@@ -34,16 +40,42 @@ void settingsEncoderDir(int index, const char *value) {
   if (strcmp(value, "Type 1") == 0) {
     encCW = true;
   } else {
-    encCW =  false;
+    encCW = false;
   }
   storeEncoderDir(encCW ? 1 : 0);
+}
+
+void settingsModWheelDepth(int index, const char *value) {
+  if (strcmp(value, "Off") == 0) {
+    modWheelDepth = 0;
+  } else {
+    modWheelDepth = atoi(value);
+  }
+  storeModWheelDepth(modWheelDepth);
+}
+
+void settingsAfterTouch(int index, const char *value) {
+  if (strcmp(value, "Off") == 0) AfterTouchDest = 0;
+  if (strcmp(value, "DCO Mod") == 0) AfterTouchDest = 1;
+  if (strcmp(value, "CutOff Freq") == 0) AfterTouchDest = 2;
+  if (strcmp(value, "VCF Mod") == 0) AfterTouchDest = 3;
+  storeAfterTouch(AfterTouchDest);
+}
+
+void settingsafterTouchDepth(int index, const char *value) {
+  if (strcmp(value, "Off") == 0) {
+    afterTouchDepth = 0;
+  } else {
+    afterTouchDepth = atoi(value);
+  }
+  storeafterTouchDepth(afterTouchDepth);
 }
 
 void settingsUpdateParams(int index, const char *value) {
   if (strcmp(value, "Send Params") == 0) {
     updateParams = true;
   } else {
-    updateParams =  false;
+    updateParams = false;
   }
   storeUpdateParams(updateParams ? 1 : 0);
 }
@@ -52,7 +84,7 @@ void settingsSendNotes(int index, const char *value) {
   if (strcmp(value, "Send Notes") == 0) {
     sendNotes = true;
   } else {
-    sendNotes =  false;
+    sendNotes = false;
   }
   storeSendNotes(sendNotes ? 1 : 0);
 }
@@ -65,9 +97,20 @@ int currentIndexMIDIOutCh() {
   return getMIDIOutCh();
 }
 
-
 int currentIndexEncoderDir() {
   return getEncoderDir() ? 0 : 1;
+}
+
+int currentIndexModWheelDepth() {
+  return (getModWheelDepth()) - 1;
+}
+
+int currentIndexAfterTouch() {
+  return getAfterTouch();
+}
+
+int currentIndexafterTouchDepth() {
+  return getafterTouchDepth();
 }
 
 int currentIndexUpdateParams() {
@@ -80,9 +123,12 @@ int currentIndexSendNotes() {
 
 // add settings to the circular buffer
 void setUpSettings() {
-  settings::append(settings::SettingsOption{"MIDI Ch.", {"All", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0"}, settingsMIDICh, currentIndexMIDICh});
-  settings::append(settings::SettingsOption{"MIDI Out Ch.", {"Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0"}, settingsMIDIOutCh, currentIndexMIDIOutCh});
-  settings::append(settings::SettingsOption{"Encoder", {"Type 1", "Type 2", "\0"}, settingsEncoderDir, currentIndexEncoderDir});
-  settings::append(settings::SettingsOption{"USB Params", {"Off", "Send Params", "\0"}, settingsUpdateParams, currentIndexUpdateParams});
-  settings::append(settings::SettingsOption{"USB Notes", {"Off", "Send Notes", "\0"}, settingsSendNotes, currentIndexSendNotes});
+  settings::append(settings::SettingsOption{ "MIDI Ch.", { "All", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0" }, settingsMIDICh, currentIndexMIDICh });
+  settings::append(settings::SettingsOption{ "MIDI Out Ch.", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0" }, settingsMIDIOutCh, currentIndexMIDIOutCh });
+  settings::append(settings::SettingsOption{ "Encoder", { "Type 1", "Type 2", "\0" }, settingsEncoderDir, currentIndexEncoderDir });
+  settings::append(settings::SettingsOption{ "MW Depth", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "\0" }, settingsModWheelDepth, currentIndexModWheelDepth });
+  settings::append(settings::SettingsOption{ "AT Destination", { "Off", "DCO Mod", "CutOff Freq", "VCF Mod", "\0" }, settingsAfterTouch, currentIndexAfterTouch });
+  settings::append(settings::SettingsOption{ "AT Depth", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "\0" }, settingsafterTouchDepth, currentIndexafterTouchDepth });
+  settings::append(settings::SettingsOption{ "USB Params", { "Off", "Send Params", "\0" }, settingsUpdateParams, currentIndexUpdateParams });
+  settings::append(settings::SettingsOption{ "USB Notes", { "Off", "Send Notes", "\0" }, settingsSendNotes, currentIndexSendNotes });
 }

@@ -244,6 +244,7 @@ void setup() {
   encCW = getEncoderDir();
   //Read MIDI Out Channel from EEPROM
   midiOutCh = getMIDIOutCh();
+  modWheelDepth = getModWheelDepth();
 
   pixel.begin();
   pixel.setPixelColor(0, pixel.Color(colour[0][0], colour[0][1], colour[0][2]));
@@ -2102,74 +2103,70 @@ void myControlChange(byte channel, byte control, int value) {
 
     case CCmodwheel:
       switch (modWheelDepth) {
+
+        case 0:
+          osc1fmDepth = 0;
+          osc2fmDepth = 0;
+          break;
+          
         case 1:
-          modWheelLevel = ((value * 8) / 5);
+          modWheelLevel = (value / 5);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 2:
-          modWheelLevel = ((value * 8) / 4);
+          modWheelLevel = (value / 4);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 3:
-          modWheelLevel = ((value * 8) / 3.5);
+          modWheelLevel = (value / 3.5);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 4:
-          modWheelLevel = ((value * 8) / 3);
+          modWheelLevel = (value / 3);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 5:
-          modWheelLevel = ((value * 8) / 2.5);
+          modWheelLevel = (value / 2.5);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 6:
-          modWheelLevel = ((value * 8) / 2);
+          modWheelLevel = (value / 2);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 7:
-          modWheelLevel = ((value * 8) / 1.75);
+          modWheelLevel = (value / 1.75);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 8:
-          modWheelLevel = ((value * 8) / 1.5);
+          modWheelLevel = (value / 1.5);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 9:
-          modWheelLevel = ((value * 8) / 1.25);
+          modWheelLevel = (value / 1.25);
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
 
         case 10:
-          modWheelLevel = (value * 8);
+          modWheelLevel = value;
           osc1fmDepth = (int(modWheelLevel));
-          //          Serial.print("ModWheel Depth ");
-          //          Serial.println(modWheelLevel);
+          osc2fmDepth = (int(modWheelLevel));
           break;
       }
       break;

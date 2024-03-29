@@ -9,6 +9,10 @@
 #define EEPROM_LED_INTENSITY 6
 #define EEPROM_SLIDER_INTENSITY 7
 #define EEPROM_SEND_NOTES 8
+#define EEPROM_AFTERTOUCH 9
+#define EEPROM_PITCHBEND 10
+#define EEPROM_AFTERTOUCH_DEPTH 11
+#define EEPROM_MODWHEEL_DEPTH 12
 
 int getMIDIChannel() {
   byte midiChannel = EEPROM.read(EEPROM_MIDI_CH);
@@ -36,6 +40,40 @@ boolean getUpdateParams() {
   byte params = EEPROM.read(EEPROM_UPDATE_PARAMS); 
   if ( params < 0 || params > 1 )return true; //If EEPROM has no encoder direction stored
   return params == 1 ? true : false;
+}
+
+float getAfterTouch() {
+  byte AfterTouchDest = EEPROM.read(EEPROM_AFTERTOUCH);
+  if (AfterTouchDest < 0  || AfterTouchDest > 7) return 0;
+  return AfterTouchDest; //If EEPROM has no key tracking stored
+}
+
+void storeAfterTouch(byte AfterTouchDest)
+{
+  EEPROM.update(EEPROM_AFTERTOUCH, AfterTouchDest);
+}
+
+float getModWheelDepth() {
+  int mw = EEPROM.read(EEPROM_MODWHEEL_DEPTH);
+  if (mw < 1 || mw > 10) return modWheelDepth; //If EEPROM has no mod wheel depth stored
+  return mw;
+}
+
+void storeModWheelDepth(float mwDepth)
+{
+  int mw =  mwDepth;
+  EEPROM.update(EEPROM_MODWHEEL_DEPTH, mw);
+}
+
+float getafterTouchDepth() {
+  byte afterTouchDepth = EEPROM.read(EEPROM_AFTERTOUCH_DEPTH);
+  if (afterTouchDepth < 0 || afterTouchDepth > 10) return 0; //If EEPROM has no mod wheel depth stored
+  return afterTouchDepth;
+}
+
+void storeafterTouchDepth(byte afterTouchDepth)
+{
+  EEPROM.update(EEPROM_AFTERTOUCH_DEPTH, afterTouchDepth);
 }
 
 void storeUpdateParams(byte updateParameters)
