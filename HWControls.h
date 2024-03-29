@@ -120,41 +120,6 @@ ADC *adc = new ADC();
 #define EFFECT_ROM_0 22  // 3.3v
 #define EFFECT_ROM_1 23  // 3.3v
 
-
-// New 595 outputs
-
-// #define FILTER_LIN_LOG 4
-// #define AMP_LIN_LOG 5
-// #define FLOOPBIT1 6
-// #define FLOOPBIT0 7
-
-// #define NOTEPRIORITYA0 8
-// #define NOTEPRIORITYA2 9
-// #define ALOOPBIT1 10
-// #define ALOOPBIT0 11
-// #define EXTCLOCK 12
-// #define MIDICLOCK 13
-// #define AFTERTOUCH_A 14
-// #define AFTERTOUCH_B 15
-
-// #define AFTERTOUCH_C 16
-// #define FILTER_POLE 17
-// #define FILTER_EG_INV 18
-// #define LFO_ALT 19
-// #define OSC1_OCTA 20  //3.3v
-// #define OSC1_OCTB 21  //3.3v
-// #define OSC2_OCTA 22  //3.3v
-// #define OSC2_OCTB 23  //3.3v
-
-// #define OSC1_BANKA 24  //3.3v
-// #define OSC1_BANKB 25  //3.3v
-// #define OSC2_BANKA 26  //3.3v
-// #define OSC2_BANKB 27  //3.3v
-// #define FILTER_A 28
-// #define FILTER_B 29
-// #define FILTER_C 30
-// //#define SPARE 31
-
 // Panel Buttons
 // 0
 #define EFFECT_BANK_SW 0

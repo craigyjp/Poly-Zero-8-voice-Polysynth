@@ -55,6 +55,7 @@
 #define   CClfoAlt  76
 #define   CCLFORate 77
 #define   CClfoMult 78
+#define   CCosc1osc2fmDepth 79
 #define   CCosc1Oct 80
 #define   CCosc2Oct  81
 #define   CCosc2OctB  82

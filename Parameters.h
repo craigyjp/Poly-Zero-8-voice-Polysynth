@@ -27,6 +27,7 @@ int resolutionFrig = 3;
 boolean recallPatchFlag = false;
 boolean learning = false;
 boolean noteArrived = false;
+boolean osc1osc2fmDepth = false;
 int setCursorPos = 0;
 
 int CC_ON = 127;

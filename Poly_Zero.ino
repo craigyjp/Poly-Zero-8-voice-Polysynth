@@ -161,6 +161,7 @@ void setup() {
   octoswitch.begin(PIN_DATA, PIN_LOAD, PIN_CLK);
   octoswitch.setCallback(onButtonPress);
   octoswitch.setIgnoreAfterHold(EFFECT_BANK_SW, true);
+  octoswitch.setIgnoreAfterHold(LFO_WAVE_SW, true);
   srp.begin(LED_DATA, LED_LATCH, LED_CLK, LED_PWM);
   sr.begin(CONTROL_DATA, CONTROL_LATCH, CONTROL_CLK, CONTROL_PWM);
   trig.begin(TRIG_DATA, TRIG_LATCH, TRIG_CLK, TRIG_PWM);
@@ -867,11 +868,11 @@ void updateosc2fmDepth() {
 }
 
 void updateosc1Tune() {
-  showCurrentParameterPage("OSC1 Tune", String(osc1Tunestr));
+  parameterGroup = 5;
 }
 
 void updateosc2Tune() {
-  showCurrentParameterPage("OSC2 Tune", String(osc2Tunestr));
+  parameterGroup = 5;
 }
 
 void updateosc1WaveMod() {
@@ -1346,6 +1347,10 @@ void updatelfoDelay() {
 
 void updateamDepth() {
   parameterGroup = 6;
+}
+
+void updateosc1osc2fmDepth() {
+  parameterGroup = 4;
 }
 
 void updateStratusLFOWaveform() {
@@ -1864,6 +1869,9 @@ void myControlChange(byte channel, byte control, int value) {
 
     case CCosc1fmDepth:
       osc1fmDepth = value;
+      if (osc1osc2fmDepth) {
+        osc2fmDepth = osc1fmDepth;
+      }
       osc1fmDepthstr = map(value, 0, readRes, 0, 127);
       updateosc1fmDepth();
       break;
@@ -1998,14 +2006,13 @@ void myControlChange(byte channel, byte control, int value) {
       updateLFORate();
       break;
 
-    case CCLFOWaveform:
-      Serial.println(value);
-      LFOWaveform= map(value, 0, readRes, 0, 7);
+    case CCLFOWaveformButton:
       updateStratusLFOWaveform();
       break;
 
-    case CCLFOWaveformButton:
-      updateStratusLFOWaveform();
+    case CCosc1osc2fmDepth:
+      value > 0 ? osc1osc2fmDepth = 1 : osc1osc2fmDepth = 0;
+      updateosc1osc2fmDepth();
       break;
 
     case CCfilterAttack:
@@ -2375,6 +2382,7 @@ void setCurrentPatchData(String data[]) {
   NotePriority = data[73].toInt();
   monoMultiSW = data[74].toInt();
   effectNumSW = data[75].toInt();
+  osc1osc2fmDepth = data[76].toInt();
 
 
   oldfilterCutoff = filterCutoff;
@@ -2402,6 +2410,10 @@ void setCurrentPatchData(String data[]) {
   updateNotePriority();
   updatemonoMultiSW();
   updateeffectNumSW();
+
+  if (osc1osc2fmDepth) {
+    osc2fmDepth = osc1fmDepth;
+  }
   
   //Patchname
   updatePatchname();
@@ -2421,7 +2433,7 @@ String getCurrentPatchData() {
          + "," + String(osc2WaveB) + "," + String(osc2WaveC) + "," + String(AfterTouchDest) + "," + String(osc2fmDepth) + "," + String(osc2fmWaveMod) + "," + String(effect1) + "," + String(effect2)
          + "," + String(effect3) + "," + String(mixa) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
          + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW)
-         + "," + String(effectNumSW);
+         + "," + String(effectNumSW) + "," + String(osc1osc2fmDepth);
 }
 
 void checkMux() {
@@ -2908,12 +2920,15 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
     myControlChange(midiChannel, CClfoMult, lfoMult);
   }
 
-  if (btnIndex == LFO_WAVE_SW && btnType == ROX_PRESSED) {
+  if (btnIndex == LFO_WAVE_SW && btnType == ROX_RELEASED) {
     LFOWaveform = LFOWaveform + 1;
     if (LFOWaveform > 7) {
       LFOWaveform = 0;
     }
     myControlChange(midiChannel, CCLFOWaveformButton, LFOWaveform);
+  } else if (btnIndex == LFO_WAVE_SW && btnType == ROX_HELD) {
+    osc1osc2fmDepth = !osc1osc2fmDepth;
+    myControlChange(midiChannel, CCosc1osc2fmDepth, osc1osc2fmDepth);
   }
 
   if (btnIndex == DCO1_WAVE_SW && btnType == ROX_PRESSED) {

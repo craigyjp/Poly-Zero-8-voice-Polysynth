@@ -124,17 +124,19 @@ void renderCurrentPatchPage() {
       tft.setCursor(80, 70);
       tft.setTextColor(ST7735_YELLOW);
       char buf1[30];  // first word of effect name
-      if (effectBankSW == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name01[effectNumSW])));
-      }
-      if (effectBankSW == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name11[effectNumSW])));
-      }
-      if (effectBankSW == 2) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name21[effectNumSW])));
-      }
-      if (effectBankSW == 3) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name31[effectNumSW])));
+      switch (effectBankSW) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name01[effectNumSW])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name11[effectNumSW])));
+          break;
+        case 2:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name21[effectNumSW])));
+          break;
+        case 3:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name31[effectNumSW])));
+          break;
       }
 
       // Check if the pointer is valid
@@ -149,17 +151,19 @@ void renderCurrentPatchPage() {
       tft.print(" ");
 
       char buf2[30];  // second word of effect name
-      if (effectBankSW == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name02[effectNumSW])));
-      }
-      if (effectBankSW == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name12[effectNumSW])));
-      }
-      if (effectBankSW == 2) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name22[effectNumSW])));
-      }
-      if (effectBankSW == 3) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name32[effectNumSW])));
+      switch (effectBankSW) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name02[effectNumSW])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name12[effectNumSW])));
+          break;
+        case 2:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name22[effectNumSW])));
+          break;
+        case 3:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name32[effectNumSW])));
+          break;
       }
 
       // Check if the pointer is valid
@@ -188,17 +192,19 @@ void renderCurrentPatchPage() {
 
       tft.setCursor(0, 130);  //effect param1
       char buf3[30];
-      if (effectBankSW == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name03[effectNumSW])));
-      }
-      if (effectBankSW == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name13[effectNumSW])));
-      }
-      if (effectBankSW == 2) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name23[effectNumSW])));
-      }
-      if (effectBankSW == 3) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name33[effectNumSW])));
+      switch (effectBankSW) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name03[effectNumSW])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name13[effectNumSW])));
+          break;
+        case 2:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name23[effectNumSW])));
+          break;
+        case 3:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name33[effectNumSW])));
+          break;
       }
 
       // Check if the pointer is valid
@@ -213,17 +219,19 @@ void renderCurrentPatchPage() {
 
       tft.setCursor(0, 160);  //effect param2
       char buf4[30];
-      if (effectBankSW == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name04[effectNumSW])));
-      }
-      if (effectBankSW == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name14[effectNumSW])));
-      }
-      if (effectBankSW == 2) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name24[effectNumSW])));
-      }
-      if (effectBankSW == 3) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name34[effectNumSW])));
+      switch (effectBankSW) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name04[effectNumSW])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name14[effectNumSW])));
+          break;
+        case 2:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name24[effectNumSW])));
+          break;
+        case 3:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name34[effectNumSW])));
+          break;
       }
       // Check if the pointer is valid
       if (str_ptr != nullptr) {
@@ -237,17 +245,19 @@ void renderCurrentPatchPage() {
 
       tft.setCursor(0, 190);  //effect param3
       char buf5[30];
-      if (effectBankSW == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name05[effectNumSW])));
-      }
-      if (effectBankSW == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name15[effectNumSW])));
-      }
-      if (effectBankSW == 2) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name25[effectNumSW])));
-      }
-      if (effectBankSW == 3) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name35[effectNumSW])));
+      switch (effectBankSW) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name05[effectNumSW])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name15[effectNumSW])));
+          break;
+        case 2:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name25[effectNumSW])));
+          break;
+        case 3:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(name35[effectNumSW])));
+          break;
       }
       // Check if the pointer is valid
       if (str_ptr != nullptr) {
@@ -272,11 +282,13 @@ void renderCurrentPatchPage() {
     case 1:
 
       char filterDisplay[30];
-      if (filterPoleSW == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(filter01[filterType])));
-      }
-      if (filterPoleSW == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(filter02[filterType])));
+      switch (filterPoleSW) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(filter01[filterType])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(filter02[filterType])));
+          break;
       }
       // Check if the pointer is valid
       if (str_ptr != nullptr) {
@@ -446,11 +458,13 @@ void renderCurrentPatchPage() {
 
     case 4:  // LFO
       char lfoDisplay[30];
-      if (lfoAlt == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(lfo02[LFOWaveform])));
-      }
-      if (lfoAlt == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(lfo01[LFOWaveform])));
+      switch (lfoAlt) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(lfo02[LFOWaveform])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(lfo01[LFOWaveform])));
+          break;
       }
       // Check if the pointer is valid
       if (str_ptr != nullptr) {
@@ -474,6 +488,8 @@ void renderCurrentPatchPage() {
       tft.print("LFO Multiplier");
       tft.setCursor(0, 190);
       tft.print("Multi Trigger");
+      tft.setCursor(0, 220);
+      tft.print("FM Mod Sync");
       tft.setTextColor(ST7735_YELLOW);
       tft.setCursor(160, 160);
       switch (lfoMult) {
@@ -496,22 +512,35 @@ void renderCurrentPatchPage() {
           tft.print("On");
           break;
       }
+      tft.setCursor(160, 220);
+      switch (osc1osc2fmDepth) {
+        case 0:
+          tft.print("Off");
+          break;
+        case 1:
+          tft.print("On");
+          break;
+      }
 
       tft.fillRoundRect(160, 98, int(LFORate / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect(160, 128, int(lfoDelay / 6.5), 16, 2, ST7735_YELLOW);
       break;
 
-      case 5:
+    case 5:
       tft.setTextColor(ST7735_WHITE);
       tft.setTextSize(1);
-      tft.setCursor(0, 70);  //effect mix
+      tft.setCursor(0, 70);
       tft.print("Glide Time");
-      tft.setCursor(0, 100);  //effect mix
+      tft.setCursor(0, 100);
       tft.print("Glide");
-      tft.setCursor(0, 130);  //effect mix
+      tft.setCursor(0, 130);
       tft.print("Key Mode");
-      tft.setCursor(0, 160);  //effect mix
+      tft.setCursor(0, 160);
       tft.print("Note Priority");
+      tft.setCursor(0, 190);
+      tft.print("OSC1 Coarse");
+      tft.setCursor(0, 220);
+      tft.print("OSC2 Fine");
       tft.setTextColor(ST7735_YELLOW);
       tft.setCursor(160, 100);
       switch (glideSW) {
@@ -547,16 +576,18 @@ void renderCurrentPatchPage() {
           break;
       }
       tft.fillRoundRect(160, 68, int((glideTime * 8) / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 188, int(osc1Tune / 6.5), 16, 2, ST7735_YELLOW);
+      tft.fillRoundRect(160, 218, int(osc2Tune / 6.5), 16, 2, ST7735_YELLOW);
       break;
 
-      case 6:
+    case 6:
       tft.setTextColor(ST7735_WHITE);
       tft.setTextSize(1);
-      tft.setCursor(0, 70);  //effect mix
+      tft.setCursor(0, 70);
       tft.print("Volume");
-      tft.setCursor(0, 100);  //effect mix
+      tft.setCursor(0, 100);
       tft.print("AM Depth");
-      tft.setCursor(0, 130);  //effect mix
+      tft.setCursor(0, 130);
       tft.print("Noise Level");
 
       tft.fillRoundRect(160, 68, int(volumeControl / 6.5), 16, 2, ST7735_YELLOW);
@@ -564,7 +595,7 @@ void renderCurrentPatchPage() {
       tft.fillRoundRect(160, 128, int(noiseLevel / 6.5), 16, 2, ST7735_YELLOW);
       break;
 
-      case 7: // Osc1
+    case 7:  // Osc1
       tft.setTextColor(ST7735_WHITE);
       tft.setTextSize(1);
       tft.setCursor(0, 70);
@@ -583,14 +614,16 @@ void renderCurrentPatchPage() {
       tft.print("Octave");
 
       char vcoDisplay[30];
-      if (osc1Bank == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco01[osc1WaveSelect])));
-      }
-      if (osc1Bank == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco02[osc1WaveSelect])));
-      }
-      if (osc1Bank == 2) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco03[osc1WaveSelect])));
+      switch (osc1Bank) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco01[osc1WaveSelect])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco02[osc1WaveSelect])));
+          break;
+        case 2:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco03[osc1WaveSelect])));
+          break;
       }
       // Check if the pointer is valid
       if (str_ptr != nullptr) {
@@ -636,7 +669,7 @@ void renderCurrentPatchPage() {
       tft.fillRoundRect(160, 188, int(osc1Level / 6.5), 16, 2, ST7735_YELLOW);
       break;
 
-      case 8: // Osc2
+    case 8:  // Osc2
       tft.setTextColor(ST7735_WHITE);
       tft.setTextSize(1);
       tft.setCursor(0, 70);  //effect mix
@@ -656,14 +689,16 @@ void renderCurrentPatchPage() {
 
 
       char vco2Display[30];
-      if (osc2Bank == 0) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco01[osc2WaveSelect])));
-      }
-      if (osc2Bank == 1) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco02[osc2WaveSelect])));
-      }
-      if (osc2Bank == 2) {
-        str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco03[osc2WaveSelect])));
+      switch (osc2Bank) {
+        case 0:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco01[osc2WaveSelect])));
+          break;
+        case 1:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco02[osc2WaveSelect])));
+          break;
+        case 2:
+          str_ptr = reinterpret_cast<const char *>(pgm_read_ptr(&(vco03[osc2WaveSelect])));
+          break;
       }
       // Check if the pointer is valid
       if (str_ptr != nullptr) {
