@@ -103,7 +103,7 @@ int currentIndexEncoderDir() {
 }
 
 int currentIndexModWheelDepth() {
-  return (getModWheelDepth()) - 1;
+  return getModWheelDepth();
 }
 
 int currentIndexAfterTouch() {

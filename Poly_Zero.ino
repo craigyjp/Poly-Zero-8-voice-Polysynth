@@ -248,21 +248,12 @@ void setup() {
 
   //Read Modwheel Depth from EEPROM
   modWheelDepth = getModWheelDepth();
-  if (modWheelDepth < 0 || modWheelDepth > 10) {
-    storeModWheelDepth(0);
-  }
 
   //Read aftertouch Dest from EEPROM
   AfterTouchDest = getAfterTouch();
-  if (AfterTouchDest < 0 || AfterTouchDest > 4) {
-    storeAfterTouch(0);
-  }
 
   //Read aftertouch Depth from EEPROM
   afterTouchDepth = getafterTouchDepth();
-  if (afterTouchDepth < 0 || afterTouchDepth > 10) {
-    storeafterTouchDepth(0);
-  }
 
   pixel.begin();
   pixel.setPixelColor(0, pixel.Color(colour[0][0], colour[0][1], colour[0][2]));
@@ -860,7 +851,6 @@ void myAfterTouch(byte channel, byte value) {
   } else {
     afterTouch = int(value * newAfterTouchDepth) << 3;
   }
-
   switch (AfterTouchDest) {
     case 1:
       osc1fmDepth = afterTouch;
@@ -1864,35 +1854,6 @@ void updatemonoMultiSW() {
   }
 }
 
-void updateAfterTouchDest() {
-  switch (AfterTouchDest) {
-    case 0:
-      // sr.writePin(AFTERTOUCH_A, LOW);
-      // sr.writePin(AFTERTOUCH_B, LOW);
-      // sr.writePin(AFTERTOUCH_C, LOW);
-      break;
-
-    case 1:
-      // sr.writePin(AFTERTOUCH_A, HIGH);
-      // sr.writePin(AFTERTOUCH_B, LOW);
-      // sr.writePin(AFTERTOUCH_C, LOW);
-      break;
-
-    case 2:
-      // sr.writePin(AFTERTOUCH_A, LOW);
-      // sr.writePin(AFTERTOUCH_B, HIGH);
-      // sr.writePin(AFTERTOUCH_C, LOW);
-      break;
-
-    case 3:
-      // sr.writePin(AFTERTOUCH_A, HIGH);
-      // sr.writePin(AFTERTOUCH_B, HIGH);
-      // sr.writePin(AFTERTOUCH_C, LOW);
-      break;
-  }
-  oldAfterTouchDest = AfterTouchDest;
-}
-
 void updatePatchname() {
   showPatchPage(String(patchNo), patchName);
 }
@@ -2461,7 +2422,7 @@ String getCurrentPatchData() {
          + "," + String(osc2WaveB) + "," + String(osc2WaveC) + "," + String(AfterTouchDest) + "," + String(osc2fmDepth) + "," + String(osc2fmWaveMod) + "," + String(effect1) + "," + String(effect2)
          + "," + String(effect3) + "," + String(mixa) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
          + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW)
-         + "," + String(effectNumSW) + "," + String(osc1osc2fmDepth) + "," + String(AfterTouchDepth);
+         + "," + String(effectNumSW) + "," + String(osc1osc2fmDepth) + "," + String(afterTouchDepth);
 }
 
 void checkMux() {
@@ -2672,14 +2633,18 @@ void writeDemux() {
 
   switch (muxOutput) {
     case 0:
-      switch (LFODelayGo) {
-        case 1:
-          sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1fmDepth * DACMULT)) & 0xFFFF) << 4);
-          break;
+      if (afterTouch > 0) {
+        sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1fmDepth * DACMULT)) & 0xFFFF) << 4);
+      } else {
+        switch (LFODelayGo) {
+          case 1:
+            sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc1fmDepth * DACMULT)) & 0xFFFF) << 4);
+            break;
 
-        case 0:
-          sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
-          break;
+          case 0:
+            sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+            break;
+        }
       }
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
@@ -2739,14 +2704,18 @@ void writeDemux() {
       break;
 
     case 6:
-      switch (LFODelayGo) {
-        case 1:
-          sample_data1 = (channel_a & 0xFFF0000F) | (((int(filterLFO * DACMULT)) & 0xFFFF) << 4);
-          break;
+      if (afterTouch > 0) {
+        sample_data1 = (channel_a & 0xFFF0000F) | (((int(filterLFO * DACMULT)) & 0xFFFF) << 4);
+      } else {
+        switch (LFODelayGo) {
+          case 1:
+            sample_data1 = (channel_a & 0xFFF0000F) | (((int(filterLFO * DACMULT)) & 0xFFFF) << 4);
+            break;
 
-        case 0:
-          sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
-          break;
+          case 0:
+            sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+            break;
+        }
       }
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
@@ -2772,14 +2741,18 @@ void writeDemux() {
       digitalWriteFast(DEMUX_EN_1, LOW);
 
       // reuse PWMLFO rate for FM2depth
-      switch (LFODelayGo) {
-        case 1:
-          sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc2fmDepth * DACMULT)) & 0xFFFF) << 4);
-          break;
+      if (afterTouch > 0) {
+        sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2fmDepth * DACMULT)) & 0xFFFF) << 4);
+      } else {
+        switch (LFODelayGo) {
+          case 1:
+            sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc2fmDepth * DACMULT)) & 0xFFFF) << 4);
+            break;
 
-        case 0:
-          sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
-          break;
+          case 0:
+            sample_data1 = (channel_c & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+            break;
+        }
       }
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_2, LOW);
@@ -2846,14 +2819,18 @@ void writeDemux() {
       break;
 
     case 15:
-      switch (LFODelayGo) {
-        case 1:
-          sample_data1 = (channel_a & 0xFFF0000F) | (((int(amDepth * DACMULT)) & 0xFFFF) << 4);
-          break;
+      if (afterTouch > 0) {
+        sample_data1 = (channel_a & 0xFFF0000F) | (((int(amDepth * DACMULT)) & 0xFFFF) << 4);
+      } else {
+        switch (LFODelayGo) {
+          case 1:
+            sample_data1 = (channel_a & 0xFFF0000F) | (((int(amDepth * DACMULT)) & 0xFFFF) << 4);
+            break;
 
-        case 0:
-          sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
-          break;
+          case 0:
+            sample_data1 = (channel_a & 0xFFF0000F) | ((0 & 0xFFFF) << 4);
+            break;
+        }
       }
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);

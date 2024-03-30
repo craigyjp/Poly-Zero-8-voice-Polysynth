@@ -39,11 +39,6 @@ boolean encCW = true;//This is to set the encoder to increment when turned CW - 
 boolean updateParams = false;  //(EEPROM)
 boolean sendNotes = false;  //(EEPROM)
 
-int oldmidiChannel = 0;
-int oldAfterTouchDest = 0;
-int oldClockSource = 0;
-int oldafterTouchDepth = 0;
-int afterTouchDepth = 0;
 int NotePriority = 0;
 int FilterLoop = 0;
 int AmpLoop = 0;
@@ -172,7 +167,7 @@ int filterLogLin = 0;
 int ampLogLin = 0;
 float afterTouch = 0;
 int AfterTouchDest = 0;
-int AfterTouchDepth = 0;
+int afterTouchDepth = 0;
 float masterTune = 511;
 
 int filterVelSW = 0;
