@@ -172,6 +172,7 @@ int filterLogLin = 0;
 int ampLogLin = 0;
 float afterTouch = 0;
 int AfterTouchDest = 0;
+int AfterTouchDepth = 0;
 float masterTune = 511;
 
 int filterVelSW = 0;

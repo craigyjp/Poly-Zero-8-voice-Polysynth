@@ -234,17 +234,35 @@ void setup() {
   Serial.println("MIDI In DIN Listening");
 
   MIDI2.begin();
-    for (int i = 1; i < 9; i++) {
-      MIDI2.sendNoteOn(60, 127, i);
-      delay(1);
-      MIDI2.sendNoteOff(60, 0, i);
+  for (int i = 1; i < 9; i++) {
+    MIDI2.sendNoteOn(60, 127, i);
+    delay(1);
+    MIDI2.sendNoteOff(60, 0, i);
   }
 
   //Read Encoder Direction from EEPROM
   encCW = getEncoderDir();
+
   //Read MIDI Out Channel from EEPROM
   midiOutCh = getMIDIOutCh();
+
+  //Read Modwheel Depth from EEPROM
   modWheelDepth = getModWheelDepth();
+  if (modWheelDepth < 0 || modWheelDepth > 10) {
+    storeModWheelDepth(0);
+  }
+
+  //Read aftertouch Dest from EEPROM
+  AfterTouchDest = getAfterTouch();
+  if (AfterTouchDest < 0 || AfterTouchDest > 4) {
+    storeAfterTouch(0);
+  }
+
+  //Read aftertouch Depth from EEPROM
+  afterTouchDepth = getafterTouchDepth();
+  if (afterTouchDepth < 0 || afterTouchDepth > 10) {
+    storeafterTouchDepth(0);
+  }
 
   pixel.begin();
   pixel.setPixelColor(0, pixel.Color(colour[0][0], colour[0][1], colour[0][2]));
@@ -335,7 +353,7 @@ void commandTopNoteUni() {
     trig.writePin(GATE_NOTE5, LOW);
     trig.writePin(GATE_NOTE6, LOW);
     trig.writePin(GATE_NOTE7, LOW);
-    trig.writePin(GATE_NOTE8, LOW); 
+    trig.writePin(GATE_NOTE8, LOW);
   }
 }
 
@@ -360,7 +378,7 @@ void commandBottomNoteUni() {
     trig.writePin(GATE_NOTE5, LOW);
     trig.writePin(GATE_NOTE6, LOW);
     trig.writePin(GATE_NOTE7, LOW);
-    trig.writePin(GATE_NOTE8, LOW); 
+    trig.writePin(GATE_NOTE8, LOW);
   }
 }
 
@@ -375,14 +393,14 @@ void commandLastNoteUni() {
       return;
     }
   }
-    trig.writePin(GATE_NOTE1, LOW);
-    trig.writePin(GATE_NOTE2, LOW);
-    trig.writePin(GATE_NOTE3, LOW);
-    trig.writePin(GATE_NOTE4, LOW);
-    trig.writePin(GATE_NOTE5, LOW);
-    trig.writePin(GATE_NOTE6, LOW);
-    trig.writePin(GATE_NOTE7, LOW);
-    trig.writePin(GATE_NOTE8, LOW); 
+  trig.writePin(GATE_NOTE1, LOW);
+  trig.writePin(GATE_NOTE2, LOW);
+  trig.writePin(GATE_NOTE3, LOW);
+  trig.writePin(GATE_NOTE4, LOW);
+  trig.writePin(GATE_NOTE5, LOW);
+  trig.writePin(GATE_NOTE6, LOW);
+  trig.writePin(GATE_NOTE7, LOW);
+  trig.writePin(GATE_NOTE8, LOW);
 }
 
 void commandNoteUni(int noteMsg) {
@@ -664,7 +682,7 @@ void myNoteOff(byte channel, byte note, byte velocity) {
     case 2:
       noteMsg = note;
 
-      if (velocity == 0 || velocity == 64 ) {
+      if (velocity == 0 || velocity == 64) {
         notes[noteMsg] = false;
       } else {
         notes[noteMsg] = true;
@@ -830,10 +848,39 @@ void myPitchBend(byte channel, int bend) {
   }
 }
 
-void myAfterTouch(byte channel, byte pressure) {
-  MIDI.sendAfterTouch(pressure, channel);
-  if (sendNotes) {
-    usbMIDI.sendAfterTouch(pressure, channel);
+void myAfterTouch(byte channel, byte value) {
+
+  float newAfterTouchDepth = 0.0;
+
+  if (afterTouchDepth > 0) {
+    newAfterTouchDepth = afterTouchDepth / 10.0;
+  }
+  if (afterTouchDepth == 0) {
+    afterTouch = 0;
+  } else {
+    afterTouch = int(value * newAfterTouchDepth) << 3;
+  }
+
+  switch (AfterTouchDest) {
+    case 1:
+      osc1fmDepth = afterTouch;
+      osc2fmDepth = afterTouch;
+      break;
+
+    case 2:
+      filterCutoff = (filterCutoff + afterTouch);
+      if (afterTouch <= 8) {
+        filterCutoff = oldfilterCutoff;
+      }
+      break;
+
+    case 3:
+      filterLFO = afterTouch;
+      break;
+
+    case 4:
+      amDepth = afterTouch;
+      break;
   }
 }
 
@@ -999,7 +1046,7 @@ void updateglideSW() {
 
 void sendCCtoAllDevices(int CCnumberTosend, int value) {
   //
-    MIDI2.sendControlChange(CCnumberTosend, value, 1);
+  MIDI2.sendControlChange(CCnumberTosend, value, 1);
   //}
 }
 
@@ -1428,7 +1475,6 @@ void updateStratusLFOWaveform() {
 
   pixel.setPixelColor(3, pixel.Color(colour[LFOWaveform][0], colour[LFOWaveform][1], colour[LFOWaveform][2]));
   pixel.show();
-
 }
 
 void updatefilterAttack() {
@@ -1818,14 +1864,6 @@ void updatemonoMultiSW() {
   }
 }
 
-void updatePitchBend() {
-  showCurrentParameterPage("Bender Range", int(PitchBendLevelstr));
-}
-
-void updatemodWheel() {
-  showCurrentParameterPage("Mod Range", int(modWheelLevelstr));
-}
-
 void updateAfterTouchDest() {
   switch (AfterTouchDest) {
     case 0:
@@ -2094,13 +2132,6 @@ void myControlChange(byte channel, byte control, int value) {
       updateamDepth();
       break;
 
-    case CCPitchBend:
-      PitchBendLevel = value;
-      PitchBendLevelstr = map(value, 0, readRes, 0, 127);
-      PitchBendLevelstr = PITCHBEND[PitchBendLevelstr];  // for display
-      updatePitchBend();
-      break;
-
     case CCmodwheel:
       switch (modWheelDepth) {
 
@@ -2108,7 +2139,7 @@ void myControlChange(byte channel, byte control, int value) {
           osc1fmDepth = 0;
           osc2fmDepth = 0;
           break;
-          
+
         case 1:
           modWheelLevel = (value / 5);
           osc1fmDepth = (int(modWheelLevel));
@@ -2380,6 +2411,7 @@ void setCurrentPatchData(String data[]) {
   monoMultiSW = data[74].toInt();
   effectNumSW = data[75].toInt();
   osc1osc2fmDepth = data[76].toInt();
+  afterTouchDepth = data[77].toInt();
 
 
   oldfilterCutoff = filterCutoff;
@@ -2397,7 +2429,6 @@ void setCurrentPatchData(String data[]) {
   updateFilterType();
   updateFilterLoop();
   updateAmpLoop();
-  updateAfterTouchDest();
   updateglideSW();
   updatefilterVelSW();
   updateampVelSW();
@@ -2411,7 +2442,7 @@ void setCurrentPatchData(String data[]) {
   if (osc1osc2fmDepth) {
     osc2fmDepth = osc1fmDepth;
   }
-  
+
   //Patchname
   updatePatchname();
 
@@ -2430,7 +2461,7 @@ String getCurrentPatchData() {
          + "," + String(osc2WaveB) + "," + String(osc2WaveC) + "," + String(AfterTouchDest) + "," + String(osc2fmDepth) + "," + String(osc2fmWaveMod) + "," + String(effect1) + "," + String(effect2)
          + "," + String(effect3) + "," + String(mixa) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
          + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW)
-         + "," + String(effectNumSW) + "," + String(osc1osc2fmDepth);
+         + "," + String(effectNumSW) + "," + String(osc1osc2fmDepth) + "," + String(AfterTouchDepth);
 }
 
 void checkMux() {
@@ -2769,7 +2800,7 @@ void writeDemux() {
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
 
-      sample_data1 = (channel_c & 0xFFF0000F) | (((int((LFOWaveCV) * DACMULT)) & 0xFFFF) << 4);
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int((LFOWaveCV)*DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_2, LOW);
       break;

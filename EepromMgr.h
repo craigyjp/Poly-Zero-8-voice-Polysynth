@@ -44,7 +44,7 @@ boolean getUpdateParams() {
 
 float getAfterTouch() {
   byte AfterTouchDest = EEPROM.read(EEPROM_AFTERTOUCH);
-  if (AfterTouchDest < 0  || AfterTouchDest > 7) return 0;
+  if (AfterTouchDest < 0  || AfterTouchDest > 10) return 0;
   return AfterTouchDest; //If EEPROM has no key tracking stored
 }
 
@@ -55,7 +55,7 @@ void storeAfterTouch(byte AfterTouchDest)
 
 float getModWheelDepth() {
   int mw = EEPROM.read(EEPROM_MODWHEEL_DEPTH);
-  if (mw < 1 || mw > 10) return modWheelDepth; //If EEPROM has no mod wheel depth stored
+  if (mw < 0 || mw > 10) return modWheelDepth; //If EEPROM has no mod wheel depth stored
   return mw;
 }
 
@@ -67,7 +67,7 @@ void storeModWheelDepth(float mwDepth)
 
 float getafterTouchDepth() {
   byte afterTouchDepth = EEPROM.read(EEPROM_AFTERTOUCH_DEPTH);
-  if (afterTouchDepth < 0 || afterTouchDepth > 10) return 0; //If EEPROM has no mod wheel depth stored
+  if (afterTouchDepth < 0 || afterTouchDepth > 10) return afterTouchDepth; //If EEPROM has no mod wheel depth stored
   return afterTouchDepth;
 }
 
