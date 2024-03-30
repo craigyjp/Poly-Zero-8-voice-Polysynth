@@ -2742,7 +2742,7 @@ void writeDemux() {
 
       // reuse PWMLFO rate for FM2depth
       if (afterTouch > 0) {
-        sample_data1 = (channel_a & 0xFFF0000F) | (((int(osc2fmDepth * DACMULT)) & 0xFFFF) << 4);
+        sample_data1 = (channel_c & 0xFFF0000F) | (((int(osc2fmDepth * DACMULT)) & 0xFFFF) << 4);
       } else {
         switch (LFODelayGo) {
           case 1:
