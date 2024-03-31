@@ -3,7 +3,7 @@
 #include "Parameters.h"
 #include <MIDI.h>
 
-#define MIDI_CHANNEL 1
+#define MIDI_CHANNEL 8
 
 #define NEO_PIXEL_OUT 16
 #define OSC1OR2 8
@@ -227,8 +227,8 @@ void loop() {
   freq_pot = freq_pot - (1 << 5);
   fm_input = map(analogRead(LFO_FM_CV), 0, 1023, 0, 63);
   fm_input = fm_input - (1 << 5);
-  pb_input = map(analogRead(PB_CV), 0, 1023, 0, 63);
-  pb_input = pb_input - (1 << 5);
+  pb_input = map(analogRead(PB_CV), 0, 1023, 0, 255); // Map the analog input from 0-1023 to 0-255
+  pb_input = pb_input - (1 << 7); // Subtract (1 << 7), which is equivalent to 128
   osc_freq = 256 * (current_freq + fm_input + pb_input + freq_pot) / 122070 * (1 + oct_sw);
 
 
