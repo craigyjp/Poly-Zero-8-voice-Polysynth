@@ -272,7 +272,10 @@ void renderCurrentPatchPage() {
 
       tft.setCursor(0, 220);  //effect mix
       tft.print("Effects Mix");
-
+      tft.drawFastHLine(160, 226, 160, ST7735_RED);
+      tft.drawFastVLine(160, 220, 12, ST7735_RED);
+      tft.drawFastVLine(240, 220, 12, ST7735_RED);
+      tft.drawFastVLine(319, 220, 12, ST7735_RED);
       tft.fillRoundRect(160, 128, int(effect1 / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect(160, 158, int(effect2 / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect(160, 188, int(effect3 / 6.5), 16, 2, ST7735_YELLOW);
@@ -575,6 +578,16 @@ void renderCurrentPatchPage() {
           tft.print("Last Note");
           break;
       }
+      tft.drawFastHLine(160, 196, 160, ST7735_RED);
+      tft.drawFastVLine(160, 190, 12, ST7735_RED);
+      tft.drawFastVLine(240, 190, 12, ST7735_RED);
+      tft.drawFastVLine(319, 190, 12, ST7735_RED);
+
+      tft.drawFastHLine(160, 226, 160, ST7735_RED);
+      tft.drawFastVLine(160, 220, 12, ST7735_RED);
+      tft.drawFastVLine(240, 220, 12, ST7735_RED);
+      tft.drawFastVLine(319, 220, 12, ST7735_RED);
+      
       tft.fillRoundRect(160, 68, int((glideTime * 8) / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect((int(osc1Tune / 6.7) + 160), 188, 8, 16, 2, ST7735_YELLOW);
       tft.fillRoundRect((int(osc2Tune / 6.7) + 160), 218, 8, 16, 2, ST7735_YELLOW);
@@ -589,7 +602,12 @@ void renderCurrentPatchPage() {
       tft.print("AM Depth");
       tft.setCursor(0, 130);
       tft.print("Noise Level");
+      tft.setTextColor(ST7735_RED);
 
+      tft.drawFastHLine(160, 136, 160, ST7735_RED);
+      tft.drawFastVLine(160, 130, 12, ST7735_RED);
+      tft.drawFastVLine(240, 130, 12, ST7735_RED);
+      tft.drawFastVLine(319, 130, 12, ST7735_RED);
       tft.fillRoundRect(160, 68, int(volumeControl / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect(160, 98, int(amDepth / 6.5), 16, 2, ST7735_YELLOW);
       tft.fillRoundRect((int(noiseLevel / 6.7) + 160), 128, 8, 16, 2, ST7735_YELLOW);
@@ -672,19 +690,19 @@ void renderCurrentPatchPage() {
     case 8:  // Osc2
       tft.setTextColor(ST7735_WHITE);
       tft.setTextSize(1);
-      tft.setCursor(0, 70);  //effect mix
+      tft.setCursor(0, 70);
       tft.print("OSC2 Wave");
-      tft.setCursor(0, 100);  //effect mix
+      tft.setCursor(0, 100);
       tft.print("OSC2 Mod");
-      tft.setCursor(0, 130);  //effect mix
+      tft.setCursor(0, 130);
       tft.print("LFO Wave");
-      tft.setCursor(0, 160);  //effect mix
+      tft.setCursor(0, 160);
       tft.print("OSC2 FM ");
-      tft.setCursor(0, 190);  //effect mix
+      tft.setCursor(0, 190);
       tft.print("OSC2 Level");
-      tft.setCursor(0, 220);  //effect mix
+      tft.setCursor(0, 220);
       tft.print("Bank");
-      tft.setCursor(160, 220);  //effect mix
+      tft.setCursor(160, 220);
       tft.print("Octave");
 
 

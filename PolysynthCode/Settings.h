@@ -3,6 +3,7 @@
 void settingsMIDICh();
 void settingsMIDIOutCh();
 void settingsEncoderDir();
+void settingsPitchBendDepth();
 void settingsModWheelDepth();
 void settingsAfterTouch();
 void settingsafterTouchDepth();
@@ -12,6 +13,7 @@ void settingsSendNotes();
 int currentIndexMIDICh();
 int currentIndexMIDIOutCh();
 int currentIndexEncoderDir();
+int currentIndexPitchBendDepth();
 int currentIndexModWheelDepth();
 int currentIndexAfterTouch();
 int currentIndexafterTouchDepth();
@@ -43,6 +45,15 @@ void settingsEncoderDir(int index, const char *value) {
     encCW = false;
   }
   storeEncoderDir(encCW ? 1 : 0);
+}
+
+void settingsPitchBendDepth(int index, const char *value) {
+  if (strcmp(value, "Off") == 0) {
+    PitchBendLevel = 0;
+  } else {
+    PitchBendLevel = atoi(value);
+  }
+  storePitchBendDepth(PitchBendLevel);
 }
 
 void settingsModWheelDepth(int index, const char *value) {
@@ -102,6 +113,10 @@ int currentIndexEncoderDir() {
   return getEncoderDir() ? 0 : 1;
 }
 
+int currentIndexPitchBendDepth() {
+  return getPitchBendDepth();
+}
+
 int currentIndexModWheelDepth() {
   return getModWheelDepth();
 }
@@ -127,6 +142,7 @@ void setUpSettings() {
   settings::append(settings::SettingsOption{ "MIDI Ch.", { "All", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0" }, settingsMIDICh, currentIndexMIDICh });
   settings::append(settings::SettingsOption{ "MIDI Out Ch.", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0" }, settingsMIDIOutCh, currentIndexMIDIOutCh });
   settings::append(settings::SettingsOption{ "Encoder", { "Type 1", "Type 2", "\0" }, settingsEncoderDir, currentIndexEncoderDir });
+  settings::append(settings::SettingsOption{ "PB Depth", { "Off", "1", "2", "\0" }, settingsPitchBendDepth, currentIndexPitchBendDepth });
   settings::append(settings::SettingsOption{ "MW Depth", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "\0" }, settingsModWheelDepth, currentIndexModWheelDepth });
   settings::append(settings::SettingsOption{ "AT Destination", { "Off", "DCO Mod", "CutOff Freq", "VCF Mod", "AM Mod", "\0" }, settingsAfterTouch, currentIndexAfterTouch });
   settings::append(settings::SettingsOption{ "AT Depth", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "\0" }, settingsafterTouchDepth, currentIndexafterTouchDepth });

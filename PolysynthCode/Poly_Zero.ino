@@ -190,9 +190,6 @@ void setup() {
   midiChannel = getMIDIChannel();
   Serial.println("MIDI Ch:" + String(midiChannel) + " (0 is Omni On)");
 
-  //Read CC type from EEPROM
-  ccType = getCCType();
-
   //Read UpdateParams type from EEPROM
   updateParams = getUpdateParams();
 
@@ -233,6 +230,11 @@ void setup() {
   MIDI.setHandleAfterTouchChannel(myAfterTouch);
   Serial.println("MIDI In DIN Listening");
 
+  // set the pitchbend to 0 position
+
+  sample_data = (channel_b & 0xFFF0000F) | (((int(21461)) & 0xFFFF) << 4);
+  outputDAC(DAC_CS1, sample_data);
+
   MIDI2.begin();
   for (int i = 1; i < 9; i++) {
     MIDI2.sendNoteOn(60, 127, i);
@@ -248,12 +250,27 @@ void setup() {
 
   //Read Modwheel Depth from EEPROM
   modWheelDepth = getModWheelDepth();
+  if (modWheelDepth < 0 || modWheelDepth > 10) {
+    storeModWheelDepth(0);
+  }
+
+  //Read Modwheel Depth from EEPROM
+  PitchBendLevel = getPitchBendDepth();
+  if (PitchBendLevel < 0 || PitchBendLevel > 2) {
+    storePitchBendDepth(0);
+  }
 
   //Read aftertouch Dest from EEPROM
   AfterTouchDest = getAfterTouch();
+  if (AfterTouchDest < 0 || AfterTouchDest > 3) {
+    storeAfterTouch(0);
+  }
 
   //Read aftertouch Depth from EEPROM
   afterTouchDepth = getafterTouchDepth();
+  if (afterTouchDepth < 0 || afterTouchDepth > 10) {
+    storeafterTouchDepth(0);
+  }
 
   pixel.begin();
   pixel.setPixelColor(0, pixel.Color(colour[0][0], colour[0][1], colour[0][2]));
@@ -833,10 +850,21 @@ void myConvertControlChange(byte channel, byte number, byte value) {
 }
 
 void myPitchBend(byte channel, int bend) {
-  MIDI.sendPitchBend(bend, channel);
-  if (sendNotes) {
-    usbMIDI.sendPitchBend(bend, channel);
+  switch (PitchBendLevel) {
+    case 0:
+      newbend = 21461;
+      break;
+
+    case 1:
+      newbend = map(bend, -8192, 8191, 15040, 27882);
+      break;
+
+    case 2:
+      newbend = map(bend, -8192, 8191, 8790, 34133);
+      break;
   }
+  sample_data = (channel_b & 0xFFF0000F) | (((int(newbend)) & 0xFFFF) << 4);
+  outputDAC(DAC_CS1, sample_data);
 }
 
 void myAfterTouch(byte channel, byte value) {
@@ -1042,113 +1070,37 @@ void sendCCtoAllDevices(int CCnumberTosend, int value) {
 
 void updateosc1WaveSelect() {
   parameterGroup = 7;
-  switch (osc1Bank) {
+  switch (osc1WaveSelect) {
     case 0:
-      switch (osc1WaveSelect) {
-        case 0:
-          sendCCtoAllDevices(70, 0);
-          break;
-
-        case 1:
-          sendCCtoAllDevices(70, 1);
-          break;
-
-        case 2:
-          sendCCtoAllDevices(70, 2);
-          break;
-
-        case 3:
-          sendCCtoAllDevices(70, 3);
-          break;
-
-        case 4:
-          sendCCtoAllDevices(70, 4);
-          break;
-
-        case 5:
-          sendCCtoAllDevices(70, 5);
-          break;
-
-        case 6:
-          sendCCtoAllDevices(70, 6);
-          break;
-
-        case 7:
-          sendCCtoAllDevices(70, 7);
-          break;
-      }
+      sendCCtoAllDevices(70, 0);
       break;
 
     case 1:
-      switch (osc1WaveSelect) {
-        case 0:
-          sendCCtoAllDevices(70, 0);
-          break;
-
-        case 1:
-          sendCCtoAllDevices(70, 1);
-          break;
-
-        case 2:
-          sendCCtoAllDevices(70, 2);
-          break;
-
-        case 3:
-          sendCCtoAllDevices(70, 3);
-          break;
-
-        case 4:
-          sendCCtoAllDevices(70, 4);
-          break;
-
-        case 5:
-          sendCCtoAllDevices(70, 5);
-          break;
-
-        case 6:
-          sendCCtoAllDevices(70, 6);
-          break;
-
-        case 7:
-          sendCCtoAllDevices(70, 7);
-          break;
-      }
+      sendCCtoAllDevices(70, 1);
       break;
 
     case 2:
-      switch (osc1WaveSelect) {
-        case 0:
-          sendCCtoAllDevices(70, 0);
-          break;
+      sendCCtoAllDevices(70, 2);
+      break;
 
-        case 1:
-          sendCCtoAllDevices(70, 1);
-          break;
+    case 3:
+      sendCCtoAllDevices(70, 3);
+      break;
 
-        case 2:
-          sendCCtoAllDevices(70, 2);
-          break;
+    case 4:
+      sendCCtoAllDevices(70, 4);
+      break;
 
-        case 3:
-          sendCCtoAllDevices(70, 3);
-          break;
+    case 5:
+      sendCCtoAllDevices(70, 5);
+      break;
 
-        case 4:
-          sendCCtoAllDevices(70, 4);
-          break;
+    case 6:
+      sendCCtoAllDevices(70, 6);
+      break;
 
-        case 5:
-          sendCCtoAllDevices(70, 5);
-          break;
-
-        case 6:
-          sendCCtoAllDevices(70, 6);
-          break;
-
-        case 7:
-          sendCCtoAllDevices(70, 7);
-          break;
-      }
+    case 7:
+      sendCCtoAllDevices(70, 7);
       break;
   }
   //pixel.clear();
@@ -1158,116 +1110,40 @@ void updateosc1WaveSelect() {
 
 void updateosc2WaveSelect() {
   parameterGroup = 8;
-  switch (osc2Bank) {
+  switch (osc2WaveSelect) {
     case 0:
-      switch (osc2WaveSelect) {
-        case 0:
-          sendCCtoAllDevices(71, 0);
-          break;
-
-        case 1:
-          sendCCtoAllDevices(71, 1);
-          break;
-
-        case 2:
-          sendCCtoAllDevices(71, 2);
-          break;
-
-        case 3:
-          sendCCtoAllDevices(71, 3);
-          break;
-
-        case 4:
-          sendCCtoAllDevices(71, 4);
-          break;
-
-        case 5:
-          sendCCtoAllDevices(71, 5);
-          break;
-
-        case 6:
-          sendCCtoAllDevices(71, 6);
-          break;
-
-        case 7:
-          sendCCtoAllDevices(71, 7);
-          break;
-      }
+      sendCCtoAllDevices(71, 0);
       break;
 
     case 1:
-      switch (osc2WaveSelect) {
-        case 0:
-          sendCCtoAllDevices(71, 0);
-          break;
-
-        case 1:
-          sendCCtoAllDevices(71, 1);
-          break;
-
-        case 2:
-          sendCCtoAllDevices(71, 2);
-          break;
-
-        case 3:
-          sendCCtoAllDevices(71, 3);
-          break;
-
-        case 4:
-          sendCCtoAllDevices(71, 4);
-          break;
-
-        case 5:
-          sendCCtoAllDevices(71, 5);
-          break;
-
-        case 6:
-          sendCCtoAllDevices(71, 6);
-          break;
-
-        case 7:
-          sendCCtoAllDevices(71, 7);
-          break;
-      }
+      sendCCtoAllDevices(71, 1);
       break;
 
     case 2:
-      switch (osc2WaveSelect) {
-        case 0:
-          sendCCtoAllDevices(71, 0);
-          break;
+      sendCCtoAllDevices(71, 2);
+      break;
 
-        case 1:
-          sendCCtoAllDevices(71, 1);
-          break;
+    case 3:
+      sendCCtoAllDevices(71, 3);
+      break;
 
-        case 2:
-          sendCCtoAllDevices(71, 2);
-          break;
+    case 4:
+      sendCCtoAllDevices(71, 4);
+      break;
 
-        case 3:
-          sendCCtoAllDevices(71, 3);
-          break;
+    case 5:
+      sendCCtoAllDevices(71, 5);
+      break;
 
-        case 4:
-          sendCCtoAllDevices(71, 4);
-          break;
+    case 6:
+      sendCCtoAllDevices(71, 6);
+      break;
 
-        case 5:
-          sendCCtoAllDevices(71, 5);
-          break;
-
-        case 6:
-          sendCCtoAllDevices(71, 6);
-          break;
-
-        case 7:
-          sendCCtoAllDevices(71, 7);
-          break;
-      }
+    case 7:
+      sendCCtoAllDevices(71, 7);
       break;
   }
-  //pixel.clear();
+
   pixel.setPixelColor(2, pixel.Color(colour[osc2WaveSelect][0], colour[osc2WaveSelect][1], colour[osc2WaveSelect][2]));
   pixel.show();
 }
@@ -1393,74 +1269,38 @@ void updateosc1osc2fmDepth() {
 
 void updateStratusLFOWaveform() {
   parameterGroup = 4;
-  if (!lfoAlt) {
-    switch (LFOWaveform) {
-      case 0:
-        LFOWaveCV = 40;
-        break;
+  switch (LFOWaveform) {
+    case 0:
+      LFOWaveCV = 40;
+      break;
 
-      case 1:
-        LFOWaveCV = 160;
-        break;
+    case 1:
+      LFOWaveCV = 160;
+      break;
 
-      case 2:
-        LFOWaveCV = 280;
-        break;
+    case 2:
+      LFOWaveCV = 280;
+      break;
 
-      case 3:
-        LFOWaveCV = 376;
-        break;
+    case 3:
+      LFOWaveCV = 376;
+      break;
 
-      case 4:
-        LFOWaveCV = 592;
-        break;
+    case 4:
+      LFOWaveCV = 592;
+      break;
 
-      case 5:
-        LFOWaveCV = 720;
-        break;
+    case 5:
+      LFOWaveCV = 720;
+      break;
 
-      case 6:
-        LFOWaveCV = 840;
-        break;
+    case 6:
+      LFOWaveCV = 840;
+      break;
 
-      case 7:
-        LFOWaveCV = 968;
-        break;
-    }
-  } else {
-    switch (LFOWaveform) {
-      case 0:
-        LFOWaveCV = 40;
-        break;
-
-      case 1:
-        LFOWaveCV = 160;
-        break;
-
-      case 2:
-        LFOWaveCV = 280;
-        break;
-
-      case 3:
-        LFOWaveCV = 376;
-        break;
-
-      case 4:
-        LFOWaveCV = 592;
-        break;
-
-      case 5:
-        LFOWaveCV = 720;
-        break;
-
-      case 6:
-        LFOWaveCV = 840;
-        break;
-
-      case 7:
-        LFOWaveCV = 968;
-        break;
-    }
+    case 7:
+      LFOWaveCV = 968;
+      break;
   }
 
   pixel.setPixelColor(3, pixel.Color(colour[LFOWaveform][0], colour[LFOWaveform][1], colour[LFOWaveform][2]));
@@ -2342,8 +2182,8 @@ void setCurrentPatchData(String data[]) {
   osc1WaveA = data[44].toInt();
   osc1WaveB = data[45].toInt();
   osc1WaveC = data[46].toInt();
-  modWheelLevel = data[47].toFloat();
-  PitchBendLevel = data[48].toFloat();
+  modWheelDepth = data[47].toInt();
+  PitchBendLevel = data[48].toInt();
   oct1 = data[49].toInt();
   filterVelSW = data[50].toInt();
   oct2 = data[51].toInt();
@@ -2418,7 +2258,7 @@ String getCurrentPatchData() {
          + "," + String(LFOWaveform) + "," + String(filterAttack) + "," + String(filterDecay) + "," + String(filterSustain) + "," + String(filterRelease) + "," + String(ampAttack) + "," + String(ampDecay)
          + "," + String(ampSustain) + "," + String(ampRelease) + "," + String(volumeControl) + "," + String(osc1Bank) + "," + String(keyTrack) + "," + String(filterPoleSW) + "," + String(FilterLoop)
          + "," + String(filterEGinv) + "," + String(osc1BankB) + "," + String(AmpLoop) + "," + String(osc2Bank) + "," + String(osc2BankB) + "," + String(lfoAlt) + "," + String(osc1WaveA) + "," + String(osc1WaveB)
-         + "," + String(osc1WaveC) + "," + String(modWheelLevel) + "," + String(PitchBendLevel) + "," + String(oct1) + "," + String(filterVelSW) + "," + String(oct2) + "," + String(ampVelSW) + "," + String(osc2WaveA)
+         + "," + String(osc1WaveC) + "," + String(modWheelDepth) + "," + String(PitchBendLevel) + "," + String(oct1) + "," + String(filterVelSW) + "," + String(oct2) + "," + String(ampVelSW) + "," + String(osc2WaveA)
          + "," + String(osc2WaveB) + "," + String(osc2WaveC) + "," + String(AfterTouchDest) + "," + String(osc2fmDepth) + "," + String(osc2fmWaveMod) + "," + String(effect1) + "," + String(effect2)
          + "," + String(effect3) + "," + String(mixa) + "," + String(glideSW) + "," + String(lfoDelay) + "," + String(lfoMult) + "," + String(oldampAttack) + "," + String(oldampDecay)
          + "," + String(oldampSustain) + "," + String(oldampRelease) + "," + String(effectBankSW) + "," + String(envLinLogSW) + "," + String(keyboardMode) + "," + String(NotePriority) + "," + String(monoMultiSW)
