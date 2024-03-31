@@ -7,8 +7,6 @@ The FX board and a new menu system has been created to display groups of paramet
 
 Things to do
 
-Add pitchbend over MIDI
-
 Create a front panel.
 
 
