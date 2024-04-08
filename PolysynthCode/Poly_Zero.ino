@@ -256,7 +256,7 @@ void setup() {
 
   //Read Modwheel Depth from EEPROM
   PitchBendLevel = getPitchBendDepth();
-  if (PitchBendLevel < 0 || PitchBendLevel > 2) {
+  if (PitchBendLevel < 0 || PitchBendLevel > 12) {
     storePitchBendDepth(0);
   }
 
@@ -1590,6 +1590,10 @@ void updateeffectBankSW() {
       sr.writePin(EFFECT_BANK, HIGH);
       delay(5);
       break;
+  }
+  if (!recallPatchFlag) {
+  effectNumSW = 0;
+  updateeffectNumSW();
   }
 }
 

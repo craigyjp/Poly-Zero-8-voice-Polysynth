@@ -142,7 +142,7 @@ void setUpSettings() {
   settings::append(settings::SettingsOption{ "MIDI Ch.", { "All", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0" }, settingsMIDICh, currentIndexMIDICh });
   settings::append(settings::SettingsOption{ "MIDI Out Ch.", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0" }, settingsMIDIOutCh, currentIndexMIDIOutCh });
   settings::append(settings::SettingsOption{ "Encoder", { "Type 1", "Type 2", "\0" }, settingsEncoderDir, currentIndexEncoderDir });
-  settings::append(settings::SettingsOption{ "PB Depth", { "Off", "1", "2", "\0" }, settingsPitchBendDepth, currentIndexPitchBendDepth });
+  settings::append(settings::SettingsOption{ "PB Depth", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "\0" }, settingsPitchBendDepth, currentIndexPitchBendDepth });
   settings::append(settings::SettingsOption{ "MW Depth", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "\0" }, settingsModWheelDepth, currentIndexModWheelDepth });
   settings::append(settings::SettingsOption{ "AT Destination", { "Off", "DCO Mod", "CutOff Freq", "VCF Mod", "AM Mod", "\0" }, settingsAfterTouch, currentIndexAfterTouch });
   settings::append(settings::SettingsOption{ "AT Depth", { "Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "\0" }, settingsafterTouchDepth, currentIndexafterTouchDepth });
