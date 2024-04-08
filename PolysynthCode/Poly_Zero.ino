@@ -102,16 +102,16 @@ MIDIDevice midi1(myusb);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial8, MIDI2);
 
-Adafruit_NeoPixel pixel(4, NEOPIXEL_OUTPUT, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixel(4, NEOPIXEL_OUTPUT, NEO_RGB + NEO_KHZ800);
 int colour[][3] = {
   { 100, 0, 0 },  // red
-  { 88, 12, 0 },  // orange
-  { 65, 35, 0 },  // yellow
+  { 88, 25, 0 },  // orange
+  { 50, 50, 0 },  // yellow
   { 0, 100, 0 },  // green
   { 0, 70, 20 },  // cyan
   { 0, 0, 100 },  // blue
-  { 40, 0, 40 },  // magenta
-  { 45, 40, 35 }  // white
+  { 70, 0, 12 },  // magenta
+  { 50, 50, 50 }  // white
 };
 
 #define OCTO_TOTAL 3

@@ -109,9 +109,12 @@ void renderCurrentPatchPage() {
   tft.setTextColor(ST7735_BLUE);
   tft.println(currentPgmNum);
   tft.setCursor(80, 15);
+  tft.setFont(&FreeSans9pt7b);
   tft.setTextSize(2);
   tft.setTextColor(ST7735_WHITE);
   tft.println(currentPatchName);
+  tft.setFont(&FreeSans12pt7b);
+  tft.setTextSize(1);
   tft.drawFastHLine(0, 58, tft.width(), ST7735_RED);
   tft.setTextColor(ST7735_WHITE);
 
