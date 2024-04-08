@@ -9,7 +9,7 @@ The FX board and a new menu system has been created to display groups of paramet
 
 Things to do
 
-Fix PB Range from 1 tone to 1 octave in the menus
+
 
 
 
