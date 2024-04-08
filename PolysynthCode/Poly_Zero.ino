@@ -232,7 +232,7 @@ void setup() {
 
   // set the pitchbend to 0 position
 
-  sample_data = (channel_b & 0xFFF0000F) | (((int(21461)) & 0xFFFF) << 4);
+  sample_data = (channel_b & 0xFFF0000F) | (((int(21431)) & 0xFFFF) << 4);
   outputDAC(DAC_CS1, sample_data);
 
   MIDI2.begin();
@@ -256,7 +256,7 @@ void setup() {
 
   //Read Modwheel Depth from EEPROM
   PitchBendLevel = getPitchBendDepth();
-  if (PitchBendLevel < 0 || PitchBendLevel > 12) {
+  if (PitchBendLevel < 0 || PitchBendLevel > 6) {
     storePitchBendDepth(0);
   }
 
@@ -852,17 +852,77 @@ void myConvertControlChange(byte channel, byte number, byte value) {
 void myPitchBend(byte channel, int bend) {
   switch (PitchBendLevel) {
     case 0:
-      newbend = 21461;
+      newbend = 21431;
       break;
 
     case 1:
-      newbend = map(bend, -8192, 8191, 15040, 27882);
+      newbend = map(bend, -8192, 8191, 20106, 22756);
+      if (newbend <= 20375) {
+        newbend = 20375;
+      }
       break;
 
     case 2:
+      newbend = map(bend, -8192, 8191, 18781, 24081);
+      if (newbend <= 19350) {
+        newbend = 19350;
+      }
+      break;
+
+    case 3:
+      newbend = map(bend, -8192, 8191, 17456, 25406);
+      if (newbend <= 18201) {
+        newbend = 18201;
+      }
+      break;
+
+    case 4:
+      newbend = map(bend, -8192, 8191, 15970, 26892);
+      if (newbend <= 17079) {
+        newbend = 17079;
+      }
+      break;
+
+    case 5:
+      newbend = map(bend, -8192, 8191, 14593, 28269);
+      if (newbend <= 16283) {
+        newbend = 16283;
+      }
+      break;
+
+    case 6:
+      newbend = map(bend, -8192, 8191, 12782, 30078);
+      if (newbend <= 15294) {
+        newbend = 15294;
+      }
+      break;
+
+    case 7:
+      newbend = map(bend, -8192, 8191, 15040, 27882);
+      break;
+
+    case 8:
+      newbend = map(bend, -8192, 8191, 8790, 34133);
+      break;
+
+    case 9:
+      newbend = map(bend, -8192, 8191, 15040, 27882);
+      break;
+
+    case 10:
+      newbend = map(bend, -8192, 8191, 8790, 34133);
+      break;
+
+    case 11:
+      newbend = map(bend, -8192, 8191, 15040, 27882);
+      break;
+
+    case 12:
       newbend = map(bend, -8192, 8191, 8790, 34133);
       break;
   }
+  Serial.print("New Bend ");
+  Serial.println(newbend);
   sample_data = (channel_b & 0xFFF0000F) | (((int(newbend)) & 0xFFFF) << 4);
   outputDAC(DAC_CS1, sample_data);
 }
