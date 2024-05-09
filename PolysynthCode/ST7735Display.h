@@ -534,12 +534,15 @@ void renderCurrentPatchPage() {
       tft.setCursor(160, 130);
       switch (keyboardMode) {
         case 0:
-          tft.print("Poly");
+          tft.print("Poly 1");
           break;
         case 1:
-          tft.print("Mono");
+          tft.print("Poly 2");
           break;
         case 2:
+          tft.print("Mono");
+          break;
+        case 3:
           tft.print("Unison");
           break;
       }

@@ -1,5 +1,5 @@
 /*
-  poly Zero - Firmware Rev 1.1
+  poly Zero - Firmware Rev 1.3
 
   Includes code by:
     Dave Benn - Handling MUXs, a few other bits and original inspiration  https://www.notesandvolts.com/2019/01/teensy-synth-part-10-hardware.html
@@ -38,6 +38,10 @@
 #include "EepromMgr.h"
 #include <RoxMux.h>
 #include <Adafruit_NeoPixel.h>
+#include <map> // Include the map library
+
+// Define a map to store note to voice assignments
+std::map<int, int> voiceAssignment;
 
 #define PARAMETER 0      //The main page for displaying the current patch and control (parameter) changes
 #define RECALL 1         //Patches list
@@ -463,7 +467,9 @@ void myNoteOn(byte channel, byte note, byte velocity) {
   keyTrackMult = keyTrack / 1023;
 
   //Check for out of range notes
-  if (note < 0 || note > 127) return;
+  if (note >= 0 && note <= 127) {
+    voiceAssignment[note] = getVoiceNoPoly2(note) - 1;
+  }
 
   prevNote = note;
   switch (keyboardMode) {
@@ -545,6 +551,83 @@ void myNoteOn(byte channel, byte note, byte velocity) {
       break;
 
     case 1:
+      switch (getVoiceNoPoly2(-1)) {
+        case 1:
+          voices[0].note = note;
+          voices[0].velocity = velocity;
+          voices[0].timeOn = millis();
+          updateVoice1();
+          MIDI2.sendNoteOn(voices[0].note, 127, 1);
+          trig.writePin(GATE_NOTE1, HIGH);
+          voiceOn[0] = true;
+          break;
+        case 2:
+          voices[1].note = note;
+          voices[1].velocity = velocity;
+          voices[1].timeOn = millis();
+          updateVoice2();
+          MIDI2.sendNoteOn(voices[1].note, 127, 2);
+          trig.writePin(GATE_NOTE2, HIGH);
+          voiceOn[1] = true;
+          break;
+        case 3:
+          voices[2].note = note;
+          voices[2].velocity = velocity;
+          voices[2].timeOn = millis();
+          updateVoice3();
+          MIDI2.sendNoteOn(voices[2].note, 127, 3);
+          trig.writePin(GATE_NOTE3, HIGH);
+          voiceOn[2] = true;
+          break;
+        case 4:
+          voices[3].note = note;
+          voices[3].velocity = velocity;
+          voices[3].timeOn = millis();
+          updateVoice4();
+          MIDI2.sendNoteOn(voices[3].note, 127, 4);
+          trig.writePin(GATE_NOTE4, HIGH);
+          voiceOn[3] = true;
+          break;
+        case 5:
+          voices[4].note = note;
+          voices[4].velocity = velocity;
+          voices[4].timeOn = millis();
+          updateVoice5();
+          MIDI2.sendNoteOn(voices[4].note, 127, 5);
+          trig.writePin(GATE_NOTE5, HIGH);
+          voiceOn[4] = true;
+          break;
+        case 6:
+          voices[5].note = note;
+          voices[5].velocity = velocity;
+          voices[5].timeOn = millis();
+          updateVoice6();
+          MIDI2.sendNoteOn(voices[5].note, 127, 6);
+          trig.writePin(GATE_NOTE6, HIGH);
+          voiceOn[5] = true;
+          break;
+        case 7:
+          voices[6].note = note;
+          voices[6].velocity = velocity;
+          voices[6].timeOn = millis();
+          updateVoice7();
+          MIDI2.sendNoteOn(voices[6].note, 127, 7);
+          trig.writePin(GATE_NOTE7, HIGH);
+          voiceOn[6] = true;
+          break;
+        case 8:
+          voices[7].note = note;
+          voices[7].velocity = velocity;
+          voices[7].timeOn = millis();
+          updateVoice8();
+          MIDI2.sendNoteOn(voices[7].note, 127, 8);
+          trig.writePin(GATE_NOTE8, HIGH);
+          voiceOn[7] = true;
+          break;
+      }
+      break;
+
+    case 2:
       noteMsg = note;
 
       if (velocity == 0) {
@@ -569,7 +652,7 @@ void myNoteOn(byte channel, byte note, byte velocity) {
       }
       break;
 
-    case 2:
+    case 3:
       noteMsg = note;
 
       if (velocity == 0) {
@@ -607,6 +690,7 @@ void myNoteOn(byte channel, byte note, byte velocity) {
         commandLastNoteUni();
       }
       break;
+
   }
 }
 
@@ -662,6 +746,51 @@ void myNoteOff(byte channel, byte note, byte velocity) {
       break;
 
     case 1:
+      switch (getVoiceNoPoly2(note)) {
+        case 1:
+          trig.writePin(GATE_NOTE1, LOW);
+          voices[0].note = -1;
+          voiceOn[0] = false;
+          break;
+        case 2:
+          trig.writePin(GATE_NOTE2, LOW);
+          voices[1].note = -1;
+          voiceOn[1] = false;
+          break;
+        case 3:
+          trig.writePin(GATE_NOTE3, LOW);
+          voices[2].note = -1;
+          voiceOn[2] = false;
+          break;
+        case 4:
+          trig.writePin(GATE_NOTE4, LOW);
+          voices[3].note = -1;
+          voiceOn[3] = false;
+          break;
+        case 5:
+          trig.writePin(GATE_NOTE5, LOW);
+          voices[4].note = -1;
+          voiceOn[4] = false;
+          break;
+        case 6:
+          trig.writePin(GATE_NOTE6, LOW);
+          voices[5].note = -1;
+          voiceOn[5] = false;
+          break;
+        case 7:
+          trig.writePin(GATE_NOTE7, LOW);
+          voices[6].note = -1;
+          voiceOn[6] = false;
+          break;
+        case 8:
+          trig.writePin(GATE_NOTE8, LOW);
+          voices[7].note = -1;
+          voiceOn[7] = false;
+          break;
+      }
+      break;
+
+    case 2:
       noteMsg = note;
 
       if (velocity == 0 || velocity == 64) {
@@ -687,7 +816,7 @@ void myNoteOff(byte channel, byte note, byte velocity) {
       }
       break;
 
-    case 2:
+    case 3:
       noteMsg = note;
 
       if (velocity == 0 || velocity == 64) {
@@ -725,8 +854,53 @@ void myNoteOff(byte channel, byte note, byte velocity) {
         commandLastNoteUni();
       }
       break;
+
   }
 }
+
+int getVoiceNoPoly2(int note) {
+  voiceToReturn = -1;       // Initialize to 'null'
+  earliestTime = millis();  // Initialize to now
+
+  if (note == -1) {
+    // NoteOn() - Get the oldest free voice (recent voices may still be on the release stage)
+    if (voices[lastUsedVoice].note == -1) {
+      return lastUsedVoice + 1;
+    }
+
+    // If the last used voice is not free or doesn't exist, check if the first voice is free
+    if (voices[0].note == -1) {
+      return 1;
+    }
+
+    // Find the lowest available voice for the new note
+    for (int i = 0; i < NO_OF_VOICES; i++) {
+      if (voices[i].note == -1) {
+        return i + 1;
+      }
+    }
+
+    // If no voice is available, release the oldest note
+    int oldestVoice = 0;
+    for (int i = 1; i < NO_OF_VOICES; i++) {
+      if (voices[i].timeOn < voices[oldestVoice].timeOn) {
+        oldestVoice = i;
+      }
+    }
+    return oldestVoice + 1;
+  } else {
+    // NoteOff() - Get the voice number from the note
+    for (int i = 0; i < NO_OF_VOICES; i++) {
+      if (voices[i].note == note) {
+        return i + 1;
+      }
+    }
+  }
+
+  // Shouldn't get here, return voice 1
+  return 1;
+}
+
 
 int getVoiceNo(int note) {
   voiceToReturn = -1;       //Initialise to 'null'
@@ -1517,22 +1691,28 @@ void updatekeyboardMode() {
   parameterGroup = 5;
   switch (keyboardMode) {
     case 0:
-      srp.writePin(POLY_MODE_RED_LED, HIGH);
+      srp.writePin(POLY_MODE_RED_LED, LOW);
       srp.writePin(POLY_MODE_GREEN_LED, LOW);
       allNotesOff();
       break;
 
     case 1:
+      srp.writePin(POLY_MODE_RED_LED, HIGH);
+      srp.writePin(POLY_MODE_GREEN_LED, LOW);
+      allNotesOff();
+      break;
+
+    case 2:
       srp.writePin(POLY_MODE_RED_LED, LOW);
       srp.writePin(POLY_MODE_GREEN_LED, HIGH);
       allNotesOff();
       break;
 
-    case 2:
+    case 3:
       srp.writePin(POLY_MODE_RED_LED, HIGH);
       srp.writePin(POLY_MODE_GREEN_LED, HIGH);
       allNotesOff();
-      break;
+      break;  
   }
 }
 
@@ -2908,7 +3088,7 @@ void onButtonPress(uint16_t btnIndex, uint8_t btnType) {
 
   if (btnIndex == POLYMODE_SW && btnType == ROX_PRESSED) {
     keyboardMode = keyboardMode + 1;
-    if (keyboardMode > 2) {
+    if (keyboardMode > 3) {
       keyboardMode = 0;
     }
     myControlChange(midiChannel, CCkeyboardMode, keyboardMode);

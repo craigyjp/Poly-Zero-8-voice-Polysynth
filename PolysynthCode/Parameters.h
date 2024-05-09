@@ -5,7 +5,9 @@ int noteMsg;
 unsigned int velmV;
 int readRes = 1023;
 int parameterGroup = 0;
-
+int lastPlayedNote = -1;  // Track the last note played
+int lastPlayedVoice = 0;  // Track the voice of the last note played
+int lastUsedVoice = 0; // Global variable to store the last used voice
 
 //Values below are just for initialising and will be changed when synth is initialised to current panel controls & EEPROM settings
 byte midiChannel = MIDI_CHANNEL_OMNI;//(EEPROM)
