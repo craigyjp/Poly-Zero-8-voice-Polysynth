@@ -1095,8 +1095,6 @@ void myPitchBend(byte channel, int bend) {
       newbend = map(bend, -8192, 8191, 8790, 34133);
       break;
   }
-  Serial.print("New Bend ");
-  Serial.println(newbend);
   sample_data = (channel_b & 0xFFF0000F) | (((int(newbend)) & 0xFFFF) << 4);
   outputDAC(DAC_CS1, sample_data);
 }
@@ -1120,10 +1118,7 @@ void myAfterTouch(byte channel, byte value) {
       break;
 
     case 2:
-      filterCutoff = (filterCutoff + afterTouch);
-      if (afterTouch <= 8) {
-        filterCutoff = oldfilterCutoff;
-      }
+      afterTouch = map(afterTouch, 0, 1023, filterCutoff, 1023);
       break;
 
     case 3:
@@ -2876,8 +2871,11 @@ void writeDemux() {
       sample_data1 = (channel_a & 0xFFF0000F) | (((int(LFOMultCV * DACMULT)) & 0xFFFF) << 4);
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_1, LOW);
-
+    if (AfterTouchDest == 2 && afterTouch > 0 ) {
+      sample_data1 = (channel_c & 0xFFF0000F) | (((int(afterTouch * DACMULT)) & 0xFFFF) << 4);
+    } else {
       sample_data1 = (channel_c & 0xFFF0000F) | (((int(filterCutoff * DACMULT)) & 0xFFFF) << 4);
+    }
       outputDAC(DAC_CS1, sample_data1);
       digitalWriteFast(DEMUX_EN_2, LOW);
       break;
